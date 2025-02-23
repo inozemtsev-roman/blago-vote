@@ -3,9 +3,10 @@ import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
-export const APP_NAME = "TON VOTE";
+export const APP_NAME = "Голос";
 
-export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
+export const manifestUrl =
+  "https://vote.gradosphera.org/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
@@ -22,9 +23,10 @@ export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const VERIFY_LINK =
-  "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
+  "https://github.com/gradosphera/blago-vote?tab=readme-ov-file#how-can-you-verify-the-results";
 
-export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
+export const GITHUB_URL = "https://github.com/gradosphera";
+export const MULTISIG_URL = "https://multisig.gradosphera.org";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
 export enum QueryKeys {
@@ -109,57 +111,57 @@ export const TX_FEES = {
 };
 
 export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
-  [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
+  [VotingPowerStrategyType.TonBalance]: { name: "Баланс TON", args: [] },
   [VotingPowerStrategyType.TonBalanceWithValidators]: {
-    name: "TON coin balance, with validators",
+    name: "Баланс TON с балансом у валидатора",
   },
   [VotingPowerStrategyType.JettonBalance]: {
-    name: "Jetton balance",
+    name: "Баланс жетонов",
     args: [
       {
         type: "text",
-        label: "Jetton address",
-        tooltip: "The address of the Jetton",
+        label: "Адрес жетона",
+        tooltip: "Адрес мастер-контракта жетона",
         required: true,
         name: "jetton-address",
       },
     ],
   },
   [VotingPowerStrategyType.NftCcollection]: {
-    name: "Number of owned NFTs",
+    name: "Количество NFT",
     args: [
       {
         type: "text",
-        label: "NFT collection address",
-        tooltip: "The address of the NFT collection",
+        label: "Адрес NFT коллекции",
+        tooltip: "Адрес NFT коллекции",
         required: true,
         name: "nft-address",
       },
     ],
   },
   [VotingPowerStrategyType.TonBalance_1Wallet1Vote]: {
-    name: "TON coin balance, 1 wallet 1 vote",
+    name: "Баланс TON, 1 кошелек 1 голос",
     args: [],
   },
   [VotingPowerStrategyType.JettonBalance_1Wallet1Vote]: {
-    name: "Jetton balance, 1 wallet 1 vote",
+    name: "Баланс жетонов, 1 кошелек 1 голос",
     args: [
       {
         type: "text",
-        label: "Jetton address",
-        tooltip: "The address of the Jetton",
+        label: "Адрес жетона",
+        tooltip: "Адрес мастер-контракта жетона",
         required: true,
         name: "jetton-address",
       },
     ],
   },
   [VotingPowerStrategyType.NftCcollection_1Wallet1Vote]: {
-    name: "Number of owned NFTs, 1 wallet 1 vote",
+    name: "Количество NFT, 1 кошелек 1 голосe",
     args: [
       {
         type: "text",
-        label: "NFT collection address",
-        tooltip: "The address of the NFT collection",
+        label: "Адрес NFT коллекции",
+        tooltip: "Адрес NFT коллекции",
         required: true,
         name: "nft-address",
       },
@@ -172,7 +174,8 @@ export const STRATEGY_ARGUMENTS = [
   { name: "nft", key: "nft-address" },
 ];
 
-export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
+export const TELEGRAM_SUPPORT_GROUP =
+  "https://t.me/dao_gradosphera_support_bot";
 export const PROD_TEST_DAOS: string[] = [];
 
 export const REFETCH_INTERVALS = {
