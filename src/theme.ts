@@ -50,8 +50,8 @@ export const darkTheme = createTheme({
   palette: {
     mode: "dark",
     background: {
-      default: "#222830",
-      paper: "#222830",
+      default: "#1E2337",
+      paper: "#1E2337",
     },
     error: {
       main: "#d32f2f",
