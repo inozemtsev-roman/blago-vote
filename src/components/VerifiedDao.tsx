@@ -14,7 +14,7 @@ export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
     <AppTooltip
       text={
         <>
-          Verified space. <br /> This space proved ownership of his domain
+          Верифицированное пространство. <br /> Это пространство подтвердило право собственности на свой домен.
         </>
       }
     >
