@@ -62,14 +62,14 @@ export const useCreateProposalForm = (
           name: "votingChoices",
           required: true,
           tooltip: translations.tooltips.votingChoices,
-          limit: 64
+          limit: 64,
         },
       ],
     };
 
     const duration = invalidDuration
       ? ""
-      : `${days} days ${hours ? `and ${hours} hours` : ""} `;
+      : `${days} дн. ${hours ? `и ${hours} час.` : ""} `;
 
     const votingPeriod: FormArgs<ProposalForm> = {
       title: translations.votingPeroid,
@@ -105,10 +105,10 @@ export const useCreateProposalForm = (
           text: duration ? `${translations.proposalDuration} ${duration}` : "",
         },
         {
-          label: "Hide",
+          label: "Скрыть",
           type: "checkbox",
           name: "hide",
-          tooltip: "Hide proposal from public view",
+          tooltip: "Скрыть предложение из открытого доступа",
         },
       ],
     };
