@@ -35,12 +35,12 @@ export function Socials({
       <Social tooltip="GitHub" url={github} icon={<AiFillGithub size={23} />} />
       <Social tooltip="Website" url={website} icon={<BsGlobe size={20} />} />
       <Social
-        tooltip="White paper"
+        tooltip="Техническая бумага"
         url={whitepaper}
         icon={<IoNewspaperOutline size={20} />}
       />
       <Social
-        tooltip="About"
+        tooltip="О платформе"
         url={about}
         icon={<BsInfoCircleFill size={20} />}
       />

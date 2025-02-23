@@ -15,11 +15,11 @@ interface IForm {
 
 const useForm = (): FormArgs<IForm> => {
   return {
-    title: "Dao Admin Settings",
+    title: "Настройки администратора ДАО",
     inputs: [
       {
         name: "fwdMsgFee",
-        label: "Forward Message Fee",
+        label: "Плата за голос",
         type: "number",
         EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
       },
@@ -79,7 +79,7 @@ export const EndAdornment = ({
   return (
     <StyledEndAdornment>
       <Button onClick={onSubmit} isLoading={isLoading}>
-        <Typography>Update</Typography>
+        <Typography>Обновить</Typography>
       </Button>
     </StyledEndAdornment>
   );

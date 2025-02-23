@@ -88,7 +88,7 @@ export function CreateDaoStep() {
           </>
         </StyledInputs>
         <StyledCheckboxInput
-          title="Create DAO space also on dev.ton.vote. [Read mode](https://github.com/orbs-network/ton-vote/blob/main/README.md)"
+          title=""
           value={createOnDev}
           onChange={(value) => setCreateOnDev(value)}
         />

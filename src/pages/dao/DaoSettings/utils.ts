@@ -3,7 +3,6 @@ import { MetadataArgs } from "ton-vote-contracts-sdk";
 import { DaoMetadataForm } from "types";
 import { isZeroAddress, parseLanguage } from "utils";
 
-
 export const getInitialValues = (metadata?: MetadataArgs) => {
   return {
     name: metadata?.name || "",

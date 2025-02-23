@@ -20,19 +20,16 @@ export function Toolbar() {
   const devFeatures = useDevFeatures();
   const mobile = useMobile();
   const theme = useTheme();
+  const { createSpace } = useAppNavigation();
   if (mobile) return null;
 
   return (
     <StyledToolbar>
       <StyledFlexColumn gap={20}>
         <DevParametersModal />
-        <AppTooltip text="Create a new space for your DAO" placement="right">
+        <AppTooltip text="Создать новое пространство для вашего ДАО" placement="right">
           <StyledButton
-            onClick={() =>
-              devFeatures
-                ? navigation.createSpace.root()
-                : window.open(TELEGRAM_SUPPORT_GROUP, "_blank")
-            }
+            onClick={createSpace.root}
             variant="transparent"
           >
             <AiOutlinePlus />
@@ -40,7 +37,7 @@ export function Toolbar() {
         </AppTooltip>
       </StyledFlexColumn>
       <UserDaos />
-      <StyledSupportTooltip placement="right" text="Telegram support group">
+      <StyledSupportTooltip placement="right" text="Служба поддержки">
         <StyledSupport
           variant="transparent"
           onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_target")}

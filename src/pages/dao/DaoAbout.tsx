@@ -14,7 +14,7 @@ export function DaoAbout() {
   const translations = useCommonTranslations();
 
   return (
-    <LayoutSection title="About">
+    <LayoutSection title="Описание ДАО">
       <DaoDescription />
       <StyledTitleContainer
         title={translations.administrators}

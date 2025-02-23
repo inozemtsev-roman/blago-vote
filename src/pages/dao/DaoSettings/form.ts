@@ -1,16 +1,21 @@
 import { useDaoMetadataInputs, useDaoRolesInputs } from "forms/dao-form";
-import { DaoMetadataForm, DaoRolesForm, FormArgs, FormikInputEndAdorment } from "types";
+import {
+  DaoMetadataForm,
+  DaoRolesForm,
+  FormArgs,
+  FormikInputEndAdorment,
+} from "types";
 
 export const useMetadataForm = (): FormArgs<DaoMetadataForm> => {
   const inputs = useDaoMetadataInputs();
 
   return {
-    title: "Metadata",
+    title: "Метаданные",
     subTitle: "",
     inputs: [
       ...inputs,
       {
-        label: "Hide DAO",
+        label: "Скрыть ДАО",
         name: "hide",
         type: "checkbox",
       },
@@ -23,8 +28,8 @@ export const useRolesForm = (
 ): FormArgs<DaoRolesForm> => {
   const inputs = useDaoRolesInputs(EndAdornment);
   return {
-    title: "Roles",
+    title: "Роли",
     subTitle: "",
-   inputs
+    inputs,
   };
 };

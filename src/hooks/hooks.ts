@@ -269,7 +269,7 @@ export const useProposalResults = (proposalAddress: string) => {
     );
 
     return _.map(choices, (choice, index) => {
-      const result = getproposalResult(proposal, choice.substring(0, 127));      
+      const result = getproposalResult(proposal, choice.substring(0, 127));
       const percent = result || 0;
 
       const amount = getProposalResultTonAmount(
@@ -374,15 +374,15 @@ export const useProposalStrategyName = (proposalAddress: string) => {
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
       case VotingPowerStrategyType.TonBalanceWithValidators:
-        return "TON Balance";
+        return "Баланс TON";
       case VotingPowerStrategyType.JettonBalance:
-        return "Jetton Balance";
+        return "Баланс жетонов";
       case VotingPowerStrategyType.NftCcollection:
-        return "NFT Collection";
+        return "NFT коллекция";
       case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       case VotingPowerStrategyType.NftCcollection_1Wallet1Vote:
       case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
-        return "1 wallet 1 vote";
+        return "1 кошелек 1 голос";
 
       default:
         break;
