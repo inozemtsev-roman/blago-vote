@@ -8,7 +8,7 @@ export function AppSocials({ className }: { className?: string }) {
     <Socials
       className={className}
       telegram={TELETGRAM_URL}
-      whitepaper={WHITEPAPER_URL}
+   // whitepaper={WHITEPAPER_URL}
       about={ABOUT_URL}
       github={GITHUB_URL}
     />
