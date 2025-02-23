@@ -68,7 +68,6 @@ export const useCreateDaoQuery = () => {
       const clientV2 = await getClientV2();
 
       let getPromise = () => {
-        
         if (args.dev && !IS_DEV) {
           const txFee = createDaoProdFee + createDaoDevFee;
 
@@ -103,7 +102,7 @@ export const useCreateDaoQuery = () => {
 
       if (typeof address !== "string") {
         throw new Error(
-          `Failed to create dao, contact [support](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка создания ДАО, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
         );
       }
 
@@ -118,7 +117,7 @@ export const useCreateDaoQuery = () => {
         appNavigation.daoPage.root(address);
         addDao(address);
         analytics.createSpaceSuccess(args.metadataAddress, address);
-        showSuccessToast(`Space created successfully`);
+        showSuccessToast(`Пространство успешно создано`);
         args.onSuccess();
       },
     }
@@ -145,7 +144,7 @@ export const useCreateMetadataQuery = () => {
 
       if (typeof address !== "string") {
         throw new Error(
-          `Failed to create space metadata. \n contact [support](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка обновления метаданных. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
         );
       }
 
@@ -186,7 +185,7 @@ export const useCreateProposalQuery = () => {
       const { metadata } = args;
       const sender = getSender();
       if (!allowed) {
-        throw new Error("You are not allowed to create a proposal");
+        throw new Error("Вы не можете создать предложение");
       }
       const address = await newProposal(
         sender,
@@ -198,7 +197,7 @@ export const useCreateProposalQuery = () => {
 
       if (typeof address !== "string") {
         throw new Error(
-          `Failed to create proposal. \n contact [support](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка при создании предложения. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
         );
       }
 
@@ -217,7 +216,7 @@ export const useCreateProposalQuery = () => {
           args.metadata as ProposalMetadata,
           address
         );
-        showSuccessToast("Proposal created successfully");
+        showSuccessToast("Предложение успешно создано");
         args.onSuccess(address);
       },
     }
@@ -240,10 +239,10 @@ export const useSetDaoOwnerQuery = () => {
       onError: (value: string) => void;
     }) => {
       if (!newOwner) {
-        throw new Error("Owner address is required");
+        throw new Error("Требуется адрес основателя");
       }
       if (!validateAddress(newOwner)) {
-        throw new Error("Invalid owner address");
+        throw new Error("Неправильный адрес основателя");
       }
       const clientV2 = await getClientV2();
       await daoSetOwner(
@@ -259,7 +258,7 @@ export const useSetDaoOwnerQuery = () => {
     {
       onError: (error, args) => {
         errorToast(error);
-        args.onError("Failed to set new owner");
+        args.onError("Ошибка при смене основателя");
       },
     }
   );
@@ -281,10 +280,10 @@ export const useSetDaoPublisherQuery = () => {
       onError: (value: string) => void;
     }) => {
       if (!newOwner) {
-        throw new Error("Proposal owner address is required");
+        throw new Error("Требуется адрес владельца предложения");
       }
       if (!validateAddress(newOwner)) {
-        throw new Error("Invalid proposal owner address");
+        throw new Error("Неправильный адрес основателя");
       }
 
       const clientV2 = await getClientV2();
@@ -333,7 +332,7 @@ export const useUpdateDaoMetadataQuery = () => {
       );
 
       if (typeof metadataAddress !== "string") {
-        throw new Error("Failed to update metadata");
+        throw new Error("Не удалось обновить метаданные");
       }
 
       const address = await setMetadata(
@@ -345,7 +344,7 @@ export const useUpdateDaoMetadataQuery = () => {
       );
 
       if (typeof address !== "string") {
-        throw new Error("Failed to update metadata");
+        throw new Error("Ошибка обновления метаданных");
       }
       return address;
     },
@@ -359,7 +358,7 @@ export const useUpdateDaoMetadataQuery = () => {
         );
       },
       onSuccess: (_, args) => {
-        showSuccessToast("Metadata updated");
+        showSuccessToast("Метаданные обновлены");
         setDaoUpdateMillis(args.daoAddress);
         refetchDaos();
         refetchUpdatedDao();
@@ -384,7 +383,7 @@ export const useVote = () => {
   return useMutation(
     async (_vote: string) => {
       if (!proposal) {
-        throw new Error("Proposal not found");
+        throw new Error("Предложение не найдено");
       }
       setIsVoting(true);
       const sender = getSender();
@@ -404,10 +403,10 @@ export const useVote = () => {
     {
       onSuccess: (values, _vote) => {
         analytics.voteSuccess(proposalAddress, _vote);
-        showSuccessToast(`Voted ${_vote} successfully`);
+        showSuccessToast(`Голос за ${_vote} подтвержден`);
         if (!values) {
           throw new Error(
-            `You voted ${_vote} successfully, but we failed to update results, [support](${TELEGRAM_SUPPORT_GROUP})`
+            `Вы успешно проголосовали за ${_vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
           );
         }
 
@@ -429,7 +428,7 @@ export const useVote = () => {
         );
 
         Logger(
-          `vote success manually updating proposal query, and setting local storage`
+          `успешное голосование вручную обновляет запрос предложения и настраивает локальное хранилище`
         );
         Logger(maxLt, "maxLt");
         Logger(vote, "walletVote");

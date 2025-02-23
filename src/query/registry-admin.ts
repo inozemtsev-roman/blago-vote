@@ -23,7 +23,7 @@ const useRegistryAdminPromise = () => {
   return async <T>(method: () => T) => {
     const state = data || (await refetch()).data;
     if (state?.admin !== address) {
-      throw new Error("You are not the registry admin");
+      throw new Error("Вы не являетесь администратором регистратора");
     }
     return method();
   };
