@@ -268,8 +268,8 @@ const useNavigationLinks = () => {
 };
 
 const options = [
-  { name: "website", title: "Project website" },
-  { name: "telegram", title: "Telegram group" },
+  { name: "website", title: "Вебсайт проекта" },
+  { name: "telegram", title: "Группа в Telegram" },
   { name: "github", title: "GitHub" },
 ];
 const useDaoSocials = () => {

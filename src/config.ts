@@ -3,9 +3,10 @@ import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
 export const TONSCAN = "https://tonscan.org";
 export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
-export const APP_NAME = "TON VOTE";
+export const APP_NAME = "Голос";
 
-export const manifestUrl = "https://ton.vote/tonconnect-manifest.json";
+export const manifestUrl =
+  "https://vote.gradosphera.org/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
@@ -22,9 +23,10 @@ export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
 
 export const VERIFY_LINK =
-  "https://github.com/orbs-network/dao-vote#how-can-you-verify-the-results";
+  "https://github.com/gradosphera/blago-vote?tab=readme-ov-file#how-can-you-verify-the-results";
 
-export const GITHUB_URL = "https://github.com/orbs-network/dao-vote";
+export const GITHUB_URL = "https://github.com/gradosphera";
+export const MULTISIG_URL = "https://multisig.gradosphera.org";
 export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
 
 export enum QueryKeys {
@@ -86,7 +88,8 @@ export const VERIFIED_DAOS = [
   "EQAk1OALwQY5zG7ugmio1gLJWvuyVCAIPJ-hztv2XOEmbdic",
   "EQC1CPNQ9rTQ8S7hHMIgMYLYWFha_PgKeeueRf6NuCqWaXpS",
   "EQB7PgREXjf7OX9snt5a2ZBbCAPV-7jZoLmmEw4GZ38J8Qbs",
-  "EQBjc5x7yY4XaB4br1n2fOfw3XwrNN5IckvkQHb4vTH8YgTv"
+  "EQBjc5x7yY4XaB4br1n2fOfw3XwrNN5IckvkQHb4vTH8YgTv",
+  "EQDExlp6EjkVN-OJ1ZcGLEYlITaold5ytBP3e8g6g_BIRaZX",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING
@@ -108,57 +111,57 @@ export const TX_FEES = {
 };
 
 export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
-  [VotingPowerStrategyType.TonBalance]: { name: "TON coin balance", args: [] },
+  [VotingPowerStrategyType.TonBalance]: { name: "Баланс TON", args: [] },
   [VotingPowerStrategyType.TonBalanceWithValidators]: {
-    name: "TON coin balance, with validators",
+    name: "Баланс TON с балансом у валидатора",
   },
   [VotingPowerStrategyType.JettonBalance]: {
-    name: "Jetton balance",
+    name: "Баланс жетонов",
     args: [
       {
         type: "text",
-        label: "Jetton address",
-        tooltip: "The address of the Jetton",
+        label: "Адрес жетона",
+        tooltip: "Адрес мастер-контракта жетона",
         required: true,
         name: "jetton-address",
       },
     ],
   },
   [VotingPowerStrategyType.NftCcollection]: {
-    name: "Number of owned NFTs",
+    name: "Количество NFT",
     args: [
       {
         type: "text",
-        label: "NFT collection address",
-        tooltip: "The address of the NFT collection",
+        label: "Адрес NFT коллекции",
+        tooltip: "Адрес NFT коллекции",
         required: true,
         name: "nft-address",
       },
     ],
   },
   [VotingPowerStrategyType.TonBalance_1Wallet1Vote]: {
-    name: "TON coin balance, 1 wallet 1 vote",
+    name: "Баланс TON, 1 кошелек 1 голос",
     args: [],
   },
   [VotingPowerStrategyType.JettonBalance_1Wallet1Vote]: {
-    name: "Jetton balance, 1 wallet 1 vote",
+    name: "Баланс жетонов, 1 кошелек 1 голос",
     args: [
       {
         type: "text",
-        label: "Jetton address",
-        tooltip: "The address of the Jetton",
+        label: "Адрес жетона",
+        tooltip: "Адрес мастер-контракта жетона",
         required: true,
         name: "jetton-address",
       },
     ],
   },
   [VotingPowerStrategyType.NftCcollection_1Wallet1Vote]: {
-    name: "Number of owned NFTs, 1 wallet 1 vote",
+    name: "Количество NFT, 1 кошелек 1 голосe",
     args: [
       {
         type: "text",
-        label: "NFT collection address",
-        tooltip: "The address of the NFT collection",
+        label: "Адрес NFT коллекции",
+        tooltip: "Адрес NFT коллекции",
         required: true,
         name: "nft-address",
       },
@@ -171,7 +174,8 @@ export const STRATEGY_ARGUMENTS = [
   { name: "nft", key: "nft-address" },
 ];
 
-export const TELEGRAM_SUPPORT_GROUP = "https://t.me/TONVoteSupportGroup/82";
+export const TELEGRAM_SUPPORT_GROUP =
+  "https://t.me/dao_gradosphera_support_bot";
 export const PROD_TEST_DAOS: string[] = [];
 
 export const REFETCH_INTERVALS = {
@@ -191,9 +195,9 @@ export const BLACKLISTED_DAOS = [
   "EQBA4-38O2z4KYhh0H2543cn7VnomsdVq2h7KBnhQvwqRf9R",
   "EQArg7OZrwgcjIcEbIBZeX_P_Dh2hVTZwaDumvK615_HG--r",
   "EQBDk9Pg0UZsDTMSX0Q7vZkaPn6tdM44f2DUi6-HnnY4Pfre",
-  "EQDVAAlbnYXpS7yNHfK27lhZa5RWS9_ZjIwBF-hqOYZm_qAK"
+  "EQDVAAlbnYXpS7yNHfK27lhZa5RWS9_ZjIwBF-hqOYZm_qAK",
 ];
 export const BLACKLISTED_PROPOSALS = [
   "EQAGgwt5WA6fBcD_OgEKXOEDLjto5X9SyOmOP-NOrn19sxtZ",
-  "EQCHZNmiqQvgbToCjuqwGJuiw7OEbQYuY6T5Wv4dNnYeZ8XW"
+  "EQCHZNmiqQvgbToCjuqwGJuiw7OEbQYuY6T5Wv4dNnYeZ8XW",
 ];

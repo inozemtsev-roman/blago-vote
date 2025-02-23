@@ -101,13 +101,13 @@ export const getTimeDiff = (value: number, reverse?: boolean) => {
   const minutes = from.diff(to, "minutes");
 
   if (days > 0) {
-    return days === 1 ? "1 day" : `${days} days`;
+    return days === 1 ? "1 день" : `${days} дн.`;
   }
   if (hours > 0) {
-    return hours === 1 ? "1 hour" : `${hours} hours`;
+    return hours === 1 ? "1 час" : `${hours} час.`;
   }
 
-  return minutes === 1 ? "1 minute" : `${minutes} minutes`;
+  return minutes === 1 ? "1 минута" : `${minutes} мин.`;
 };
 
 export const getProposalStatus = (

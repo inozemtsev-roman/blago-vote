@@ -48,7 +48,7 @@
     "emptyProposals": "No proposals found",
     "endedAndDidntPassedQuorum": "Proposal ended and did not pass the minimum required quorum",
     "proposalEnded": "Ended {{value}} ago",
-    "spaceNotFound" : "Space not found",
+    "spaceNotFound": "Space not found",
     "settings": "Settings"
   },
   "daosPage": {
@@ -59,7 +59,7 @@
   },
   "createDao": {
     "gettingStarted": "Getting Started",
-    "gettingStartedBody": "TON.vote is a completely decentralized on-chain DAO governance platform built exclusively for the TON ecosystem. /n Setting up a space for a DAO is free but requires submitting 2 transactions: /n 1. Space Metadata (DAO name, description, logo, socials) /n 2. Space Administrators (space owner and proposal publisher) /n Every transaction deploys a smart contract on TON blockchain mainnet. Both transactions cost about 1 TON in gas fees. /n Any future changes to one of the above will require submitting an update transaction. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/TONVoteSupportGroup).",
+    "gettingStartedBody": "TON.vote is a completely decentralized on-chain DAO governance platform built exclusively for the TON ecosystem. /n Setting up a space for a DAO is free but requires submitting 2 transactions: /n 1. Space Metadata (DAO name, description, logo, socials) /n 2. Space Administrators (space owner and proposal publisher) /n Every transaction deploys a smart contract on TON blockchain mainnet. Both transactions cost about 1 TON in gas fees. /n Any future changes to one of the above will require submitting an update transaction. /n Need help? Join the TON.vote Telegram [support channel](https://t.me/dao_gradosphera_support_bot).",
     "spaceMetadata": "Space Metadata",
     "editWarning": "Edits will require to sign a transaction in your wallet",
     "spaceAdministrators": "Space Administrators",
@@ -83,6 +83,7 @@
     "jetton": "Project jetton",
     "nft": "Project NFT collection",
     "website": "Project website URL",
+    "multisig": "Multisig address",
     "telegramGroup": "Project Telegram group",
     "github": "Project GitHub URL",
     "ownerAddress": "Owner Address",
@@ -94,8 +95,8 @@
       "tonDNS": "If you own a [TON DNS](https://dns.ton.org/) domain name, enter it to prove the space's authenticity. For example: foundation.ton",
       "jetton": "Does the DAO revolve around a fungible Jetton token that all members hold? If so, place the TON contract address of the Jetton master contract.",
       "nft": "Does the DAO revolve around an NFT that all all members hold? If so, place the TON contract address of the NFT master contract.",
-      "owner":"The owner of the space, can change metadata and update admins. Can be a multi-sig contract.",
-      "proposalPublisher":"The address that can publish new proposals for vote. Can be a multi-sig contract or a multi-owner contract."
+      "owner": "The owner of the space, can change metadata and update admins. Can be a multi-sig contract.",
+      "proposalPublisher": "The address that can publish new proposals for vote. Can be a multi-sig contract or a multi-owner contract."
     },
     "errors": {
       "logoURL1": "Logo URL must be https",
@@ -103,7 +104,8 @@
       "tonDNS": "TON DNS must end with .ton",
       "github": "Invalid Github URL",
       "telegram": "Telegram group should start with https://t.me",
-      "website": "invalid Website URL"
+      "website": "invalid Website URL",
+      "multisig": "invalid multisig URL"
     }
   },
   "common": {
@@ -135,10 +137,10 @@
     "close": "Close",
     "connectWallet": "Connect Wallet",
     "next": "Next",
-    "transactionRejected":"User rejected the transaction",
-    "somethingWentWrong":"Something went wrong",
-    "txPending":"Transaction pending",
-    "checkWalletForTx":"Check wallet for transaction"
+    "transactionRejected": "User rejected the transaction",
+    "somethingWentWrong": "Something went wrong",
+    "txPending": "Transaction pending",
+    "checkWalletForTx": "Check wallet for transaction"
   },
   "createProposal": {
     "votingParameters": "Voting Parameters",

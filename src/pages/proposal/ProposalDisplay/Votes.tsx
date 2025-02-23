@@ -55,7 +55,7 @@ const ContainerHeader = () => {
       <StyledChip
         label={
           <>
-            <NumberDisplay value={votesLength} /> votes
+            <NumberDisplay value={votesLength} /> голосов
           </>
         }
       />

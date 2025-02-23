@@ -1,8 +1,8 @@
 import i18n from "i18next";
 import { initReactI18next } from "react-i18next";
-import en from './en.json'
+import en from "./en.json";
 import ru from "./ru.json";
-import LocalStorageBackend from 'i18next-localstorage-backend'; // primary use cache
+import LocalStorageBackend from "i18next-localstorage-backend"; // primary use cache
 import ChainedBackend from "i18next-chained-backend";
 import HttpBackend from "i18next-http-backend";
 import LngDetector from "i18next-browser-languagedetector";
@@ -16,7 +16,7 @@ i18n
       en,
       ru,
     },
-    fallbackLng: "en",
+    fallbackLng: "ru",
     // backend: {
     //   backends: [LocalStorageBackend, HttpBackend],
     //   backendOptions: [
@@ -33,9 +33,8 @@ i18n
     },
   });
 
-
-  export interface Translation {
-    translation: {
-      selectWallet: string;
-    };
-  }
+export interface Translation {
+  translation: {
+    selectWallet: string;
+  };
+}

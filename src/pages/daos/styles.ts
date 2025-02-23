@@ -3,28 +3,26 @@ import { Button, Container, Img, Search } from "components";
 import { MOBILE_WIDTH } from "consts";
 import { StyledFlexRow } from "styles";
 
-
 export const StyledDaoContent = styled(Container)({
   display: "flex",
   flexDirection: "column",
   borderRadius: 13,
-  height:'100%',
+  height: "100%",
   padding: 20,
-  position:'relative'
+  position: "relative",
 });
- 
+
 export const StyledJoinDao = styled(Button)({
   minWidth: "60%",
 });
 
 export const StyledDaoAvatar = styled(Img)({
-  width: 55,
-  height: 55,
+  width: 80,
+  height: 80,
   borderRadius: "50%",
   overflow: "hidden",
   marginBottom: 20,
 });
-
 
 export const StyledDao = styled(Box)(({ theme }) => ({
   width: "calc(100% / 4 - 15px)",
@@ -42,16 +40,16 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     color: theme.typography.h2.color,
   },
   ".website": {
-    marginLeft: 'auto',
-    marginRight: 'auto',
-    width:'fit-content',
+    marginLeft: "auto",
+    marginRight: "auto",
+    width: "fit-content",
     background: "transparent",
     border: "none",
     cursor: "pointer",
     borderBottom: "1px solid transparent",
     transition: "0.2s all",
     padding: 0,
-    marginTop: 'auto',
+    marginTop: "auto",
     p: {
       fontSize: 14,
       fontWeight: 600,
@@ -104,11 +102,10 @@ export const StyledDao = styled(Box)(({ theme }) => ({
 export const StyledHeader = styled(StyledFlexRow)({
   justifyContent: "space-between",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-   flexDirection:'column',
-   alignItems:'flex-start',
+    flexDirection: "column",
+    alignItems: "flex-start",
   },
 });
-
 
 export const StyledWebsiteChip = styled(Chip)(({ theme }) => ({
   cursor: "pointer",
@@ -132,13 +129,11 @@ export const StyledDaosList = styled(StyledFlexRow)({
   },
 });
 
-
-export  const StyledHiddenIcon = styled(Box)({
+export const StyledHiddenIcon = styled(Box)({
   position: "absolute",
   left: 10,
   top: 10,
 });
-
 
 export const StyledEmptyList = styled(Container)({
   width: "100%",
@@ -149,7 +144,7 @@ export const StyledDaosAmount = styled(Typography)({
   fontWeight: 700,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     textAlign: "right",
-    width:'100%'
+    width: "100%",
   },
 });
 
@@ -157,11 +152,9 @@ export const StyledSearch = styled(Search)({
   maxWidth: 400,
   width: "100%",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    maxWidth: 'unset',
+    maxWidth: "unset",
   },
 });
-
-
 
 export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
   ".container": {

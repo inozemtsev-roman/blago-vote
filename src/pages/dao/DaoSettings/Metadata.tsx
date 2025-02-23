@@ -58,7 +58,7 @@ const SubmitButton = ({
         <ConnectButton />
       ) : (
         <Button isLoading={isLoading} onClick={formik.submitForm}>
-          Update Metadata
+          Обновить метаданные
         </Button>
       )}
     </StyledSubmit>

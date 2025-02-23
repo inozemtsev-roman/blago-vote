@@ -270,7 +270,7 @@ const Title = ({
       <Markdown className="md">{title}</Markdown>
       {!hideRequired && (
         <small className="input-title-required" style={{ fontSize: 14 }}>
-          {required ? " (required)" : " (optional)"}
+          {required ? " (обязательно)" : " (по желанию)"}
         </small>
       )}
     </StyledTitle>
@@ -554,13 +554,13 @@ export const ListInputs = ({
                 <StyledListTextInput disabled={disabled ? 1 : 0}>
                   <TextInput
                   hideRequired={true}
-                    title={`option ${index + 1}`}
+                    title={`Выбор ${index + 1}`}
                     limit={limit}
                     placeholder={placeholder}
                     endAdornment={
                       !disabled &&
                       index > 0 && (
-                        <AppTooltip text="Delete choice">
+                        <AppTooltip text="Удалить выбор">
                           <IconButton onClick={() => deleteOption(index)}>
                             <BsFillTrash3Fill
                               style={{
@@ -578,7 +578,7 @@ export const ListInputs = ({
                   />
                 </StyledListTextInput>
                 {!disabled && isLast && index < max - 1 && (
-                  <AppTooltip text="Add option">
+                  <AppTooltip text="Добавить выбор">
                     <StyledAddMoreButton onClick={addOption}>
                       <AiOutlinePlus style={{ width: 17, height: 17 }} />
                     </StyledAddMoreButton>

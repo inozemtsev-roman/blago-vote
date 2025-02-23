@@ -1,19 +1,16 @@
 import { styled, Typography } from '@mui/material'
 import React from 'react'
 import { StyledFlexColumn, StyledFlexRow } from 'styles'
-import OrbsLogo from 'assets/orbs.svg'
-import HearLogo from "assets/heart.svg";
+import GradospheraLogo from 'assets/gradosphera.svg'
 import { AppSocials, Github } from 'components';
 
 export function Footer() {
   return (
     <StyledContainer>
-      <StyledWithLove>
-        <Typography>Contributed with</Typography>
-        <img src={HearLogo} />
-        <Typography>by</Typography>
-        <a href="https://www.orbs.com/" target="_blank">
-          <Typography>Orbs</Typography> <img src={OrbsLogo} />
+      <StyledWithLove> <img src={GradospheraLogo} />
+        <Typography>ДАО</Typography>
+        <a href="https://gradosphera.org" target="_blank">
+          <Typography>Градосфера</Typography> 
         </a>
       </StyledWithLove>
       <StyledFlexRow gap={0}>

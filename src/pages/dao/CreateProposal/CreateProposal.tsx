@@ -35,10 +35,10 @@ export const CreateProposal = () => {
   };
 
   return (
-    <LayoutSection title="Create proposal" isLoading={daoLoading}>
+    <LayoutSection title="Создать предложение" isLoading={daoLoading}>
       
       <ProposalForm
-        submitText="Create"
+        submitText="Создать"
         initialFormData={formData}
         persistForm={setFormData}
         onSubmit={onSubmit}

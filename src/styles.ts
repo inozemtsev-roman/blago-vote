@@ -64,7 +64,7 @@ export const getGlobalStyles = (theme: Theme) => {
     body: {
       background: theme.palette.background.default,
       overflowX: "hidden",
-      fontFamily: "mulish",
+      fontFamily: "inter",
     },
     "*::-webkit-scrollbar": {
       display: "none",
@@ -98,7 +98,7 @@ export const getGlobalStyles = (theme: Theme) => {
             ? theme.palette.text.secondary
             : "white",
         fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Roboto', 'Helvetica Neue', Arial, Tahoma, Verdana, sans-serif",
+          "-apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, Tahoma, Verdana, sans-serif",
         fontWeight: 500,
       },
     },

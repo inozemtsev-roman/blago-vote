@@ -98,7 +98,7 @@ const EndAdornment = ({
   return (
     <StyledEndAdornment>
       <Button onClick={onSubmit} isLoading={isLoading()}>
-        <Typography>update</Typography>
+        <Typography>обновить</Typography>
       </Button>
     </StyledEndAdornment>
   );
@@ -114,20 +114,20 @@ const form: FormArgs<IForm> = {
   title: "",
   inputs: [
     {
-      label: "Registry address",
+      label: "Адрес регистратора",
       type: "text",
       name: inputNames.registryAddress,
       disabled: true,
     },
     {
-      label: "Create DAO fee",
+      label: "Комиссия за создание ДАО",
       type: "number",
       name: inputNames.createDaoFee,
       EndAdornment,
       required: true,
     },
     {
-      label: "Registry admin",
+      label: "Администратор регистратора",
       type: "address",
       name: inputNames.registryAdmin,
       EndAdornment,
@@ -135,19 +135,19 @@ const form: FormArgs<IForm> = {
     },
     {
       name: inputNames.fwdMsgFee,
-      label: "Updated fwd fee for all existing DAOs",
+      label: "Обновить плату за голоса для всех существующих DAO",
       type: "number",
       EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
     },
     {
       name: inputNames.fwdFeeForNewDaos,
-      label: "Updated fwd fee new DAOs",
+      label: "Обновить комиссию для новых ДАО",
       type: "number",
       EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
     },
     {
       name: inputNames.newRegistry,
-      label: "Create Registry",
+      label: "Создать регистратор",
       type: "text",
       EndAdornment: EndAdornment as FormikInputEndAdorment<IForm>,
     },
@@ -176,13 +176,13 @@ export function DevParametersModal() {
 
   return (
     <>
-      <AppTooltip placement="right" text="Dev parameters">
+      <AppTooltip placement="right" text="Параметры разработчика">
         <StyledButton onClick={() => setOpen(true)}>
           <FiSettings />
         </StyledButton>
       </AppTooltip>
       <StyledPoup
-        title="Dev parameters"
+        title="Параметры разработчика"
         open={open}
         onClose={() => setOpen(false)}
       >
@@ -193,7 +193,7 @@ export function DevParametersModal() {
             style={{ opacity: daosLoading ? 0.5 : 1 }}
           >
             <StyledRegistryID
-              label={`Registry ID: ${registryState?.registryId}`}
+              label={`Идентификатор регистратора: ${registryState?.registryId}`}
             />
             <FormikInputsForm<IForm>
               form={form}

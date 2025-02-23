@@ -235,7 +235,7 @@ const ByProposalOwner = () => {
   }
   return (
     <AddressDisplay
-      displayText={`by ${makeElipsisAddress(daoRoles?.proposalOwner, 5)}`}
+      displayText={`от ${makeElipsisAddress(daoRoles?.proposalOwner, 5)}`}
       address={daoRoles?.proposalOwner || ""}
       padding={5}
     />

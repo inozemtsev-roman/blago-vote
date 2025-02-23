@@ -16,7 +16,7 @@ export function ConnectButton({ className = "" }: { className?: string }) {
 
   return (
     <Button onClick={onConnect} className={className}>
-      <Typography>Connect Wallet</Typography>
+      <Typography>Подключить кошелек</Typography>
     </Button>
   );
 }

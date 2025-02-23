@@ -162,7 +162,7 @@ const NFT = () => {
     <Asset
       metadata={data?.metadata?.nftMetadata?.metadata}
       address={strategyArgs.nft}
-      label="NFT Collection"
+      label="NFT коллекция"
     />
   );
 };
@@ -177,7 +177,7 @@ const Jetton = () => {
     <Asset
       metadata={data?.metadata?.jettonMetadata?.metadata}
       address={strategyArgs.jetton}
-      label="Jetton"
+      label="Жетоны"
     />
   );
 };
@@ -252,12 +252,12 @@ function ExtraInfo() {
           className="check"
         />
         <Typography>
-          Validators can participate in this vote.{" "}
+          Валидаторы также могут участвовать в этом голосовании.{" "}
           <Link
-            href="https://github.com/orbs-network/ton-vote#supported-strategies"
+            href="https://github.com/gradosphera/blago-vote/ton-vote#supported-strategies"
             target="_blank"
           >
-            Read more
+            Подробнее
           </Link>
         </Typography>
       </StyledExtraInfo>
