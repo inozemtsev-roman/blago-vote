@@ -22,24 +22,14 @@ const CopyBtn = ({ url, children }: { url: string; children: ReactNode }) => {
 
 const items = [
   {
-    button: RedditShareButton,
-    icon: BsReddit,
-    text: "Reddit",
-  },
-  {
     button: TelegramShareButton,
     icon: FaTelegramPlane,
     text: "Telegram",
   },
   {
-    button: TwitterShareButton,
-    icon: BsTwitter,
-    text: "Twitter",
-  },
-  {
     button: CopyBtn,
     icon: IoCopyOutline,
-    text: "Copy Link",
+    text: "Скопировать ссылку",
   },
 ];
 
@@ -62,7 +52,7 @@ export function ShareButton({
     <>
       <StyledShareButton className={className} onClick={handleClick}>
         <RxShare2 />
-        <Typography>Share</Typography>
+        <Typography>Поделиться</Typography>
       </StyledShareButton>
       <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         {items.map((it, index) => {
