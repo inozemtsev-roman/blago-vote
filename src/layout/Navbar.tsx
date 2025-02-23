@@ -25,12 +25,12 @@ import { FiMoon, FiSun } from "react-icons/fi";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
-  const { daosPage } = useAppNavigation();
+  const { createSpace } = useAppNavigation();
   const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
       <StyledNav>
-        <StyledLogo onClick={daosPage.root}>
+        <StyledLogo>
           <img src={LogoImg} />
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
@@ -64,7 +64,7 @@ const EnvModeIndication = () => {
 const ThemeToggle = () => {
   const { toggleTheme, isDarkMode } = useAppSettings();
   return (
-    <AppTooltip text={isDarkMode ? "Light mode" : "Dark more"}>
+    <AppTooltip text={isDarkMode ? "Светлый режим" : "Темный режим"}>
       <StyledThemeToggle onClick={toggleTheme}>
         {isDarkMode ? <FiSun /> : <FiMoon />}
       </StyledThemeToggle>
