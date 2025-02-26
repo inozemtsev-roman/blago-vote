@@ -38,7 +38,6 @@ export function Navbar() {
           <EnvModeIndication />
           <ConnectButton />
           <ThemeToggle />
-          {!mobile && <Github />}
         </StyledFlexRow>
       </StyledNav>
     </StyledContainer>
@@ -155,7 +154,7 @@ const StyledLogo = styled("button")(({ theme }) => ({
     fontWeight: 800,
     position: "relative",
     color: theme.palette.text.secondary,
-    fontSize: 20,
+    fontSize: 25,
     top: -3,
   },
   img: {
@@ -163,10 +162,10 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     p: {
-      fontSize: 14,
+      fontSize: 22,
     },
     img: {
-      height: 25,
+      height: 35,
     },
   },
 }));
