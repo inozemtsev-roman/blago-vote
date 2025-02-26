@@ -1,7 +1,7 @@
 import {
   BLACKLISTED_DAOS,
   IS_DEV,
-  TONSCAN_ADDRESS_URL,
+  TONVIEWER_ADDRESS_URL,
   VERIFIED_DAOS,
 } from "config";
 import _ from "lodash";
@@ -142,7 +142,7 @@ export const urlPatternValidation = (URL: string) => {
 
 export const getTonScanContractUrl = (address?: string) => {
   if (!address) return "";
-  return `${TONSCAN_ADDRESS_URL}/${address}`;
+  return `${TONVIEWER_ADDRESS_URL}/${address}`;
 };
 
 export const calculateTonAmount = (
