@@ -43,7 +43,7 @@ const StyledContainer = styled(StyledFlexColumn)(({ theme }) => ({
     fontSize: '14px!important',
   },
   img: {
-    width: 12,
+    width: 18,
   },
 }));
 
