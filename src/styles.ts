@@ -97,8 +97,7 @@ export const getGlobalStyles = (theme: Theme) => {
           theme.palette.mode === "light"
             ? theme.palette.text.secondary
             : "white",
-        fontFamily:
-          "-apple-system, BlinkMacSystemFont, 'Inter', 'Helvetica Neue', Arial, Tahoma, Verdana, sans-serif",
+        fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter'",
         fontWeight: 500,
       },
     },

@@ -14,7 +14,7 @@ export const lightTheme = createTheme({
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
     },
     text: {
       primary: "rgb(114, 138, 150)",
@@ -25,7 +25,7 @@ export const lightTheme = createTheme({
   typography: {
     allVariants: {
       color: "rgb(114, 138, 150)",
-      fontFamily: "mulish",
+      fontFamily: "inter",
     },
     h1: {
       fontSize: 44,
@@ -42,7 +42,7 @@ export const lightTheme = createTheme({
       fontWeight: 800,
       color: "rgb(22, 28, 40)",
     },
-    fontFamily: "mulish",
+    fontFamily: "inter",
   },
 });
 
@@ -57,7 +57,7 @@ export const darkTheme = createTheme({
       main: "#d32f2f",
     },
     primary: {
-      main: "#0088CC",
+      main: "#0098ea",
     },
     text: {
       primary: "rgba(255,255,255,0.8)",
@@ -68,7 +68,7 @@ export const darkTheme = createTheme({
   typography: {
     allVariants: {
       color: "rgba(255,255,255,0.8)",
-      fontFamily: "mulish",
+      fontFamily: "inter",
     },
     h1: {
       fontSize: 44,
@@ -85,7 +85,7 @@ export const darkTheme = createTheme({
       fontWeight: 800,
       color: "rgba(255,255,255,0.8)",
     },
-    fontFamily: "mulish",
+    fontFamily: "inter",
   },
 });
 

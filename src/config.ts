@@ -1,8 +1,8 @@
 import _ from "lodash";
 import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
-export const TONSCAN = "https://tonscan.org";
-export const TONSCAN_ADDRESS_URL = `${TONSCAN}/address`;
+export const TONVIEWER = "https://tonviewer.com";
+export const TONVIEWER_ADDRESS_URL = `${TONVIEWER}/`;
 export const APP_NAME = "Голос";
 
 export const manifestUrl =

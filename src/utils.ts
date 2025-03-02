@@ -1,7 +1,7 @@
 import {
   BLACKLISTED_DAOS,
   IS_DEV,
-  TONSCAN_ADDRESS_URL,
+  TONVIEWER_ADDRESS_URL,
   VERIFIED_DAOS,
 } from "config";
 import _ from "lodash";
@@ -67,12 +67,12 @@ export const parseVotes = (
 export function nFormatter(num: number, digits = 2) {
   const lookup = [
     { value: 1, symbol: "" },
-    { value: 1e3, symbol: "K" },
-    { value: 1e6, symbol: "M" },
-    { value: 1e9, symbol: "G" },
-    { value: 1e12, symbol: "T" },
-    { value: 1e15, symbol: "P" },
-    { value: 1e18, symbol: "E" },
+    { value: 1e3, symbol: " тыс." },
+    { value: 1e6, symbol: " млн." },
+    { value: 1e9, symbol: " млрд." },
+    { value: 1e12, symbol: " трлн." },
+    { value: 1e15, symbol: " квадрлн." },
+    { value: 1e18, symbol: " квинтлн." },
   ];
   const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
   var item = lookup
@@ -142,7 +142,7 @@ export const urlPatternValidation = (URL: string) => {
 
 export const getTonScanContractUrl = (address?: string) => {
   if (!address) return "";
-  return `${TONSCAN_ADDRESS_URL}/${address}`;
+  return `${TONVIEWER_ADDRESS_URL}/${address}`;
 };
 
 export const calculateTonAmount = (

@@ -15,12 +15,12 @@ function ProposalHidePopup({ open, onClose, onSubmit, variant }: Props) {
   const content = useGetContent(variant);
 
   return (
-    <StyledPopup open={open} onClose={onClose} title='Proposal visibility'>
+    <StyledPopup open={open} onClose={onClose} title='Видимость предложения'>
       <StyledFlexColumn gap={40}>
         <StyledContent>{content}</StyledContent>
         <StyledButtons>
-          <Button variant='transparent' onClick={onClose}>Cancel</Button>
-          <Button onClick={onSubmit}>Confirm</Button>
+          <Button variant='transparent' onClick={onClose}>Отмена</Button>
+          <Button onClick={onSubmit}>Подтвердить</Button>
         </StyledButtons>
       </StyledFlexColumn>
     </StyledPopup>
@@ -29,12 +29,12 @@ function ProposalHidePopup({ open, onClose, onSubmit, variant }: Props) {
 
 const useGetContent = (variant: ProposalHidePopupVariant) => {
   if (variant === "hide") {
-    return "This proposal will be hidden from the list of proposals. You can change it later in the settings section.";
+    return "Это предложение будет скрыто из списка предложений. Вы можете изменить его позже в разделе настроек.";
   }
   if (variant === "changed-to-hide") {
-    return "This proposal will be hidden from the list of proposals. You can change it later in the settings section.";
+    return "Это предложение будет скрыто из списка предложений. Вы можете изменить его позже в разделе настроек.";
   }
-  return "This proposal will be visible in the list of proposals.";
+  return "Это предложение будет видно в списке предложений.";
 };
 
 export default ProposalHidePopup;

@@ -8,7 +8,7 @@ import {
 import { Dao, ProposalForm, ProposalInputArgs } from "types";
 import { fromUtcMoment, isZeroAddress, utcMoment } from "utils";
 
-const initialChoices = ["Yes", "No", "Abstain"];
+const initialChoices = ["Да", "Нет", "Воздержаться"];
 
 export const getInitialValues = (
   formData: ProposalForm,
