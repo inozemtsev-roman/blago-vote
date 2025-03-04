@@ -16,7 +16,7 @@ export const HiddenProposal = ({
   }
   return (
     <StyledContainer className={className}>
-      <AppTooltip text="This proposal is hidden">
+      <AppTooltip text="Это предложение скрыто">
         <AiFillEyeInvisible />
       </AppTooltip>
     </StyledContainer>
