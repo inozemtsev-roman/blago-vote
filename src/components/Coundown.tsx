@@ -13,10 +13,10 @@ export function Countdown({ date }: { date?: number }) {
   const renderer = (value: any) => {
     return (
       <StyledContainer justifyContent='space-between'>
-        <Flipper title="Days" value={addZero(value.days)} />
-        <Flipper title="Hours" value={addZero(value.hours)} />
-        <Flipper title="Minutes" value={addZero(value.minutes)} />
-        <Flipper title="Seconds" value={addZero(value.seconds)} />
+        <Flipper title="Дней" value={addZero(value.days)} />
+        <Flipper title="Часов" value={addZero(value.hours)} />
+        <Flipper title="Минут" value={addZero(value.minutes)} />
+        <Flipper title="Секунд" value={addZero(value.seconds)} />
       </StyledContainer>
     );
   };
