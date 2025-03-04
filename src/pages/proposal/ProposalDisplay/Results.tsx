@@ -203,14 +203,14 @@ export function VerifyResults() {
       {isSuccess ? (
         <StyledButton>
           <StyledFlexRow>
-            <Typography>Verified</Typography>
+            <Typography>Проверено</Typography>
             <BsFillCheckCircleFill className="icon" />
           </StyledFlexRow>
         </StyledButton>
       ) : error ? (
         <StyledButton>
           <StyledFlexRow>
-            <Typography>Not Verified</Typography>
+            <Typography>Не проверено</Typography>
             <AiFillCloseCircle className="icon" />
           </StyledFlexRow>
         </StyledButton>

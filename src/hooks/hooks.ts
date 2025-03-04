@@ -116,17 +116,17 @@ type CopyFn = (text: string) => Promise<boolean>; // Return success
 export function useCopyToClipboard(): [CopiedValue, CopyFn] {
   const copy: CopyFn = async (text) => {
     if (!navigator?.clipboard) {
-      console.warn("Clipboard not supported");
+      console.warn("Копирование не поддерживается");
       return false;
     }
 
     // Try to save to clipboard then save it in the state if worked
     try {
       await navigator.clipboard.writeText(text);
-      showSuccessToast("Copied to clipboard");
+      showSuccessToast("Скопировано");
       return true;
     } catch (error) {
-      console.warn("Copy failed", error);
+      console.warn("Ошибка копирования", error);
 
       return false;
     }

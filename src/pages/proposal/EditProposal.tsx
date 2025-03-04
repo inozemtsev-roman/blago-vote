@@ -66,7 +66,7 @@ export function EditProposal() {
       <Container>
         <StyledWarning>
           <StyledWarningFlex>
-            <Typography>Only pending proposals can be edited</Typography>
+            <Typography>Редактировать можно только отложенные предложения</Typography>
           </StyledWarningFlex>
         </StyledWarning>
       </Container>
@@ -117,7 +117,7 @@ const Container = ({ children }: { children: ReactNode }) => {
   return (
     <Page back={back()}>
       <StyledContent>
-        <StyledHeader title="Edit proposal" />
+        <StyledHeader title="Редактировать предложение" />
         {children}
       </StyledContent>
     </Page>

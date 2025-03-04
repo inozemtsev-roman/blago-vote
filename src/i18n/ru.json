@@ -1,7 +1,7 @@
 {
   "proposalPage": {
-    "castVote": "Проголосуйте",
-    "timeLeftToVote": "Осталось времени для голосования",
+    "castVote": "Голосование",
+    "timeLeftToVote": "Осталось времени до окончания голосования",
     "resultsVerified": "Результаты проверены",
     "verifyingResults": "Проверка результатов",
     "failedToVerifyResults": "Не удалось проверить результаты",
