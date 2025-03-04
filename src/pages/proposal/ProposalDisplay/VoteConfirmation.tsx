@@ -59,7 +59,7 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
         )}
         <StyledButtons>
           <Button variant="transparent" onClick={onClose}>
-            Cancel
+            Отменить
           </Button>
           <Button
             disabled={NoVotingPower || votingDataLoading}
