@@ -177,7 +177,7 @@ const Jetton = () => {
     <Asset
       metadata={data?.metadata?.jettonMetadata?.metadata}
       address={strategyArgs.jetton}
-      label="Жетоны"
+      label="Жетон"
     />
   );
 };

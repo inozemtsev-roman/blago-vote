@@ -142,7 +142,7 @@ const EditButton = () => {
   if (!isOwner && !isProposalPublisher) return null;
 
   return (
-    <AppTooltip text="Edit">
+    <AppTooltip text="Редактировать">
       <StyledEditButton
         onClick={() => proposalPage.edit(daoAddress, proposalAddress)}
       >

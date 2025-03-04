@@ -69,7 +69,7 @@ export function Vote() {
           !connectedWallet
             ? ""
             : currentVote === vote
-            ? `You already voted ${vote}`
+            ? `Вы уже проголосовали ${vote}`
             : ""
         }
       >
@@ -113,7 +113,7 @@ const VoteButton = ({
       isLoading={isLoading}
       disabled={disabled}
     >
-      Vote
+      Голос
     </StyledVoteButton>
   );
 };
