@@ -12,7 +12,7 @@
         "@orbs-network/ton-access": "^2.2.2",
         "@tanstack/react-query": "^4.23.0",
         "@tanstack/react-query-devtools": "^4.23.0",
-        "@tonconnect/ui-react": "^1.0.0-beta.9",
+        "@tonconnect/ui-react": "^2.0.11",
         "async-retry": "^1.3.3",
         "axios": "^1.3.2",
         "axios-retry": "^3.5.0",
@@ -608,17 +608,17 @@
 
     "@tanstack/react-query-devtools": ["@tanstack/react-query-devtools@4.36.1", "", { "dependencies": { "@tanstack/match-sorter-utils": "^8.7.0", "superjson": "^1.10.0", "use-sync-external-store": "^1.2.0" }, "peerDependencies": { "@tanstack/react-query": "^4.36.1", "react": "^16.8.0 || ^17.0.0 || ^18.0.0", "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0" } }, "sha512-WYku83CKP3OevnYSG8Y/QO9g0rT75v1om5IvcWUwiUZJ4LanYGLVCZ8TdFG5jfsq4Ej/lu2wwDAULEUnRIMBSw=="],
 
-    "@tonconnect/isomorphic-eventsource": ["@tonconnect/isomorphic-eventsource@0.0.1", "", { "dependencies": { "eventsource": "^2.0.2" } }, "sha512-ODk48pMlqLSOvu3fM0R1sdlz/Cv2y4hSfwtXmLq9ky9+H7ZQfw/16ElpIJ69B4lUvHycxrueNgrRtF9PJHoGMw=="],
+    "@tonconnect/isomorphic-eventsource": ["@tonconnect/isomorphic-eventsource@0.0.2", "", { "dependencies": { "eventsource": "^2.0.2" } }, "sha512-B4UoIjPi0QkvIzZH5fV3BQLWrqSYABdrzZQSI9sJA9aA+iC0ohOzFwVVGXanlxeDAy1bcvPbb29f6sVUk0UnnQ=="],
 
-    "@tonconnect/isomorphic-fetch": ["@tonconnect/isomorphic-fetch@0.0.2", "", { "dependencies": { "node-fetch": "^2.6.9" } }, "sha512-DAyA4oL7MqbBo9k8+8E+YiWsGCYi6UMhDTcsZjhgzhESkBNG6b+NBkpb1KH4oi0xDZQoknFtY9XogJLuQtSMQQ=="],
+    "@tonconnect/isomorphic-fetch": ["@tonconnect/isomorphic-fetch@0.0.3", "", { "dependencies": { "node-fetch": "^2.6.9" } }, "sha512-jIg5nTrDwnite4fXao3dD83eCpTvInTjZon/rZZrIftIegh4XxyVb5G2mpMqXrVGk1e8SVXm3Kj5OtfMplQs0w=="],
 
     "@tonconnect/protocol": ["@tonconnect/protocol@2.2.6", "", { "dependencies": { "tweetnacl": "^1.0.3", "tweetnacl-util": "^0.15.1" } }, "sha512-kyoDz5EqgsycYP+A+JbVsAUYHNT059BCrK+m0pqxykMODwpziuSAXfwAZmHcg8v7NB9VKYbdFY55xKeXOuEd0w=="],
 
-    "@tonconnect/sdk": ["@tonconnect/sdk@2.2.0", "", { "dependencies": { "@tonconnect/isomorphic-eventsource": "^0.0.1", "@tonconnect/isomorphic-fetch": "^0.0.2", "@tonconnect/protocol": "^2.2.5" } }, "sha512-8plnAXzaLhapUnt47ZqAOQSIQ8NHSvgTSR74QVJdPWqg8128smgGM4cDYewKdBfTD6Lup0odT1WMMrJu+rE4NQ=="],
+    "@tonconnect/sdk": ["@tonconnect/sdk@3.0.6", "", { "dependencies": { "@tonconnect/isomorphic-eventsource": "^0.0.2", "@tonconnect/isomorphic-fetch": "^0.0.3", "@tonconnect/protocol": "^2.2.6" } }, "sha512-dJipe0Cw43p/7o3Pa6Y6h0QMDtY2V2YKzwdCqcYvmyCYadBNmvA+8ScH9QK5GpkngRJnYaWq+321lAaQTFpUwA=="],
 
-    "@tonconnect/ui": ["@tonconnect/ui@1.0.0-beta.7", "", { "dependencies": { "@tonconnect/sdk": "^2.2.0", "classnames": "^2.3.2", "deepmerge": "^4.2.2", "ua-parser-js": "^1.0.35" } }, "sha512-Id69mNBzeNEiBomceKl0aRgy6x56Eq7Nyg7zYPE6ootrVDh60l//WB0xxyqVX2cSB7CxfjHcf0apXDAVgKCkKw=="],
+    "@tonconnect/ui": ["@tonconnect/ui@2.0.11", "", { "dependencies": { "@tonconnect/sdk": "3.0.6", "classnames": "^2.3.2", "csstype": "^3.1.1", "deepmerge": "^4.2.2", "ua-parser-js": "^1.0.35" } }, "sha512-5TOhfEDeyY8R9oyEGavLU+DRmDW3wSGyxVshWhHisi8597cZIuG39HHNbP05WJBBjmVm/Kh/bhcHtfx7lQp/Ig=="],
 
-    "@tonconnect/ui-react": ["@tonconnect/ui-react@1.0.0-beta.9", "", { "dependencies": { "@tonconnect/ui": "^1.0.0-beta.7" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-Y+03djw2dUkBNSbm1oI+zrbFS6VfQB1IXUj6ptd39okI2hITG4VLHNWdpDA+wUKdiqGDrIgjCpabC3ZtTMzQrw=="],
+    "@tonconnect/ui-react": ["@tonconnect/ui-react@2.0.11", "", { "dependencies": { "@tonconnect/ui": "2.0.11" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-h8E4zlbdNBJCAPgg6+O5ZkVDZh8mvnc82VRmhInSPLFAr6qDZbE+qSjRVm4lkuN1N/m24lhkDXFCFjvJ9CgCow=="],
 
     "@types/async-retry": ["@types/async-retry@1.4.9", "", { "dependencies": { "@types/retry": "*" } }, "sha512-s1ciZQJzRh3708X/m3vPExr5KJlzlZJvXsKpbtE2luqNcbROr64qU+3KpJsYHqWMeaxI839OvXf9PrUSw1Xtyg=="],
 
@@ -2302,6 +2302,8 @@
 
     "ton/axios": ["axios@0.25.0", "", { "dependencies": { "follow-redirects": "^1.14.7" } }, "sha512-cD8FOb0tRH3uuEe6+evtAbgJtfxr7ly3fQjYcMcuPlgkwVS9xboaVIpcDV+cYQe+yGykgwZCs1pzjntcGa6l5g=="],
 
+    "ton-vote-contracts-sdk/@tonconnect/ui-react": ["@tonconnect/ui-react@1.0.0-beta.9", "", { "dependencies": { "@tonconnect/ui": "^1.0.0-beta.7" }, "peerDependencies": { "react": ">=17.0.0", "react-dom": ">=17.0.0" } }, "sha512-Y+03djw2dUkBNSbm1oI+zrbFS6VfQB1IXUj6ptd39okI2hITG4VLHNWdpDA+wUKdiqGDrIgjCpabC3ZtTMzQrw=="],
+
     "whatwg-url-without-unicode/buffer": ["buffer@5.7.1", "", { "dependencies": { "base64-js": "^1.3.1", "ieee754": "^1.1.13" } }, "sha512-EHcyIPBQ4BSGlvjB16k5KgAJ27CIsHY/2JBmCRReo48y9rQ3MaUzWX3KVlBa4U7MyX02HdVj0K7C3WaB3ju7FQ=="],
 
     "whatwg-url-without-unicode/webidl-conversions": ["webidl-conversions@5.0.0", "", {}, "sha512-VlZwKPCkYKxQgeSbH5EyngOmRp7Ww7I9rQLERETtf5ofd9pGeswWiOtogpEO850jziPRarreGxn5QIiTqpb2wA=="],
@@ -2428,6 +2430,8 @@
 
     "tar/fs-minipass/minipass": ["minipass@3.3.6", "", { "dependencies": { "yallist": "^4.0.0" } }, "sha512-DxiNidxSEK+tHG6zOIklvNOwm3hvCrbUrdtzY74U6HKTJxvIDfOUL5W5P2Ghd3DTkhhKPYGqeNUIh5qcM4YBfw=="],
 
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui": ["@tonconnect/ui@1.0.0-beta.7", "", { "dependencies": { "@tonconnect/sdk": "^2.2.0", "classnames": "^2.3.2", "deepmerge": "^4.2.2", "ua-parser-js": "^1.0.35" } }, "sha512-Id69mNBzeNEiBomceKl0aRgy6x56Eq7Nyg7zYPE6ootrVDh60l//WB0xxyqVX2cSB7CxfjHcf0apXDAVgKCkKw=="],
+
     "@babel/highlight/chalk/ansi-styles/color-convert": ["color-convert@1.9.3", "", { "dependencies": { "color-name": "1.1.3" } }, "sha512-QfAUtd+vFdAtFQcC8CCyYt1fYWxSqAiK2cSD6zDB8N3cpsEBAvRxp9zOGg6G/SHHJYAT88/az/IuDGALsNVbGg=="],
 
     "@babel/highlight/chalk/supports-color/has-flag": ["has-flag@3.0.0", "", {}, "sha512-sKJf1+ceQBr4SMkvQnBDNDtf4TXpVhVGateu0t918bl30FnbE2m4vNLX+VWe/dpjlb+HugGYzW7uQXH98HPEYw=="],
@@ -2472,6 +2476,10 @@
 
     "sucrase/glob/minimatch/brace-expansion": ["brace-expansion@2.0.1", "", { "dependencies": { "balanced-match": "^1.0.0" } }, "sha512-XnAIvQ8eM+kC6aULx6wuQiwVsnzsi9d3WxzV3FpWTGA19F621kwdbsAcFKXgKUHZWsy+mY6iL1sHTxWEFCytDA=="],
 
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui/@tonconnect/sdk": ["@tonconnect/sdk@2.2.0", "", { "dependencies": { "@tonconnect/isomorphic-eventsource": "^0.0.1", "@tonconnect/isomorphic-fetch": "^0.0.2", "@tonconnect/protocol": "^2.2.5" } }, "sha512-8plnAXzaLhapUnt47ZqAOQSIQ8NHSvgTSR74QVJdPWqg8128smgGM4cDYewKdBfTD6Lup0odT1WMMrJu+rE4NQ=="],
+
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui/deepmerge": ["deepmerge@4.3.1", "", {}, "sha512-3sUqbMEc77XqpdNO7FRyRog+eW3ph+GYCbj+rK+uYyRMuwsVy0rMiVtPn+QJlKFvWP/1PYpapqYn0Me2knFn+A=="],
+
     "@babel/highlight/chalk/ansi-styles/color-convert/color-name": ["color-name@1.1.3", "", {}, "sha512-72fSenhMw2HZMTVHeCA9KCmpEIbzWiQsjN+BHcBbS9vr1mtt+vJjPdksIBNUmKAW8TFUDPJK5SUU3QhE9NEXDw=="],
 
     "@istanbuljs/load-nyc-config/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
@@ -2488,11 +2496,17 @@
 
     "pkg-dir/find-up/locate-path/p-locate/p-limit": ["p-limit@2.3.0", "", { "dependencies": { "p-try": "^2.0.0" } }, "sha512-//88mFWSJx8lxCzwdAABTJL2MyWB12+eIY7MDL2SqLmAkeKU9qxRvWuSyTjm3FUmpBEMuFfckAIqEaVGUDxb6w=="],
 
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui/@tonconnect/sdk/@tonconnect/isomorphic-eventsource": ["@tonconnect/isomorphic-eventsource@0.0.1", "", { "dependencies": { "eventsource": "^2.0.2" } }, "sha512-ODk48pMlqLSOvu3fM0R1sdlz/Cv2y4hSfwtXmLq9ky9+H7ZQfw/16ElpIJ69B4lUvHycxrueNgrRtF9PJHoGMw=="],
+
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui/@tonconnect/sdk/@tonconnect/isomorphic-fetch": ["@tonconnect/isomorphic-fetch@0.0.2", "", { "dependencies": { "node-fetch": "^2.6.9" } }, "sha512-DAyA4oL7MqbBo9k8+8E+YiWsGCYi6UMhDTcsZjhgzhESkBNG6b+NBkpb1KH4oi0xDZQoknFtY9XogJLuQtSMQQ=="],
+
     "babel-preset-expo/@react-native/babel-preset/@react-native/babel-plugin-codegen/@react-native/codegen/hermes-parser/hermes-estree": ["hermes-estree@0.23.1", "", {}, "sha512-eT5MU3f5aVhTqsfIReZ6n41X5sYn4IdQL0nvz6yO+MMlPxw49aSARHLg/MSehQftyjnrE8X6bYregzSumqc6cg=="],
 
     "babel-preset-expo/@react-native/babel-preset/@react-native/babel-plugin-codegen/@react-native/codegen/jscodeshift/recast": ["recast@0.21.5", "", { "dependencies": { "ast-types": "0.15.2", "esprima": "~4.0.0", "source-map": "~0.6.1", "tslib": "^2.0.1" } }, "sha512-hjMmLaUXAm1hIuTqOdeYObMslq/q+Xff6QE3Y2P+uoHAg2nmVlLBps2hzh1UJDdMtDTMXOFewK6ky51JQIeECg=="],
 
     "babel-preset-expo/@react-native/babel-preset/@react-native/babel-plugin-codegen/@react-native/codegen/jscodeshift/write-file-atomic": ["write-file-atomic@2.4.3", "", { "dependencies": { "graceful-fs": "^4.1.11", "imurmurhash": "^0.1.4", "signal-exit": "^3.0.2" } }, "sha512-GaETH5wwsX+GcnzhPgKcKjJ6M2Cq3/iZp1WyY/X1CSqrW+jVNM9Y7D8EC2sM4ZG/V8wZlSniJnCKWPmBYAucRQ=="],
+
+    "ton-vote-contracts-sdk/@tonconnect/ui-react/@tonconnect/ui/@tonconnect/sdk/@tonconnect/isomorphic-fetch/node-fetch": ["node-fetch@2.7.0", "", { "dependencies": { "whatwg-url": "^5.0.0" }, "peerDependencies": { "encoding": "^0.1.0" }, "optionalPeers": ["encoding"] }, "sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A=="],
 
     "babel-preset-expo/@react-native/babel-preset/@react-native/babel-plugin-codegen/@react-native/codegen/jscodeshift/recast/ast-types": ["ast-types@0.15.2", "", { "dependencies": { "tslib": "^2.0.1" } }, "sha512-c27loCv9QkZinsa5ProX751khO9DJl/AcB5c2KNtA6NRvHKS0PgLfcftz72KVq504vB0Gku5s2kUZzDBvQWvHg=="],
 
