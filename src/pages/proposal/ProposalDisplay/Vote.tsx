@@ -113,7 +113,7 @@ const VoteButton = ({
       isLoading={isLoading}
       disabled={disabled}
     >
-      Голос
+      Голосовать
     </StyledVoteButton>
   );
 };

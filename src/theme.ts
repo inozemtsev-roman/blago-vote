@@ -17,14 +17,14 @@ export const lightTheme = createTheme({
       main: "#0098ea",
     },
     text: {
-      primary: "rgb(114, 138, 150)",
+      primary: "rgb(30, 35, 55)",
       secondary: "rgb(22, 28, 40)",
     },
   },
 
   typography: {
     allVariants: {
-      color: "rgb(114, 138, 150)",
+      color: "rgb(30, 35, 55)",
       fontFamily: "inter",
     },
     h1: {
