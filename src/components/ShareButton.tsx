@@ -50,10 +50,7 @@ export function ShareButton({
 
   return (
     <>
-      <StyledShareButton className={className} onClick={handleClick}>
-        <RxShare2 />
-        <Typography>Поделиться</Typography>
-      </StyledShareButton>
+
       <Menu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
         {items.map((it, index) => {
           return (
