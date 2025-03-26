@@ -32,7 +32,7 @@
     "httpsv2Endpoint": "Конечная точка HTTP v2",
     "httpsv2ApiKey": "Ключ API HTTP v2",
     "httpv4Endpoint": "Конечная точка HTTP v4",
-    "tonAccessEnpoint": "Конечная точка по умолчанию [(Orbs Ton Access)](https://www.orbs.com/ton-access/)",
+    "tonAccessEnpoint": "Конечная точка по умолчанию [(Gradosphera DID)](https://gradosphera.org)",
     "customEndpoint": "Пользовательская конечная точка",
     "verify": "Проверить",
     "verifyResults": "Проверить результаты",
