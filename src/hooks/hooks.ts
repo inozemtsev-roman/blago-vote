@@ -239,6 +239,7 @@ export const useAppSettings = () => {
   const setThemeMode = (mode: ThemeType) => {
     store.setThemeMode(mode);
     setOptions({
+      language: "ru",
       uiPreferences: {
         theme: mode === "dark" ? THEME.DARK : THEME.LIGHT,
       },
