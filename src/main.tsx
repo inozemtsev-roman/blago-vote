@@ -10,6 +10,7 @@ import { manifestUrl } from "config";
 import { clearAllToasts } from "toasts";
 import { useSettingsStore } from "store";
 
+
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
@@ -34,6 +35,8 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     >
       <App />
     </TonConnectUIProvider>
+
+    
 
     {/* <ReactQueryDevtools /> */}
   </QueryClientProvider>
