@@ -13,11 +13,11 @@ export const DEFAULT_CLIENT_V2_ENDPOINT =
 export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
 export const CLIENT_V2_API_KEY =
-  "3ebe42d62396ff96725e0de9e71cae2916c1b690d3ffc8a80ecd9af4e8fef6f2";
+  "79243b36d184ea543b75d94175156ed98f944031db45acb00f62f5904b570709";
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 
-export const PAGE_SIZE = 20;
+export const PAGE_SIZE = 100;
 
 export const CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 export const LAST_FETCH_UPDATE_LIMIT = 90 * 1000;
