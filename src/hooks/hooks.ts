@@ -28,7 +28,7 @@ import {
   VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { Locales, THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import { useSettingsStore } from "store";
 import _ from "lodash";
 import {
@@ -227,6 +227,13 @@ export const useRole = (roles?: DaoRoles) => {
     getRole,
   };
 };
+
+export const Settings = () => {
+    const [tonConnectUI, setOptions] = useTonConnectUI();
+
+    const onLanguageChange = (lang: string) => {
+        setOptions({ language: lang as Locales });
+    };
 
 export const useAppSettings = () => {
   const store = useSettingsStore();
