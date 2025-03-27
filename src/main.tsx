@@ -9,6 +9,7 @@ import { THEME, TonConnectUIProvider } from "@tonconnect/ui-react";
 import { manifestUrl } from "config";
 import { clearAllToasts } from "toasts";
 import { useSettingsStore } from "store";
+import { TonConnectInitializer } from "components/TonConnectInitializer";
 
 
 const queryClient = new QueryClient({
@@ -30,9 +31,10 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <TonConnectUIProvider
       manifestUrl={manifestUrl}
       uiPreferences={{
-        theme: defaultTheme,
+        theme: defaultTheme
       }}
     >
+      <TonConnectInitializer />
       <App />
     </TonConnectUIProvider>
 
