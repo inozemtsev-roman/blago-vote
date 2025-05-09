@@ -22,11 +22,13 @@ export const CreateProposal = () => {
 
   const onSubmit = (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);
-    console.log(metadata);
+    console.log("Creating proposal with metadata:", metadata);
     
     createProposal({
       metadata,
       onSuccess: (proposalAddress: string) => {
+        console.log("Proposal created successfully:", proposalAddress);
+        console.log("Adding proposal to local storage for DAO:", dao!.daoAddress);
         appNavigation.proposalPage.root(dao!.daoAddress, proposalAddress);
         setFormData({} as ProposalFormType);
         addProposal(dao!.daoAddress, proposalAddress);

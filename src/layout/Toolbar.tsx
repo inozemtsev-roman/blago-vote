@@ -10,10 +10,14 @@ import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
 import { appNavigation, useAppNavigation } from "router/navigation";
-import { StyledFlexColumn } from "styles";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
 import { IoHelpSharp } from "react-icons/io5";
+import { useMemo } from "react";
+import { Address } from "ton";
+import { Dao } from "types";
+
 export function Toolbar() {
   const navigation = useAppNavigation();
   const translations = useDaosPageTranslations();
@@ -87,13 +91,80 @@ const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
   gap: 0,
 }));
 
+const DaoItem = ({ dao, selected, nonBounceableWallet }: { 
+  dao: Dao; 
+  selected: boolean;
+  nonBounceableWallet: string;
+}) => {
+  const nonBounceableOwner = useMemo(() => {
+    try {
+      const parsedAddress = Address.parse(dao.daoRoles.owner);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return dao.daoRoles.owner;
+    }
+  }, [dao.daoRoles.owner]);
+
+  const nonBounceableProposalOwner = useMemo(() => {
+    try {
+      const parsedAddress = Address.parse(dao.daoRoles.proposalOwner);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return dao.daoRoles.proposalOwner;
+    }
+  }, [dao.daoRoles.proposalOwner]);
+
+  const isOwner = nonBounceableWallet === nonBounceableOwner;
+  const isProposalPublisher = nonBounceableWallet === nonBounceableProposalOwner;
+
+  if (!isOwner && !isProposalPublisher) {
+    return null;
+  }
+
+  return (
+    <StyledLink
+      selected={selected ? 1 : 0}
+      to={appNavigation.daoPage.root(dao.daoAddress)}
+      key={dao.daoAddress}
+    >
+      <AppTooltip
+        text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
+        placement="right"
+      >
+        <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
+      </AppTooltip>
+    </StyledLink>
+  );
+};
+
 const UserDaos = () => {
   const { data: daos } = useDaosQuery();
   const connectedWallet = useTonAddress();
-
-  const { getRole } = useRole();
-
   const daoId = useParams().daoId;
+
+  const nonBounceableWallet = useMemo(() => {
+    if (!connectedWallet) return "";
+    try {
+      const parsedAddress = Address.parse(connectedWallet);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return connectedWallet;
+    }
+  }, [connectedWallet]);
+
+  const nonBounceableDaoId = useMemo(() => {
+    if (!daoId) return "";
+    try {
+      const parsedAddress = Address.parse(daoId);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return daoId;
+    }
+  }, [daoId]);
+
+  console.log('Connected wallet:', connectedWallet);
+  console.log('Non-bounceable wallet:', nonBounceableWallet);
+  console.log('DAOs:', daos);
 
   if (!connectedWallet) {
     return null;
@@ -101,29 +172,14 @@ const UserDaos = () => {
 
   return (
     <StyledUserDaos>
-      {daos &&
-        daos?.map((dao) => {
-          const { isOwner, isProposalPublisher } = getRole(dao.daoRoles);
-
-          if (isOwner || isProposalPublisher) {
-            const selected = daoId === dao.daoAddress;
-            return (
-              <StyledLink
-                selected={selected ? 1 : 0}
-                to={appNavigation.daoPage.root(dao.daoAddress)}
-                key={dao.daoAddress}
-              >
-                <AppTooltip
-                  text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
-                  placement="right"
-                >
-                  <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
-                </AppTooltip>
-              </StyledLink>
-            );
-          }
-          return null;
-        })}
+      {daos?.map((dao) => (
+        <DaoItem
+          key={dao.daoAddress}
+          dao={dao}
+          selected={nonBounceableDaoId === dao.daoAddress}
+          nonBounceableWallet={nonBounceableWallet}
+        />
+      ))}
     </StyledUserDaos>
   );
 };

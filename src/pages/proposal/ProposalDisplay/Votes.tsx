@@ -10,10 +10,10 @@ import {
   TitleContainer,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
-import { nFormatter, parseLanguage } from "utils";
+import { nFormatter, parseLanguage, makeElipsisAddress } from "utils";
 import { PAGE_SIZE } from "config";
 import { Vote } from "types";
-import { fromNano } from "ton";
+import { fromNano, Address } from "ton";
 import { useMemo, useState } from "react";
 import moment from "moment";
 import _ from "lodash";
@@ -206,10 +206,29 @@ const VoteComponent = ({
 }) => {
   const connectedAddress = useTonAddress();
   const translations = useProposalPageTranslations();
+  const theme = useTheme();
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
-  const isYou = connectedAddress === address;
+  const nonBounceableAddress = useMemo(() => {
+    try {
+      const parsedAddress = Address.parse(address);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return address;
+    }
+  }, [address]);
+
+  const nonBounceableConnectedAddress = useMemo(() => {
+    try {
+      const parsedAddress = Address.parse(connectedAddress);
+      return parsedAddress.toString({ bounceable: false });
+    } catch {
+      return connectedAddress;
+    }
+  }, [connectedAddress]);
+
+  const isYou = nonBounceableConnectedAddress === nonBounceableAddress;
 
   return (
     <StyledAppTooltip
@@ -217,10 +236,27 @@ const VoteComponent = ({
       placement="top"
     >
       <StyledVote justifyContent="flex-start">
-        <StyledAddressDisplay
-          address={address}
-          displayText={isYou ? translations.you : ""}
-        />
+        <StyledAddressContainer>
+          <StyledAddressDisplay
+            address={nonBounceableAddress}
+            displayText={makeElipsisAddress(nonBounceableAddress, 5)}
+          />
+          {isYou && (
+            <StyledYouChip
+              label="Это вы"
+              size="small"
+              sx={{
+                backgroundColor: theme.palette.primary.main,
+                color: 'white',
+                height: '20px',
+                fontSize: '12px',
+                '& .MuiChip-label': {
+                  padding: '0 8px',
+                },
+              }}
+            />
+          )}
+        </StyledAddressContainer>
         <Typography
           className="vote"
           style={{ textAlign: hideVotingPower ? "right" : "center" }}
@@ -310,4 +346,14 @@ const StyledChip = styled(Chip)({
     fontWeight: 600,
     fontSize: 13,
   },
+});
+
+const StyledAddressContainer = styled(StyledFlexRow)({
+  gap: 8,
+  alignItems: 'center',
+  width: 160,
+});
+
+const StyledYouChip = styled(Chip)({
+  borderRadius: 10,
 });

@@ -28,7 +28,7 @@
     "notEnoughVotingPower": "Похоже, у вас нет силы голоса в блоке {{value}}",
     "confirm": "Подтвердить",
     "noVotes": "Нет голосов",
-    "you": "Вы",
+    "you": "Это вы",
     "httpsv2Endpoint": "Конечная точка HTTP v2",
     "httpsv2ApiKey": "Ключ API HTTP v2",
     "httpv4Endpoint": "Конечная точка HTTP v4",
