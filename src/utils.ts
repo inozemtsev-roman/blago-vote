@@ -249,14 +249,9 @@ export const isDaoBlacklisted = (address?: string) => {
 };
 
 export const isProposalWhitelisted = (address?: string) => {
-  console.log("Checking if proposal is whitelisted:", address);
-  console.log("Whitelisted proposals:", WHITELISTED_PROPOSALS);
-  
   if (!address) return false;
   if (!_.size(WHITELISTED_PROPOSALS)) return true;
-  const isWhitelisted = WHITELISTED_PROPOSALS.includes(address);
-  console.log("Is whitelisted:", isWhitelisted);
-  return isWhitelisted;
+  return WHITELISTED_PROPOSALS.includes(address);
 };
 
 export const isZeroAddress = (value?: string) => {

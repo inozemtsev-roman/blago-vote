@@ -25,58 +25,27 @@ export const useNewDataStore = create(
         set((state) => ({ daos: state.daos.filter((d) => d !== dao) })),
       addProposal: (dao, proposal) =>
         set((state) => {
-          console.log("Adding proposal to store:", { dao, proposal });
-          console.log("Current store state:", state);
-          
-          const currentProposals = state.proposals[dao] || [];
-          console.log("Current proposals for DAO:", currentProposals);
-          
-          const newProposals = _.uniq([proposal, ...currentProposals]);
-          console.log("New proposals array:", newProposals);
-          
-          const newState = {
-            ...state,
+          const proposals = state.proposals[dao] || [];
+          return {
             proposals: {
               ...state.proposals,
-              [dao]: newProposals,
+              [dao]: _.uniq([proposal, ...proposals]),
             },
           };
-          
-          console.log("New store state:", newState);
-          return newState;
         }),
       removeProposal: (dao, proposal) =>
         set((state) => {
-          console.log("Removing proposal from store:", { dao, proposal });
-          console.log("Current store state:", state);
-          
-          const currentProposals = state.proposals[dao] || [];
-          const newProposals = currentProposals.filter((p) => p !== proposal);
-          
-          const newState = {
-            ...state,
+          const proposals = state.proposals[dao] || [];
+          return {
             proposals: {
               ...state.proposals,
-              [dao]: newProposals,
+              [dao]: proposals.filter((p) => p !== proposal),
             },
           };
-          
-          console.log("New store state:", newState);
-          return newState;
         }),
     }),
     {
-      name: "new_data_store",
-      version: 1,
-      migrate: (persistedState: any, version: number) => {
-        if (version === 0) {
-          return {
-            daos: [],
-            proposals: {},
-          };
-        }
-        return persistedState;
-      },
+      name: `new_data_store`,
     }
   )
 );
@@ -216,7 +185,7 @@ export const useVotePersistedStore = create(
       },
     }),
     {
-      name: "proposals_store",
+      name: "proposals_store", // name of the item in the storage (must be unique)
     }
   )
 );
@@ -260,6 +229,8 @@ export const useVoteStore = create<VoteStore>((set, get) => ({
   isVoting: false,
   setIsVoting: (isVoting) => set({ isVoting }),
 }));
+
+
 
 interface ErrorStore {
   proposalError: boolean;

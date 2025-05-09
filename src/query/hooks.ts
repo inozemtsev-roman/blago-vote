@@ -11,7 +11,6 @@ import {
   Logger,
   validateServerUpdateTime,
 } from "utils";
-import { useCallback } from "react";
 
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
@@ -104,28 +103,25 @@ export const getIsServerUpToDate = async (itemLastUpdateTime?: number) => {
 };
 
 export const useDaoNewProposals = () => {
-  const newDataStore = useNewDataStore();
+  const { proposals: newProposals, removeProposal } = useNewDataStore();
 
-  return useCallback(
-    (daoAddress: string, currentProposals: string[]) => {
-      console.log("Adding new proposals for DAO:", daoAddress);
-      console.log("New proposals in local storage:", newDataStore.proposals[daoAddress]);
-      console.log("Current proposals:", currentProposals);
-      
-      if (!newDataStore.proposals[daoAddress]) {
-        console.log("No new proposals found in storage");
-        return currentProposals;
+  return (daoAddress: string, proposals: string[]) => {
+    const newDaoPoposals = newProposals[daoAddress];
+    
+    
+    // if no new proposals reutrn current proposals
+    if (!_.size(newDaoPoposals)) return proposals;
+    _.forEach(newDaoPoposals, (newDaoProposal) => {
+      // if server already return new proposal, delete from local storage
+      if (proposals.includes(newDaoProposal)) {
+        removeProposal(daoAddress, newDaoProposal);
+      } else {
+        // if server dont return new proposal, add to proposals
+        proposals.push(newDaoProposal);
       }
+    });
 
-      const newProposals = newDataStore.proposals[daoAddress];
-      console.log("New proposals from storage:", newProposals);
-      
-      const uniqueProposals = _.uniq([...currentProposals, ...newProposals]);
-      console.log("Combined unique proposals:", uniqueProposals);
-      
-      return uniqueProposals;
-    },
-    [newDataStore.proposals]
-  );
+    return _.uniq(proposals);
+  };
 };
 

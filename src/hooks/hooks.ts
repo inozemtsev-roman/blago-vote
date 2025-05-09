@@ -221,56 +221,9 @@ export const useRole = (roles?: DaoRoles) => {
   const address = useTonAddress();
 
   const getRole = (_roles?: DaoRoles) => {
-    console.log("Checking roles for address:", address);
-    console.log("DAO roles:", _roles);
-
-    const nonBounceableAddress = useMemo(() => {
-      if (!address) return "";
-      try {
-        const parsedAddress = Address.parse(address);
-        return parsedAddress.toString({ bounceable: false });
-      } catch {
-        return address;
-      }
-    }, [address]);
-
-    const nonBounceableOwner = useMemo(() => {
-      if (!_roles?.owner) return "";
-      try {
-        const parsedAddress = Address.parse(_roles.owner);
-        return parsedAddress.toString({ bounceable: false });
-      } catch {
-        return _roles.owner;
-      }
-    }, [_roles?.owner]);
-
-    const nonBounceableProposalOwner = useMemo(() => {
-      if (!_roles?.proposalOwner) return "";
-      try {
-        const parsedAddress = Address.parse(_roles.proposalOwner);
-        return parsedAddress.toString({ bounceable: false });
-      } catch {
-        return _roles.proposalOwner;
-      }
-    }, [_roles?.proposalOwner]);
-
-    console.log("Non-bounceable addresses:", {
-      user: nonBounceableAddress,
-      owner: nonBounceableOwner,
-      proposalOwner: nonBounceableProposalOwner
-    });
-
-    const isOwner = !_roles ? false : nonBounceableAddress === nonBounceableOwner;
-    const isProposalPublisher = !_roles ? false : nonBounceableAddress === nonBounceableProposalOwner;
-
-    console.log("Role check results:", {
-      isOwner,
-      isProposalPublisher
-    });
-
     return {
-      isOwner,
-      isProposalPublisher,
+      isOwner: !_roles ? false : address === _roles.owner,
+      isProposalPublisher: !_roles ? false : address === _roles.proposalOwner,
     };
   };
 

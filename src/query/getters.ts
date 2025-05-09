@@ -149,29 +149,30 @@ export const useDaosQuery = () => {
 };
 
 export const useDaoQuery = (daoAddress: string) => {
-  const isWhitelisted = isDaoWhitelisted(daoAddress);
   const addNewProposals = useDaoNewProposals();
+  const isWhitelisted = isDaoWhitelisted(daoAddress);
+  const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
+  const analytics = useAnalytics();
+  const route = useCurrentRoute();
+
   const config = useMemo(() => {
     return {
-      staleTime: 0,
-      refetchInterval: isWhitelisted ? 30_000 : undefined,
+      staleTime: route === routes.proposal ? Infinity : 5_000,
+      refetchInterval:
+        route === routes.proposal ? undefined : REFETCH_INTERVALS.dao,
     };
-  }, [isWhitelisted]);
+  }, [route]);
 
+  const queryClient = useQueryClient();
+  const key = [QueryKeys.DAO, daoAddress];
   return useQuery<Dao | null>(
-    [QueryKeys.DAO, daoAddress],
+    key,
     async ({ signal }) => {
-      console.log("Checking if DAO is whitelisted:", daoAddress, isWhitelisted);
-      
       if (!isWhitelisted) {
         throw new Error("DAO not whitelisted");
       }
 
-      if (BLACKLISTED_PROPOSALS.includes(daoAddress)) {
-        throw new Error("DAO not found");
-      }
-
-      const mockDao = mock.isMockDao(daoAddress);
+      const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
         return {
           ...mockDao,
@@ -179,47 +180,61 @@ export const useDaoQuery = (daoAddress: string) => {
         };
       }
 
+      const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
+
+      const isMetadataUpToDate = await getIsServerUpToDate(metadataLastUpdate);
+
+      const getDaoFromContract = () => contract.getDao(daoAddress);
+
       let dao;
       try {
-        console.log("Fetching DAO from API:", daoAddress);
-        dao = await api.getDao(daoAddress, signal);
-        console.log("DAO fetched from API:", dao);
-      } catch (error) {
-        console.error("Error fetching DAO from API:", error);
-        // Если не удалось получить данные с сервера, пробуем получить из контракта
-        try {
-          console.log("Fetching DAO from contract:", daoAddress);
-          dao = await contract.getDao(daoAddress);
-          console.log("DAO fetched from contract:", dao);
-        } catch (contractError) {
-          console.error("Error fetching DAO from contract:", contractError);
-          throw new Error("DAO not found");
+        if (!isMetadataUpToDate) {
+          dao = await getDaoFromContract();
+        } else {
+          removeDaoUpdateMillis(daoAddress!);
         }
+      } catch (error) {
+        analytics.getDaoFromContractFailed(daoAddress!, error);
+      }
+
+      if (!dao) {
+        try {
+          dao = await api.getDao(daoAddress!, signal);
+        } catch (error) {
+          analytics.getDaoFromServerFailed(daoAddress!, error);
+        }
+      }
+
+      if (!dao) {
+        try {
+          dao = await getDaoFromContract();
+        } catch (error) {
+          analytics.getDaoFromContractFailed(daoAddress!, error);
+        }
+      }
+
+      // try to return dao from cache
+      if (!dao) {
+        dao = queryClient.getQueryData<Dao>(key) || null;
       }
 
       if (!dao) {
         throw new Error("DAO not found");
       }
 
-      console.log("Original DAO proposals:", dao.daoProposals);
       const proposals = addNewProposals(daoAddress!, dao.daoProposals);
-      console.log("Proposals after adding new ones:", proposals);
       let daoProposals = IS_DEV
         ? _.concat(proposals, mock.proposalAddresses)
         : proposals;
 
-      console.log("DAO proposals before filtering:", daoProposals);
       daoProposals = _.filter(
         daoProposals,
         (it) => !BLACKLISTED_PROPOSALS.includes(it)
       );
-      console.log("DAO proposals after filtering:", daoProposals);
 
       if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
         daoProposals = _.uniq([...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]);
-        console.log("DAO proposals after adding foundation proposals:", daoProposals);
       }
-      console.log("Final DAO proposals:", daoProposals);
       return {
         ...dao,
         daoProposals,
@@ -229,8 +244,7 @@ export const useDaoQuery = (daoAddress: string) => {
       staleTime: config.staleTime,
       refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
       enabled: !!daoAddress,
-      retry: 3,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
+      retry: false,
     }
   );
 };
@@ -406,9 +420,6 @@ export const useProposalQuery = (
   return useQuery(
     key,
     async ({ signal }) => {
-      console.log("Fetching proposal:", proposalAddress);
-      console.log("Is whitelisted:", isWhitelisted);
-
       if (!isWhitelisted) {
         throw new Error("Proposal not whitelisted");
       }
@@ -449,8 +460,6 @@ export const useProposalQuery = (
         throw new Error("Proposal not found");
       }
 
-      console.log("Proposal fetched:", proposal);
-
       //  if proposal is up to date, return proposal, and clear local storage stored values
 
       const serverMaxLtUpToDate =
@@ -489,7 +498,6 @@ export const useProposalQuery = (
     },
     {
       onError: (error: Error) => {
-        console.error("Error fetching proposal:", error);
         setError(true);
       },
       refetchOnReconnect: false,
