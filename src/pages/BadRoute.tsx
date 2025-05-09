@@ -11,9 +11,9 @@ export function BadRoute() {
     <Layout>
       <StyledContainer>
         <StyledFlexColumn gap={20}>
-          <Typography className="title">Page doesn't exist</Typography>
+          <Typography className="title">Страница не существует</Typography>
           <Button onClick={() => navigate.daosPage.root()}>
-            <Typography>Go Home</Typography>
+            <Typography>Вернуться назад</Typography>
           </Button>
         </StyledFlexColumn>
       </StyledContainer>

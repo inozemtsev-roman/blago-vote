@@ -28,7 +28,12 @@ import {
   VotingPowerStrategy,
   VotingPowerStrategyType,
 } from "ton-vote-contracts-sdk";
-import { THEME, useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import {
+  Locales,
+  THEME,
+  useTonAddress,
+  useTonConnectUI,
+} from "@tonconnect/ui-react";
 import { useSettingsStore } from "store";
 import _ from "lodash";
 import {
