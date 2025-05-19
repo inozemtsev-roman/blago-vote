@@ -28,7 +28,7 @@ export const VERIFY_LINK =
 
 export const GITHUB_URL = "https://github.com/gradosphera";
 export const MULTISIG_URL = "https://multisig.gradosphera.org";
-export const GOOGLE_ANALYTICS_KEY = "G-T4FZCJ26VK";
+export const GOOGLE_ANALYTICS_KEY = "G-275MF9SCZQ";
 
 export enum QueryKeys {
   PROPOSAL_TIMELINE = "PROPOSAL_TIMELINE",
