@@ -1,6 +1,14 @@
 import _ from "lodash";
 import { ReleaseMode, VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import { StrategyOption } from "types";
+import TelegramAnalytics from "@telegram-apps/analytics";
+
+TelegramAnalytics.init({
+  token:
+    "eyJhcHBfbmFtZSI6IkdyYWRvc3BoZXJhX1ZvdGUiLCJhcHBfdXJsIjoiaHR0cHM6Ly90Lm1lL2dyYWRvc3BoZXJhX3ZvdGVfYm90IiwiYXBwX2RvbWFpbiI6Imh0dHBzOi8vdm90ZS5ncmFkb3NwaGVyYS5vcmcvRVFERXhscDZFamtWTi1PSjFaY0dMRVlsSVRhb2xkNXl0QlAzZThnNmdfQklSYVpYIn0=!/ZVr7tFUH54VuCCAPRZimip/DlmF7/U+E2lM4/hQeIo=",
+  appName: "Gradosphera_Vote",
+});
+
 export const TONVIEWER = "https://tonviewer.com";
 export const TONVIEWER_ADDRESS_URL = `${TONVIEWER}/`;
 export const APP_NAME = "Голос";
