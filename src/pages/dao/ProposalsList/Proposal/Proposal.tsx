@@ -110,7 +110,7 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
         <StyledProposal>
           <StyledFlexColumn alignItems="flex-start" gap={20}>
             <StyledFlexRow justifyContent="space-between">
-              <AppTooltip text="Proposal address" placement="right">
+              <AppTooltip text="Адрес предложения" placement="right">
                 <StyledProposalAddress address={proposalAddress} padding={10} />
               </AppTooltip>
               <StyledFlexRow style={{ width: "auto" }} gap={15}>
