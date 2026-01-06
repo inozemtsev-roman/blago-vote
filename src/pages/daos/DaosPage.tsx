@@ -28,18 +28,24 @@ import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
 import { Typography } from "@mui/material";
 
+const ALLOWED_DAO_ADDRESS = "EQDExlp6EjkVN-OJ1ZcGLEYlITaold5ytBP3e8g6g_BIRaZX";
+
 const filterDaos = (daos: Dao[], searchValue: string) => {
-  if (!searchValue) return daos;
-  const nameFilter = _.filter(daos, (it) =>
+  // Фильтруем только разрешенный адрес
+  let filtered = _.filter(daos, (it) => it.daoAddress === ALLOWED_DAO_ADDRESS);
+  
+  if (!searchValue) return filtered;
+  
+  const nameFilter = _.filter(filtered, (it) =>
     it.daoMetadata.metadataArgs.name
       .toLowerCase()
       .includes(searchValue.toLowerCase())
   );
-  const addressFilter = _.filter(daos, (it) =>
+  const addressFilter = _.filter(filtered, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  const proposalsFilter = _.filter(daos, (it) => {
+  const proposalsFilter = _.filter(filtered, (it) => {
     let res = false;
     _.forEach(it.daoProposals, (it) => {
       if (it.toLowerCase().includes(searchValue.toLowerCase())) {

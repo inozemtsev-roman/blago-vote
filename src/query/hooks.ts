@@ -10,6 +10,7 @@ import { Dao } from "types";
 import {
   Logger,
   validateServerUpdateTime,
+  isDaoWhitelisted,
 } from "utils";
 
 export const useNewDaoAddresses = () => {
@@ -20,8 +21,20 @@ export const useNewDaoAddresses = () => {
       const addresses = _.map(daos, (it) => it.daoAddress);
       const client = await getClientV2();
 
+      // Фильтруем только адреса из белого списка
+      const whitelistedAddresses = _.filter(newDaosAddresses, (address) => 
+        isDaoWhitelisted(address)
+      );
+
+      // Удаляем адреса, не входящие в белый список
+      _.forEach(newDaosAddresses, (address) => {
+        if (!isDaoWhitelisted(address)) {
+          removeDao(address);
+        }
+      });
+
       let promise = Promise.allSettled(
-        _.map(newDaosAddresses, async (newDaoAddress) => {
+        _.map(whitelistedAddresses, async (newDaoAddress) => {
           if (addresses.includes(newDaoAddress)) {
             removeDao(newDaoAddress);
           } else {
