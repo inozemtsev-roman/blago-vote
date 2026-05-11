@@ -161,7 +161,7 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
     ],
   },
   [VotingPowerStrategyType.NftCcollection_1Wallet1Vote]: {
-    name: "Количество NFT, 1 кошелек 1 голосe",
+    name: "Количество NFT, 1 кошелек 1 голос",
     args: [
       {
         type: "text",

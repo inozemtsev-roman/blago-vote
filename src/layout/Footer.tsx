@@ -9,7 +9,7 @@ export function Footer() {
     <StyledContainer>
       <StyledWithLove> <img src={GradospheraLogo} />
         <Typography>ДАО</Typography>
-        <a href="https://gradosphera.org" target="_blank">
+        <a href="https://github.com/gradosphera" target="_blank">
           <Typography>Градосфера</Typography> 
         </a>
       </StyledWithLove>
