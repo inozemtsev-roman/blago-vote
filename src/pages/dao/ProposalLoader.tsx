@@ -1,6 +1,6 @@
-import { styled } from '@mui/material';
-import { Container } from 'components';
-import { StyledFlexColumn, StyledSkeletonLoader } from 'styles'
+import { styled } from "@mui/material";
+import { Container } from "components";
+import { StyledFlexColumn, StyledSkeletonLoader } from "styles";
 
 export function ProposalLoader() {
   return (
@@ -16,6 +16,6 @@ export function ProposalLoader() {
 }
 
 const StyledContainer = styled(Container)({
-    width:'100%'
+  width: "100%",
 });
 

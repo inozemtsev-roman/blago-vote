@@ -10,6 +10,7 @@ import { StyledEmptyText, StyledFlexColumn } from "styles";
 import { ProposalStatus, SelectOption } from "types";
 import { ProposalLoader } from "../ProposalLoader";
 import { Proposal } from "./Proposal/Proposal";
+import { useSortedProposalAddresses } from "./hooks";
 import {
   StyledEmptyList,
   StyledProposalsContainer,
@@ -69,6 +70,7 @@ export function ProposalsList() {
   const { daoAddress } = useAppParams();
 
   const { data, isLoading } = useDaoQuery(daoAddress);
+  const sortedProposalAddresses = useSortedProposalAddresses(data?.daoProposals);
 
   return (
     <StyledProposalsContainer
@@ -77,10 +79,10 @@ export function ProposalsList() {
     >
       {mobile && <ProposalsSearch />}
       <Box style={{ position: "relative", width: "100%" }}>
-        {!isLoading && <EmptyList />}
+        {!isLoading && !_.size(sortedProposalAddresses) && <EmptyList />}
         <StyledFlexColumn gap={15} style={{ zIndex: 10, position: "relative" }}>
           <List isLoading={isLoading} loader={<ListLoader />}>
-            {data?.daoProposals?.map((proposalAddress, index) => {
+            {sortedProposalAddresses?.map((proposalAddress, index) => {
               if (index >= amount) return null;
               return (
                 <Proposal
@@ -93,7 +95,7 @@ export function ProposalsList() {
         </StyledFlexColumn>
       </Box>
       <LoadMore
-        totalItems={_.size(data?.daoProposals)}
+        totalItems={_.size(sortedProposalAddresses)}
         amountToShow={amount}
         showMore={showMore}
         limit={LIMIT}
@@ -116,7 +118,7 @@ const EmptyList = () => {
 const ListLoader = () => {
   return (
     <>
-      {_.range(0, 1).map((it, i) => {
+      {_.range(0, LIMIT).map((i) => {
         return <ProposalLoader key={i} />;
       })}
     </>

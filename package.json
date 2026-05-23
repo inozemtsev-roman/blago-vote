@@ -92,6 +92,10 @@
     "vite": "^4.5.14",
     "vite-tsconfig-paths": "^4.0.8"
   },
+  "resolutions": {
+    "@types/react": "18.3.18",
+    "@types/react-dom": "18.3.5"
+  },
   "overrides": {
     "@types/react": "18.3.18",
     "@types/react-dom": "18.3.5",

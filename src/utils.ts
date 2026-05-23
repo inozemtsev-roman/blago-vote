@@ -25,7 +25,7 @@ import { errorToast } from "toasts";
 export const makeElipsisAddress = (address?: string, padding = 6): string => {
   if (!address) return "";
   return `${address.substring(0, padding)}...${address.substring(
-    address.length - padding
+    address.length - padding,
   )}`;
 };
 
@@ -60,7 +60,7 @@ const extractVoteValue = (value: any) => {
 
 export const parseVotes = (
   rawVotes: TonVoteSDK.Votes | Vote[] | Record<string, any>,
-  votingPower: VotingPower
+  votingPower: VotingPower,
 ) => {
   let votes: Vote[] = [];
 
@@ -143,7 +143,7 @@ export const getTimeDiff = (value: number, reverse?: boolean) => {
 };
 
 export const getProposalStatus = (
-  proposalMetadata?: ProposalMetadata
+  proposalMetadata?: ProposalMetadata,
 ): ProposalStatus | null => {
   if (!proposalMetadata) return null;
   const { proposalStartTime, proposalEndTime } = proposalMetadata;
@@ -155,10 +155,10 @@ export const getProposalStatus = (
   return finished
     ? ProposalStatus.CLOSED
     : voteStarted && !finished
-    ? ProposalStatus.ACTIVE
-    : !voteStarted
-    ? ProposalStatus.NOT_STARTED
-    : null;
+      ? ProposalStatus.ACTIVE
+      : !voteStarted
+        ? ProposalStatus.NOT_STARTED
+        : null;
 };
 
 export const unixToMilliseconds = (value: Number) => {
@@ -167,7 +167,7 @@ export const unixToMilliseconds = (value: Number) => {
 
 export const urlPatternValidation = (URL: string) => {
   const regex = new RegExp(
-    "(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?"
+    "(https?://)?([\\da-z.-]+)\\.([a-z.]{2,6})[/\\w .-]*/?",
   );
   return regex.test(URL);
 };
@@ -185,7 +185,10 @@ export const toTonviewerAddress = (address?: string) => {
 export const toNoBounceAddress = (address?: string) => {
   if (!address) return "";
   try {
-    return Address.parse(address).toString({ urlSafe: true, bounceable: false });
+    return Address.parse(address).toString({
+      urlSafe: true,
+      bounceable: false,
+    });
   } catch {
     return address;
   }
@@ -208,7 +211,7 @@ export const getTonScanContractUrl = (address?: string) => {
 export const calculateTonAmount = (
   type: VotingPowerStrategyType,
   percent?: number,
-  total?: string
+  total?: string,
 ) => {
   if (!percent || !total) return;
   const result = BigNumber(fromNano(total))
@@ -256,7 +259,7 @@ export async function validateFormik(formik: FormikProps<any>) {
 
 export function validateFormikSingleField<T>(
   formik: FormikProps<T>,
-  name: string
+  name: string,
 ) {
   formik.validateField(name);
 
@@ -270,7 +273,7 @@ export function validateFormikSingleField<T>(
 }
 
 export const normalizeResults = (
-  proposalResult?: ProposalResults
+  proposalResult?: ProposalResults,
 ): { title: string; percent: number }[] => {
   if (!proposalResult) return [];
   return _.map(proposalResult, (value, key) => {
@@ -319,7 +322,7 @@ export const isZeroAddress = (value?: string) => {
 };
 
 export const getVoteStrategyType = (
-  votingPowerStrategy?: VotingPowerStrategy[]
+  votingPowerStrategy?: VotingPowerStrategy[],
 ) => {
   const result =
     !votingPowerStrategy || !_.size(votingPowerStrategy)
@@ -338,7 +341,7 @@ export const extractArg = (strategy: VotingPowerStrategy, name: string) => {
 };
 
 export const extractStrategyArguments = (
-  strategies?: VotingPowerStrategy[]
+  strategies?: VotingPowerStrategy[],
 ) => {
   if (!strategies) return {};
   let result: any = {};
@@ -352,7 +355,7 @@ export const extractStrategyArguments = (
 
 export const getStrategyArgument = (
   name: string,
-  strategies?: VotingPowerStrategy[]
+  strategies?: VotingPowerStrategy[],
 ) => {
   return extractStrategyArguments(strategies)[name];
 };
@@ -380,7 +383,7 @@ export const fromUtcMoment = (value?: number) => {
 export const validateServerUpdateTime = (
   server: number,
   local: number,
-  value: number = 90_000
+  value: number = 90_000,
 ) => {
   const now = moment().valueOf();
   const diff = server - local;
@@ -392,7 +395,7 @@ export const getProposalResultTonAmount = (
   choice: string,
   percent: number,
   totalWeight: string,
-  type: VotingPowerStrategyType
+  type: VotingPowerStrategyType,
 ) => {
   let result = "0";
   if (proposal?.sumCoins) {
@@ -422,7 +425,7 @@ export const getProposalResultVotes = (proposal: Proposal, choice: string) => {
       _.groupBy(proposal.votes, "vote"),
       (value) => {
         return _.size(value);
-      }
+      },
     );
 
     votes =
@@ -438,7 +441,7 @@ export const getIsVerifiedDao = (address?: string) => {
 };
 
 export const isNftProposal = (
-  votingPowerStrategies?: VotingPowerStrategy[]
+  votingPowerStrategies?: VotingPowerStrategy[],
 ) => {
   const type = getVoteStrategyType(votingPowerStrategies);
   return (
@@ -448,7 +451,7 @@ export const isNftProposal = (
 };
 
 export const getIsOneWalletOneVote = (
-  votingPowerStrategies?: VotingPowerStrategy[]
+  votingPowerStrategies?: VotingPowerStrategy[],
 ) => {
   const type = getVoteStrategyType(votingPowerStrategies);
 
@@ -464,7 +467,7 @@ export const getIsOneWalletOneVote = (
 };
 
 export const getProposalSymbol = (
-  votingPowerStrategies?: VotingPowerStrategy[]
+  votingPowerStrategies?: VotingPowerStrategy[],
 ) => {
   const type = getVoteStrategyType(votingPowerStrategies);
 
