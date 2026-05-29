@@ -21,11 +21,11 @@ import { useMemo } from "react";
 import _ from "lodash";
 import { PRIMARY_DAO_ADDRESS } from "whitelisted";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
+import { useAppNavigation } from "router/navigation";
 import { Page } from "wrappers";
 import { Typography } from "@mui/material";
 
@@ -141,8 +141,10 @@ export function DaosPage() {
 export default DaosPage;
 
 const NewDao = () => {
+  const { createSpace } = useAppNavigation();
+
   return (
-    <StyledNewDao onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_blank")}>
+    <StyledNewDao onClick={() => createSpace.root()}>
       <StyledDaoContent hover className="container">
         <StyledFlexColumn className="flex">
           <Typography>Создать новое пространство для ДАО</Typography>
