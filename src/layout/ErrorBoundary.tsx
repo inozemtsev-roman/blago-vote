@@ -15,8 +15,8 @@ export const ErrorFallback = (props: FallbackProps) => {
     <StyledErrorContainer>
       <StyledErrorContent>
         <StyledFlexColumn alignItems="center" gap={30}>
-          <Typography className="text">Something went wrong</Typography>
-          <Button onClick={reset}>Home</Button>
+          <Typography className="text">Ошибка</Typography>
+          <Button onClick={reset}>На главную</Button>
         </StyledFlexColumn>
       </StyledErrorContent>
     </StyledErrorContainer>

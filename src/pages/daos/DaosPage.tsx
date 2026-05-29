@@ -15,10 +15,11 @@ import {
   StyledNewDao,
   StyledSearch,
 } from "./styles";
-import { nFormatter } from "utils";
+import { isDaoWhitelisted, nFormatter } from "utils";
 import { Dao } from "types";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import _ from "lodash";
+import { PRIMARY_DAO_ADDRESS } from "whitelisted";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { TELEGRAM_SUPPORT_GROUP } from "config";
 import { useAppQueryParams, useMobile } from "hooks/hooks";
@@ -28,13 +29,20 @@ import { useDaosQuery } from "query/getters";
 import { Page } from "wrappers";
 import { Typography } from "@mui/material";
 
-const ALLOWED_DAO_ADDRESS = "EQDExlp6EjkVN-OJ1ZcGLEYlITaold5ytBP3e8g6g_BIRaZX";
+const sortDaos = (daos: Dao[]) => {
+  const primary = _.find(daos, { daoAddress: PRIMARY_DAO_ADDRESS });
+  const others = _.orderBy(
+    _.filter(daos, (it) => it.daoAddress !== PRIMARY_DAO_ADDRESS),
+    (it) => it.daoId ?? Number.MAX_SAFE_INTEGER,
+    "asc"
+  );
+  return primary ? [primary, ...others] : others;
+};
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
-  // Фильтруем только разрешенный адрес
-  let filtered = _.filter(daos, (it) => it.daoAddress === ALLOWED_DAO_ADDRESS);
-  
-  if (!searchValue) return filtered;
+  let filtered = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+
+  if (!searchValue) return sortDaos(filtered);
   
   const nameFilter = _.filter(filtered, (it) =>
     it.daoMetadata.metadataArgs.name
@@ -55,9 +63,11 @@ const filterDaos = (daos: Dao[], searchValue: string) => {
     return res;
   });
 
-  return _.uniqBy(
-    [...nameFilter, ...addressFilter, ...proposalsFilter],
-    "daoAddress"
+  return sortDaos(
+    _.uniqBy(
+      [...nameFilter, ...addressFilter, ...proposalsFilter],
+      "daoAddress"
+    )
   );
 };
 

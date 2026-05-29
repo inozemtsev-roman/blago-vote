@@ -25,13 +25,13 @@ import { FiMoon, FiSun } from "react-icons/fi";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
-  const { createSpace } = useAppNavigation();
+  const { daosPage } = useAppNavigation();
   const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
       <StyledNav>
-        <StyledLogo>
-          <img src={LogoImg} />
+        <StyledLogo type="button" onClick={() => daosPage.root()}>
+          <img src={LogoImg} alt="" />
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
