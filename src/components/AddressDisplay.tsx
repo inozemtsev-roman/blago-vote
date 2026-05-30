@@ -2,7 +2,7 @@ import { styled, useTheme } from "@mui/material";
 import { useCopyToClipboard } from "hooks/hooks";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";
-import { getTonScanContractUrl, makeElipsisAddress } from "utils";
+import { getTonScanContractUrl, makeElipsisAddress, toNoBounceAddress } from "utils";
 import { OverflowWithTooltip } from "./OverflowWithTooltip";
 
 export function AddressDisplay({
@@ -18,10 +18,11 @@ export function AddressDisplay({
 }) {
   const [_, copy] = useCopyToClipboard();
   const theme = useTheme();
+  const displayAddress = toNoBounceAddress(address);
 
   const onCopy = (e: any) => {
     e.stopPropagation();
-    copy(address || "");
+    copy(displayAddress || "");
   };
 
   const onLinkClick = (e: any) => {
@@ -33,7 +34,7 @@ export function AddressDisplay({
     <StyledContainer className={className} justifyContent="flex-start">
       <StyledButton onClick={onLinkClick} className="address-display-btn">
         <OverflowWithTooltip
-          text={displayText || makeElipsisAddress(address, padding)}
+          text={displayText || makeElipsisAddress(displayAddress, padding)}
         />
       </StyledButton>
       <StyledButton onClick={onCopy}>

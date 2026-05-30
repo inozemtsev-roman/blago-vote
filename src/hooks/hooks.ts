@@ -37,6 +37,7 @@ import {
 import { useSettingsStore } from "store";
 import _ from "lodash";
 import {
+  areTonAddressesEqual,
   getIsOneWalletOneVote,
   getproposalResult,
   getProposalResultTonAmount,
@@ -221,8 +222,10 @@ export const useRole = (roles?: DaoRoles) => {
 
   const getRole = (_roles?: DaoRoles) => {
     return {
-      isOwner: !_roles ? false : address === _roles.owner,
-      isProposalPublisher: !_roles ? false : address === _roles.proposalOwner,
+      isOwner: !_roles ? false : areTonAddressesEqual(address, _roles.owner),
+      isProposalPublisher: !_roles
+        ? false
+        : areTonAddressesEqual(address, _roles.proposalOwner),
     };
   };
 

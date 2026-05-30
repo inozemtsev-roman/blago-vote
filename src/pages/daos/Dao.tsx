@@ -16,6 +16,7 @@ import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { Dao } from "types";
 import {
+  areTonAddressesEqual,
   getIsVerifiedDao,
   makeElipsisAddress,
   parseLanguage,
@@ -46,8 +47,8 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const theme = useTheme();
 
   const isOwner =
-    dao.daoRoles.owner === walletAddress ||
-    dao.daoRoles.proposalOwner === walletAddress;
+    areTonAddressesEqual(dao.daoRoles.owner, walletAddress) ||
+    areTonAddressesEqual(dao.daoRoles.proposalOwner, walletAddress);
 
   if (metadataArgs.hide && !isOwner) return null;
 

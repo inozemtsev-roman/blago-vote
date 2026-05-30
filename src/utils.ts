@@ -22,13 +22,6 @@ import BigNumber from "bignumber.js";
 import { ZERO_ADDRESS } from "consts";
 import { errorToast } from "toasts";
 
-export const makeElipsisAddress = (address?: string, padding = 6): string => {
-  if (!address) return "";
-  return `${address.substring(0, padding)}...${address.substring(
-    address.length - padding,
-  )}`;
-};
-
 export function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -201,6 +194,22 @@ export const normalizeTonAddress = (address?: string) => {
   } catch {
     return address;
   }
+};
+
+export const areTonAddressesEqual = (
+  addressA?: string,
+  addressB?: string
+) => {
+  if (!addressA || !addressB) return false;
+  return normalizeTonAddress(addressA) === normalizeTonAddress(addressB);
+};
+
+export const makeElipsisAddress = (address?: string, padding = 6): string => {
+  if (!address) return "";
+  const formatted = toNoBounceAddress(address);
+  return `${formatted.substring(0, padding)}...${formatted.substring(
+    formatted.length - padding,
+  )}`;
 };
 
 export const getTonScanContractUrl = (address?: string) => {
