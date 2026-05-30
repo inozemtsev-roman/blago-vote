@@ -994,19 +994,19 @@
     "@tonconnect/isomorphic-fetch" "^0.0.2"
     "@tonconnect/protocol" "^2.2.5"
 
+"@tonconnect/ui-react@2.4.4":
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/@tonconnect/ui-react/-/ui-react-2.4.4.tgz#4629f77a38f8d5efa6b355a32f8ea594e4c461b0"
+  integrity sha512-4qpAABZK+nsJSQPGAVsj6xPtQ6HkqGIn/M984dNgp5eqVoaVHti0rCMOqcTutb3BScAvWLJoo3hONqNIg2fuEQ==
+  dependencies:
+    "@tonconnect/ui" "2.4.4"
+
 "@tonconnect/ui-react@^1.0.0-beta.6":
   version "1.0.0-beta.9"
   resolved "https://registry.npmjs.org/@tonconnect/ui-react/-/ui-react-1.0.0-beta.9.tgz"
   integrity sha512-Y+03djw2dUkBNSbm1oI+zrbFS6VfQB1IXUj6ptd39okI2hITG4VLHNWdpDA+wUKdiqGDrIgjCpabC3ZtTMzQrw==
   dependencies:
     "@tonconnect/ui" "^1.0.0-beta.7"
-
-"@tonconnect/ui-react@^2.1.0":
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/@tonconnect/ui-react/-/ui-react-2.4.2.tgz#3e704e41d39840e9fdd4ba33b579f3349fc8c497"
-  integrity sha512-wSHZWEvOK9VugIWothDbCW8sAEbwUoi1qHTICTdpK8zusphEzA3cv4RYAcEXkR2YFXrcDgmqLIob4XFBBNYeVQ==
-  dependencies:
-    "@tonconnect/ui" "2.4.2"
 
 "@tonconnect/ui@2.0.5":
   version "2.0.5"
@@ -1018,10 +1018,10 @@
     deepmerge "^4.2.2"
     ua-parser-js "^1.0.35"
 
-"@tonconnect/ui@2.4.2":
-  version "2.4.2"
-  resolved "https://registry.yarnpkg.com/@tonconnect/ui/-/ui-2.4.2.tgz#3094cba85d2edadfbe5021200a3bd10b2bd10a6d"
-  integrity sha512-8mr7AAxcg8TQBgzOiOQ8/B5BGvS1DVM+2vSLk5NTqli/eGZzNhk/09wcKYdTH50lQ/WbYoAdZu5StWHZ9R7Dmw==
+"@tonconnect/ui@2.4.4":
+  version "2.4.4"
+  resolved "https://registry.yarnpkg.com/@tonconnect/ui/-/ui-2.4.4.tgz#1ea180231d8704b1c462bd980b5bd4da647a91fc"
+  integrity sha512-XgIHAkdimDk+YeRDPsQp7eOz2lM4aScYL3hiTP1Z9YgWRVROjEqTbw5ZP9pt6rgmYTzL26QpqhI6uNTFdYNFIA==
   dependencies:
     "@tonconnect/sdk" "3.4.1"
     classnames "^2.5.1"
