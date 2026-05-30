@@ -147,7 +147,7 @@ const NewDao = () => {
     <StyledNewDao onClick={() => createSpace.root()}>
       <StyledDaoContent hover className="container">
         <StyledFlexColumn className="flex">
-          <Typography>Создать новое пространство для ДАО</Typography>
+          <Typography>Создать новое ДАО</Typography>
         </StyledFlexColumn>
       </StyledDaoContent>
     </StyledNewDao>

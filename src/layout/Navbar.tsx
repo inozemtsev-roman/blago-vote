@@ -63,7 +63,7 @@ const EnvModeIndication = () => {
 const ThemeToggle = () => {
   const { toggleTheme, isDarkMode } = useAppSettings();
   return (
-    <AppTooltip text={isDarkMode ? "Светлый режим" : "Темный режим"}>
+    <AppTooltip text={isDarkMode ? "Дневной режим" : "Ночной режим"}>
       <StyledThemeToggle onClick={toggleTheme}>
         {isDarkMode ? <FiSun /> : <FiMoon />}
       </StyledThemeToggle>
