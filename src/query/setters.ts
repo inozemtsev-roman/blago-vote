@@ -44,12 +44,7 @@ import {
   useVotePersistedStore,
   useVoteStore,
 } from "store";
-import {
-  delay,
-  getTxFee,
-  Logger,
-  validateAddress,
-} from "utils";
+import { delay, getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useAnalytics } from "analytics";
@@ -86,7 +81,7 @@ export const useCreateDaoQuery = () => {
             createDaoProdFee.toString(),
             createDaoDevFee.toString(),
             ReleaseMode.PRODUCTION,
-            ReleaseMode.DEVELOPMENT
+            ReleaseMode.DEVELOPMENT,
           );
         }
         return newDao(
@@ -95,11 +90,11 @@ export const useCreateDaoQuery = () => {
           releaseMode,
           getTxFee(
             Number(registryState?.deployAndInitDaoFee),
-            TX_FEES.CREATE_DAO
+            TX_FEES.CREATE_DAO,
           ),
           args.metadataAddress,
           args.ownerAddress,
-          args.proposalOwner
+          args.proposalOwner,
         );
       };
 
@@ -107,7 +102,7 @@ export const useCreateDaoQuery = () => {
 
       if (typeof address !== "string") {
         throw new Error(
-          `Ошибка создания ДАО, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка создания ДАО, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
         );
       }
 
@@ -125,7 +120,7 @@ export const useCreateDaoQuery = () => {
         showSuccessToast(`Пространство успешно создано`);
         args.onSuccess();
       },
-    }
+    },
   );
 };
 
@@ -144,12 +139,12 @@ export const useCreateMetadataQuery = () => {
         sender,
         clientV2,
         TX_FEES.CREATE_METADATA.toString(),
-        metadata
+        metadata,
       );
 
       if (typeof address !== "string") {
         throw new Error(
-          `Ошибка обновления метаданных. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка обновления метаданных. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
         );
       }
 
@@ -164,7 +159,7 @@ export const useCreateMetadataQuery = () => {
         analytics.createSpaceMetadataSucess(address, args.metadata);
         args.onSuccess(address);
       },
-    }
+    },
   );
 };
 
@@ -197,12 +192,12 @@ export const useCreateProposalQuery = () => {
         await getClientV2(),
         getTxFee(Number(daoState?.fwdMsgFee), TX_FEES.FORWARD_MSG),
         dao?.daoAddress!,
-        metadata as ProposalMetadata
+        metadata as ProposalMetadata,
       );
 
       if (typeof address !== "string") {
         throw new Error(
-          `Ошибка при создании предложения. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
+          `Ошибка при создании предложения. \n Напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
         );
       }
 
@@ -213,18 +208,18 @@ export const useCreateProposalQuery = () => {
         showErrorToast(error);
         analytics.createProposalFailed(
           args.metadata as ProposalMetadata,
-          error.message
+          error.message,
         );
       },
       onSuccess: (address, args) => {
         analytics.createProposalSuccess(
           args.metadata as ProposalMetadata,
-          address
+          address,
         );
         showSuccessToast("Предложение успешно создано");
         args.onSuccess(address);
       },
-    }
+    },
   );
 };
 
@@ -255,7 +250,7 @@ export const useSetDaoOwnerQuery = () => {
         clientV2,
         daoAddress,
         TX_FEES.BASE.toString(),
-        newOwner
+        newOwner,
       );
       setDaoUpdateMillis(daoAddress);
       return refetch();
@@ -265,7 +260,7 @@ export const useSetDaoOwnerQuery = () => {
         errorToast(error);
         args.onError("Ошибка при смене основателя");
       },
-    }
+    },
   );
 };
 
@@ -297,7 +292,7 @@ export const useSetDaoPublisherQuery = () => {
         clientV2,
         TX_FEES.BASE.toString(),
         daoAddress,
-        newOwner
+        newOwner,
       );
       setDaoUpdateMillis(daoAddress);
       return refetchDao();
@@ -307,7 +302,7 @@ export const useSetDaoPublisherQuery = () => {
         args.onError(error.message);
         errorToast(error);
       },
-    }
+    },
   );
 };
 
@@ -333,7 +328,7 @@ export const useUpdateDaoMetadataQuery = () => {
         sender,
         clientV2,
         TX_FEES.CREATE_METADATA.toString(),
-        metadata
+        metadata,
       );
 
       if (typeof metadataAddress !== "string") {
@@ -345,7 +340,7 @@ export const useUpdateDaoMetadataQuery = () => {
         clientV2,
         TX_FEES.SET_METADATA.toString(),
         daoAddress,
-        metadataAddress
+        metadataAddress,
       );
 
       if (typeof address !== "string") {
@@ -359,7 +354,7 @@ export const useUpdateDaoMetadataQuery = () => {
         analytics.updateDaoMetatdaFailed(
           args.metadata,
           args.daoAddress,
-          error.message
+          error.message,
         );
       },
       onSuccess: (_, args) => {
@@ -369,7 +364,7 @@ export const useUpdateDaoMetadataQuery = () => {
         refetchUpdatedDao();
         analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
       },
-    }
+    },
   );
 };
 
@@ -399,7 +394,7 @@ export const useVote = () => {
         client,
         TX_FEES.VOTE_FEE.toString(),
         proposalAddress,
-        _vote
+        _vote,
       );
 
       await delay(2000);
@@ -411,7 +406,7 @@ export const useVote = () => {
         showSuccessToast(`Голос за ${_vote} подтвержден`);
         if (!values) {
           throw new Error(
-            `Вы успешно проголосовали за ${_vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`
+            `Вы успешно проголосовали за ${_vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
           );
         }
 
@@ -422,18 +417,18 @@ export const useVote = () => {
           (prev?: any) => {
             const votes = _.filter(
               prev?.votes,
-              (v) => v.address !== vote.address
+              (v) => v.address !== vote.address,
             );
             return {
               ...prev,
               proposalResult: proposalResults,
               votes: [vote, ...votes],
             };
-          }
+          },
         );
 
         Logger(
-          `успешное голосование вручную обновляет запрос предложения и настраивает локальное хранилище`
+          `успешное голосование вручную обновляет запрос предложения и настраивает локальное хранилище`,
         );
         Logger(maxLt, "maxLt");
         Logger(vote, "walletVote");
@@ -448,7 +443,7 @@ export const useVote = () => {
         errorToast(error, 8_000);
         analytics.voteError(proposalAddress, vote, error.message);
       },
-    }
+    },
   );
 };
 
@@ -467,12 +462,12 @@ export const useUpdateProposalMutation = () => {
     async (metadata: ProposalMetadata) => {
       const proposalQuery = await refetch();
       const { proposalStatus } = getProposalStatus(
-        proposalQuery.data?.metadata!
+        proposalQuery.data?.metadata!,
       );
 
       if (proposalStatus !== ProposalStatus.NOT_STARTED) {
         throw new Error(
-          "Proposal is already started, you cant edit it anymore"
+          "Proposal is already started, you cant edit it anymore",
         );
       }
 
@@ -489,19 +484,19 @@ export const useUpdateProposalMutation = () => {
         TX_FEES.FORWARD_MSG.toString(),
         resolvedDaoAddress,
         proposalAddress!,
-        metadata
+        metadata,
       );
     },
     {
       onSuccess: () => {
-        showSuccessToast("Proposal updated");
+        showSuccessToast("Предложение обновлено");
         setProposalUpdateMillis(proposalAddress!);
         proposalPage.root(proposalAddress!);
       },
       onError: (error: Error) => {
         errorToast(error);
       },
-    }
+    },
   );
 };
 
@@ -531,7 +526,7 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
           const message = error instanceof Error ? error.message : "";
           analytics.getProposalFromContractAfterVotingFailed(
             proposalAddress,
-            message
+            message,
           );
         }
         Logger(error);

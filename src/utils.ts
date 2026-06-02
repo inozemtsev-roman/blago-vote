@@ -196,10 +196,7 @@ export const normalizeTonAddress = (address?: string) => {
   }
 };
 
-export const areTonAddressesEqual = (
-  addressA?: string,
-  addressB?: string
-) => {
+export const areTonAddressesEqual = (addressA?: string, addressB?: string) => {
   if (!addressA || !addressB) return false;
   return normalizeTonAddress(addressA) === normalizeTonAddress(addressB);
 };

@@ -70,7 +70,7 @@ export const EndAdornment = ({
   return (
     <StyledEndAdornment>
       <Button onClick={update} isLoading={isLoading}>
-        <Typography>Update</Typography>
+        <Typography>Обновить</Typography>
       </Button>
     </StyledEndAdornment>
   );

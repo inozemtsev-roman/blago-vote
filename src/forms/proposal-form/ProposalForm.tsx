@@ -147,7 +147,7 @@ function CreateProposalButton({
 }) {
   const address = useTonAddress();
   return (
-    <AppTooltip text={disabled ? 'You need to change at least 1 input to proceed.' : ''}>
+    <AppTooltip text={disabled ? 'Вам нужно внести изменения, чтобы продолжить.' : ''}>
       <StyledSubmit>
         {!address ? (
           <StyledConnect />
