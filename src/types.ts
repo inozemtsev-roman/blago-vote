@@ -192,6 +192,9 @@ export interface ProposalForm {
   title_en?: string;
   votingSystemType: number;
   hide: boolean;
+  templateId?: string;
+  templateParams?: Record<string, string>;
+  isManual?: boolean;
 }
 
 export type ProposalInputArgs = InputArgs<ProposalForm>;

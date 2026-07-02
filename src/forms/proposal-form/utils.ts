@@ -38,6 +38,9 @@ export const getInitialValues = (
       dao
     ),
     hide: formData.hide || false,
+    templateId: formData.templateId,
+    templateParams: formData.templateParams,
+    isManual: formData.isManual,
   };
 };
 

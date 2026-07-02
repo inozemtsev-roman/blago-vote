@@ -1,13 +1,18 @@
 import { Box, Fade, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { AppTooltip, Button, ConnectButton, FormikInputsForm } from "components";
+import {
+  AppTooltip,
+  Button,
+  ConnectButton,
+  FormikInputsForm,
+} from "components";
 import { FormikProps, useFormik } from "formik";
 import { useDebouncedCallback } from "hooks/hooks";
 import _ from "lodash";
 import { mock } from "mock/mock";
 import { useDaoStateQuery } from "query/getters";
-import { useEffect, useMemo, useState } from "react";
-import { StyledFlexRow } from "styles";
+import { useEffect, useState } from "react";
+import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { errorToast } from "toasts";
 import {
   Dao,
@@ -17,9 +22,11 @@ import {
   ProposalStatus,
 } from "types";
 import { validateFormik } from "utils";
+import { getTemplateById } from "data/taxonomy/proposal-templates";
 import { useCreateProposalForm } from "./inputs";
 import ProposalHidePopup from "./ProposalHidePopup";
 import { StrategySelect } from "./StrategySelect";
+import { TemplateSection } from "./TemplateSection";
 import { getInitialValues } from "./utils";
 import { useFormSchema } from "./validation";
 
@@ -59,11 +66,31 @@ export function ProposalForm({
     persistForm?.(formik.values);
   });
 
+  const showTemplateUI = !editMode && !formik.values.isManual;
+
   useEffect(() => {
     saveForm();
   }, [formik.values]);
 
   const onSubmitClick = async () => {
+    if (showTemplateUI) {
+      const template = getTemplateById(formik.values.templateId || "");
+      if (template) {
+        const params = formik.values.templateParams || {};
+        const missingRequired = template.parameters.filter(
+          (p) => p.required && !params[p.name]
+        );
+        if (missingRequired.length > 0) {
+          errorToast(
+            `Заполните обязательные поля: ${missingRequired
+              .map((p) => p.label)
+              .join(", ")}`
+          );
+          return;
+        }
+      }
+    }
+
     const hide = formik.values.hide;
     const prevHide = initialFormData.hide;
 
@@ -102,18 +129,21 @@ export function ProposalForm({
   return (
     <Fade in={true}>
       <StyledContainer alignItems="flex-start">
-        <FormikInputsForm<ProposalFormType>
-          formik={formik}
-          form={form}
-          customInputHandler={customInputHandler}
-        >
-          <CreateProposalButton
-            submitText={submitText}
-            isLoading={isLoading || daoState?.fwdMsgFee === undefined}
-            onSubmit={onSubmitClick}
-            disabled={disableButton}
-          />
-        </FormikInputsForm>
+        <StyledFormWrapper gap={15}>
+          {showTemplateUI && <TemplateSection formik={formik} />}
+          <FormikInputsForm<ProposalFormType>
+            formik={formik}
+            form={form}
+            customInputHandler={customInputHandler}
+          >
+            <CreateProposalButton
+              submitText={submitText}
+              isLoading={isLoading || daoState?.fwdMsgFee === undefined}
+              onSubmit={onSubmitClick}
+              disabled={disableButton}
+            />
+          </FormikInputsForm>
+        </StyledFormWrapper>
         <ProposalHidePopup
           variant={variant}
           onClose={() => setVariant(undefined)}
@@ -132,6 +162,11 @@ const StyledContainer = styled(StyledFlexRow)({
       width: "100%",
     },
   },
+});
+
+const StyledFormWrapper = styled(StyledFlexColumn)({
+  gap: 15,
+  width: "100%",
 });
 
 function CreateProposalButton({

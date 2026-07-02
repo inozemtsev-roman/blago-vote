@@ -21,9 +21,11 @@ export const useCreateProposalForm = (
     const hours = diff.hours();
     const invalidDuration = days < 0 || hours < 0;
 
+    const showManual = editMode || formData.isManual;
+
     const baseDetails: FormArgs<ProposalForm> = {
       title: "",
-      subTitle: translations.subTitle,
+      subTitle: showManual ? translations.subTitle : undefined,
       inputs: [
         {
           label: translations.title,
@@ -113,14 +115,20 @@ export const useCreateProposalForm = (
       ],
     };
 
+    const sections: FormArgs<ProposalForm>[] = [];
+    if (showManual) {
+      sections.push(baseDetails);
+    }
+    sections.push(votingParameters, votingPeriod);
+
     if (!editMode) {
-      return [baseDetails, votingParameters, votingPeriod];
+      return sections;
     }
 
     if (status === ProposalStatus.NOT_STARTED) {
-      return [baseDetails, votingParameters, votingPeriod];
+      return sections;
     }
 
-    return [baseDetails];
-  }, [proposalStartTime, proposalEndTime, translations]);
+    return showManual ? [baseDetails] : [];
+  }, [proposalStartTime, proposalEndTime, translations, formData.isManual]);
 };
