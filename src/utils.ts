@@ -481,7 +481,7 @@ export const getProposalSymbol = (
     case VotingPowerStrategyType.TonBalance:
     case VotingPowerStrategyType.TonBalance_1Wallet1Vote:
     case VotingPowerStrategyType.TonBalanceWithValidators:
-      return "TON";
+      return "GRAM";
     case VotingPowerStrategyType.JettonBalance:
     case VotingPowerStrategyType.JettonBalance_1Wallet1Vote:
       return "Благо";

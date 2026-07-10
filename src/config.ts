@@ -117,9 +117,9 @@ export const TX_FEES = {
 };
 
 export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
-  [VotingPowerStrategyType.TonBalance]: { name: "Баланс TON", args: [] },
+  [VotingPowerStrategyType.TonBalance]: { name: "Баланс GRAM", args: [] },
   [VotingPowerStrategyType.TonBalanceWithValidators]: {
-    name: "Баланс TON с балансом у валидатора",
+    name: "Баланс GRAM с балансом у валидатора",
   },
   [VotingPowerStrategyType.JettonBalance]: {
     name: "Баланс жетонов",
@@ -146,7 +146,7 @@ export const STRATEGIES: { [key: number]: StrategyOption<any> } = {
     ],
   },
   [VotingPowerStrategyType.TonBalance_1Wallet1Vote]: {
-    name: "Баланс TON, 1 кошелек 1 голос",
+    name: "Баланс GRAM, 1 кошелек 1 голос",
     args: [],
   },
   [VotingPowerStrategyType.JettonBalance_1Wallet1Vote]: {

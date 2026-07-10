@@ -169,7 +169,7 @@ export const useDebouncedCallback = (func: any, wait: number = 300) => {
       clearTimeout(timeout.current);
       timeout.current = setTimeout(later, wait);
     },
-    [func, wait]
+    [func, wait],
   );
 };
 
@@ -274,7 +274,7 @@ export const useProposalResults = (proposalAddress: string) => {
     const symbol = getProposalSymbol(proposal.metadata?.votingPowerStrategies);
     const type = getVoteStrategyType(proposal.metadata?.votingPowerStrategies);
     const isOneWalletOneVote = getIsOneWalletOneVote(
-      proposal.metadata?.votingPowerStrategies
+      proposal.metadata?.votingPowerStrategies,
     );
     const choicesByLowerCase = _.keyBy(choices, (it) => it.toLowerCase());
 
@@ -303,7 +303,8 @@ export const useProposalResults = (proposalAddress: string) => {
           const byExact = choicesByLowerCase[value.toLowerCase()];
           const byTrimmed = _.find(
             choices,
-            (choice) => choice.substring(0, 127).toLowerCase() === value.toLowerCase()
+            (choice) =>
+              choice.substring(0, 127).toLowerCase() === value.toLowerCase(),
           );
           const matchedChoice = byExact || byTrimmed;
           if (matchedChoice) {
@@ -313,7 +314,7 @@ export const useProposalResults = (proposalAddress: string) => {
 
         return acc;
       },
-      {} as Record<string, number>
+      {} as Record<string, number>,
     );
 
     const totalVotes = _.sum(_.values(votesByChoice));
@@ -321,7 +322,8 @@ export const useProposalResults = (proposalAddress: string) => {
     return _.map(choices, (choice) => {
       const result = getproposalResult(proposal, choice.substring(0, 127));
       const votesCount = votesByChoice[choice] || 0;
-      const percent = totalVotes > 0 ? _.round((votesCount / totalVotes) * 100, 2) : 0;
+      const percent =
+        totalVotes > 0 ? _.round((votesCount / totalVotes) * 100, 2) : 0;
 
       const amount = getProposalResultTonAmount(
         proposal,
@@ -329,7 +331,7 @@ export const useProposalResults = (proposalAddress: string) => {
         Number(result) || 0,
         proposal.proposalResult["totalWeight"] ||
           proposal.proposalResult["totalWeights"],
-        type
+        type,
       );
 
       return {
@@ -357,7 +359,7 @@ export const useProposalStatus = (proposalAddress: string) => {
         proposalStatus: ProposalStatus.NOT_STARTED,
         proposalStatusText: t.notStarted,
       },
-    }
+    },
   );
 
   return query.data;
@@ -412,7 +414,7 @@ export const useGetProposalSymbol = (proposalAddress: string) => {
 
   return useMemo(
     () => getProposalSymbol(data?.metadata?.votingPowerStrategies),
-    [dataUpdatedAt]
+    [dataUpdatedAt],
   );
 };
 
@@ -425,7 +427,7 @@ export const useProposalStrategyName = (proposalAddress: string) => {
     switch (type) {
       case VotingPowerStrategyType.TonBalance:
       case VotingPowerStrategyType.TonBalanceWithValidators:
-        return "Баланс TON";
+        return "Баланс GRAM";
       case VotingPowerStrategyType.JettonBalance:
         return "Баланс жетонов";
       case VotingPowerStrategyType.NftCcollection:
@@ -446,7 +448,7 @@ export const useIsOneWalletOneVote = (proposalAddress: string) => {
 
   return useMemo(
     () => getIsOneWalletOneVote(data?.metadata?.votingPowerStrategies),
-    [dataUpdatedAt]
+    [dataUpdatedAt],
   );
 };
 
@@ -460,7 +462,7 @@ export const useStrategyArguments = (proposalAddress: string) => {
     }));
     return _.omitBy(
       _.chain(arr).keyBy("name").mapValues("value").value(),
-      _.isUndefined
+      _.isUndefined,
     );
   }, [dataUpdatedAt]);
 };
@@ -470,6 +472,6 @@ export const useIsNftProposal = (proposalAddress: string) => {
 
   return useMemo(
     () => isNftProposal(data?.metadata?.votingPowerStrategies),
-    [dataUpdatedAt]
+    [dataUpdatedAt],
   );
 };

@@ -76,7 +76,7 @@ export function TemplateSection({ formik }: Props) {
     return (
       <StyledContainer>
         <StyledManualToggle onClick={toggleManual}>
-          Использовать шаблон →
+          ← Использовать шаблон
         </StyledManualToggle>
       </StyledContainer>
     );
