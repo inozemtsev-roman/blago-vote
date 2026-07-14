@@ -207,43 +207,62 @@ const StyledShareButton = styled(ShareButton)({
 });
 
 const DaoInfo = () => {
-  const { daoAddress } = useAppParams();
+  const { proposalAddress } = useAppParams();
+  const { data: proposal } = useProposalQuery(proposalAddress);
+  const daoAddress = proposal?.daoAddress || "";
 
   const daoMetadata = useDaoQuery(daoAddress).data?.daoMetadata;
 
+  if (!daoAddress) return null;
+
   return (
-    <StyledFlexRow style={{ width: "auto" }}>
+    <StyledFlexRow style={{ width: "auto", flexShrink: 0 }}>
       <StyledDaoImg src={daoMetadata?.metadataArgs.avatar} />
-      <StyledLink
+      <StyledDaoLink
         to={appNavigation.daoPage.root(daoAddress)}
         className="dao-name"
       >
         <OverflowWithTooltip
           text={parseLanguage(daoMetadata?.metadataArgs.name)}
         />
-      </StyledLink>
+      </StyledDaoLink>
     </StyledFlexRow>
   );
 };
 
 const ByProposalOwner = () => {
-  const { daoAddress } = useAppParams();
+  const { proposalAddress } = useAppParams();
+  const mobile = useMobile();
+  const { data: proposal } = useProposalQuery(proposalAddress);
+  const daoAddress = proposal?.daoAddress || "";
 
   const daoRoles = useDaoQuery(daoAddress).data?.daoRoles;
   if (!daoRoles?.proposalOwner) {
     return null;
   }
+  const padding = mobile ? 3 : 5;
   return (
     <AddressDisplay
-      displayText={`от ${makeElipsisAddress(daoRoles?.proposalOwner, 5)}`}
+      displayText={`от ${makeElipsisAddress(daoRoles?.proposalOwner, padding)}`}
       address={daoRoles?.proposalOwner || ""}
-      padding={5}
+      padding={padding}
     />
   );
 };
 
 const StyledLink = styled(Link)({
   display: "flex",
+});
+
+const StyledDaoLink = styled(Link)({
+  display: "flex",
+  minWidth: 0,
+  overflow: "hidden",
+  ".overflow-with-tooltip": {
+    overflow: "hidden",
+    whiteSpace: "nowrap",
+    textOverflow: "ellipsis",
+  },
 });
 
 const StyledDaoImg = styled(Img)({
