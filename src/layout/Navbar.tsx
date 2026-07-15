@@ -1,5 +1,4 @@
 import {
-  Chip,
   IconButton,
   MenuItem,
   styled,
@@ -11,7 +10,7 @@ import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation } from "router/navigation";
-import { useAppSettings, useDevFeatures } from "hooks/hooks";
+import { useAppSettings } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
 import { useTranslation } from "react-i18next";
 import { BsGlobeAmericas } from "react-icons/bs";
@@ -20,13 +19,11 @@ import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
 import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
-import { useSettingsStore } from "store";
 import { FiMoon, FiSun } from "react-icons/fi";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
   const { daosPage } = useAppNavigation();
-  const devFeatures = useDevFeatures();
   return (
     <StyledContainer>
       <StyledNav>
@@ -35,7 +32,6 @@ export function Navbar() {
           <Typography style={{ marginTop: 5 }}>{APP_NAME}</Typography>
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content" }}>
-          <EnvModeIndication />
           <ConnectButton />
           <ThemeToggle />
         </StyledFlexRow>
@@ -43,22 +39,6 @@ export function Navbar() {
     </StyledContainer>
   );
 }
-
-const EnvModeIndication = () => {
-  const devFeatures = useDevFeatures();
-  const {setBeta, beta} = useAppSettings()
-
-  const onClick = () => {
-    if(beta) {
-      setBeta(false)
-    }
-  }
-
-  if (devFeatures) {
-    return <StyledDev label="Dev" onClick={onClick} />;
-  }
-  return null;
-};
 
 const ThemeToggle = () => {
   const { toggleTheme, isDarkMode } = useAppSettings();
@@ -77,15 +57,6 @@ const StyledThemeToggle = styled(IconButton)(({ theme }) => ({
     padding: 3,
   },
 }));
-
-const StyledDev = styled(Chip)({
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    fontSize: 10,
-    ".MuiChip-label": {
-      padding: "0px 8px",
-    },
-  },
-});
 
 const LanuageSelect = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);

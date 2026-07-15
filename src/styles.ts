@@ -1,6 +1,6 @@
 import { Skeleton, styled, Theme, Typography } from "@mui/material";
 import { Box } from "@mui/system";
-import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
+import { MOBILE_WIDTH } from "consts";
 import { getBorderColor } from "theme";
 
 export const StyledEndAdornment = styled(Box)({
@@ -155,14 +155,12 @@ export const StyledGrid = styled(StyledFlexColumn)({
   width: "calc(100% - 100px)",
   maxWidth: 1100,
   marginLeft: "auto",
-  paddingLeft: TOOLBAR_WIDTH,
   marginRight: "auto",
   "@media (max-width: 1100px)": {
     width: "calc(100% - 50px)",
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: "calc(100% - 20px)",
-    paddingLeft: TOOLBAR_WIDTH,
   },
 });
 

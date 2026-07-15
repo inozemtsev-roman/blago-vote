@@ -1,58 +1,88 @@
-import { IconButton, styled, useTheme, useThemeProps } from "@mui/material";
+import { Box, styled } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { AppTooltip, Button, Img } from "components";
 import { DevParametersModal } from "components/DevParameters";
-import { IS_DEV, TELEGRAM_SUPPORT_GROUP } from "config";
 import { TOOLBAR_WIDTH } from "consts";
-import { useDevFeatures, useRole } from "hooks/hooks";
-import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
+import { useRole } from "hooks/hooks";
 import { useDaosQuery } from "query/getters";
 import { AiOutlinePlus } from "react-icons/ai";
 import { Link, useParams } from "react-router-dom";
+import { useSettingsStore } from "store";
 import { appNavigation, useAppNavigation } from "router/navigation";
-import { StyledFlexColumn } from "styles";
 import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
-import { IoHelpSharp } from "react-icons/io5";
+
+
 export function Toolbar() {
-  const navigation = useAppNavigation();
-  const translations = useDaosPageTranslations();
-  const devFeatures = useDevFeatures();
-  const theme = useTheme();
+  const sidebarHidden = useSettingsStore((s) => s.sidebarHidden);
   const { createSpace } = useAppNavigation();
 
   return (
-    <StyledToolbar>
-      <StyledFlexColumn gap={20}>
-        <DevParametersModal />
-        <AppTooltip text="Создать новое ДАО" placement="right">
-          <StyledButton
-            onClick={createSpace.root}
-            variant="transparent"
-          >
-            <AiOutlinePlus />
-          </StyledButton>
-        </AppTooltip>
-      </StyledFlexColumn>
-      <UserDaos />
-      <StyledSupportTooltip placement="right" text="Служба поддержки">
-        <StyledSupport
-          variant="transparent"
-          onClick={() => window.open(TELEGRAM_SUPPORT_GROUP, "_target")}
-        >
-          <IoHelpSharp
-            style={{ width: 30, height: 30, color: theme.palette.primary.main }}
-          />
-        </StyledSupport>
-      </StyledSupportTooltip>
+    <StyledToolbar expanded={!sidebarHidden}>
+      {!sidebarHidden && (
+        <StyledToolbarContent>
+          <StyledTopArea>
+            <DevParametersModal />
+            <StyledCreateArea>
+              <AppTooltip text="Создать новое ДАО" placement="top">
+                <StyledButton onClick={createSpace.root} variant="transparent">
+                  <AiOutlinePlus />
+                </StyledButton>
+              </AppTooltip>
+            </StyledCreateArea>
+          </StyledTopArea>
+          <UserDaos />
+        </StyledToolbarContent>
+      )}
     </StyledToolbar>
   );
 }
 
-const StyledSupportTooltip = styled(AppTooltip)({
-  marginTop: "auto",
-  cursor: "pointer",
-  marginBottom: 20,
+const StyledCreateArea = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+});
+
+const StyledTopArea = styled(Box)({
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  gap: 8,
+  paddingLeft: 8,
+  height: "100%",
+});
+
+const StyledToolbar = styled(Box, {
+  shouldForwardProp: (prop) => prop !== "expanded",
+})<{ expanded: boolean }>(({ theme, expanded }) => ({
+  height: expanded ? TOOLBAR_WIDTH : 0,
+  width: "100%",
+  background: theme.palette.background.paper,
+  position: "fixed",
+  left: 0,
+  bottom: 0,
+  transition: "height 0.2s",
+  borderTop: expanded
+    ? `0.5px solid ${getBorderColor(theme.palette.mode)}`
+    : "none",
+  boxShadow: expanded
+    ? theme.palette.mode === "dark"
+      ? "0 -4px 16px rgba(0,0,0,0.35)"
+      : "0 -4px 16px rgba(0,0,0,0.08)"
+    : "none",
+  zIndex: 30,
+  overflow: "hidden",
+}));
+
+const StyledToolbarContent = styled(Box)({
+  height: "100%",
+  gap: 0,
+  minHeight: TOOLBAR_WIDTH,
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
+  padding: "0 12px",
 });
 
 const StyledButton = styled(Button)({
@@ -64,26 +94,8 @@ const StyledButton = styled(Button)({
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  svg: {
-    width: 20,
-    height: 20,
-  },
+  svg: { width: 20, height: 20 },
 });
-const StyledSupport = styled(StyledButton)({
-});
-const StyledToolbar = styled(StyledFlexColumn)(({ theme }) => ({
-  width: TOOLBAR_WIDTH,
-  height: "100%",
-  background: theme.palette.background.paper,
-  position: "fixed",
-  left: 0,
-  borderRight: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
-  zIndex: 30,
-  top: 0,
-  justifyContent: "flex-start",
-  paddingTop: 20,
-  gap: 0,
-}));
 
 const UserDaos = () => {
   const { data: daos } = useDaosQuery();
@@ -113,7 +125,7 @@ const UserDaos = () => {
               >
                 <AppTooltip
                   text={parseLanguage(dao.daoMetadata.metadataArgs.name)}
-                  placement="right"
+                  placement="top"
                 >
                   <StyledDaoImg src={dao.daoMetadata.metadataArgs.avatar} />
                 </AppTooltip>
@@ -148,11 +160,13 @@ const StyledDaoImg = styled(Img)({
   borderRadius: "50%",
 });
 
-const StyledUserDaos = styled(StyledFlexColumn)({
+const StyledUserDaos = styled(Box)({
   flex: 1,
   gap: 20,
   overflow: "auto",
-  paddingBottom: 50,
+  paddingRight: 20,
   justifyContent: "flex-start",
-  paddingTop: 20,
+  display: "flex",
+  flexDirection: "row",
+  alignItems: "center",
 });

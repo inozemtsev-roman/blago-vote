@@ -2,11 +2,11 @@ import axios from "axios";
 import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
-import { IS_DEV, API_RETRIES } from "config";
+import { API_RETRIES } from "config";
 import axiosRetry from "axios-retry";
 import retry from "async-retry";
 
-const baseURL = IS_DEV ? "https://dev-api.ton.vote" : "https://api.ton.vote";
+const baseURL = "https://api.ton.vote";
 
 const axiosInstance = axios.create({
   baseURL,

@@ -11,10 +11,11 @@ import { Toolbar } from "./Toolbar";
 import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
-import { MOBILE_WIDTH } from "consts";
+import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { LatestBlock } from "components";
+import { useSettingsStore } from "store";
 
 const useIsBeta = () => {
   const {
@@ -31,7 +32,7 @@ const useIsBeta = () => {
 
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
-  
+  const sidebarHidden = useSettingsStore((s) => s.sidebarHidden);
 
   return (
     <>
@@ -42,7 +43,7 @@ function Layout({ children }: { children?: ReactNode }) {
           <ErrorBoundary
             fallbackRender={(props) => <ErrorFallback {...props} />}
           >
-            <StyledContent>
+            <StyledContent toolbarOffset={!sidebarHidden}>
               {children}
               <Outlet />
             </StyledContent>
@@ -70,13 +71,16 @@ const Wrapped = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const StyledContent = styled(StyledGrid)({
+const StyledContent = styled(StyledGrid, {
+  shouldForwardProp: (prop) => prop !== "toolbarOffset",
+})<{ toolbarOffset?: boolean }>(({ toolbarOffset }) => ({
   paddingTop: 100,
+  paddingBottom: toolbarOffset ? TOOLBAR_WIDTH + 24 : 24,
   flex: 1,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     paddingTop: 80,
   },
-});
+}));
 
 const StyledContainer = styled(StyledFlexColumn)({
   minHeight: "100vh",
