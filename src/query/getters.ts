@@ -21,15 +21,10 @@ import {
   getIsOneWalletOneVote,
   getProposalSymbol,
   getVoteStrategyType,
-  isDaoWhitelisted,
   isProposalWhitelisted,
   Logger,
   nFormatter,
 } from "utils";
-import {
-  FOUNDATION_DAO_ADDRESS,
-  FOUNDATION_PROPOSALS_ADDRESSES,
-} from "data/foundation/data";
 import { useSyncStore, useVotePersistedStore, useVoteStore } from "store";
 import { contract } from "contract";
 import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
@@ -174,24 +169,13 @@ export const useDaosQuery = () => {
       // add new dao addresses, if exist in local storage
       daos = await handleNewDaoAddresses(daos);
 
-      // filter daos by whitelist
-      let result = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
-
-      const daoIndex = _.findIndex(result, {
-        daoAddress: FOUNDATION_DAO_ADDRESS,
-      });
-
-      const foundationDao = result.splice(daoIndex, 1);
-
-      let allDaos = [...foundationDao, ...result];
-
       if (!devFeatures) {
-        allDaos = _.filter(
-          allDaos,
+        daos = _.filter(
+          daos,
           (it) => !PROD_TEST_DAOS.includes(it.daoAddress)
         );
       }
-      return allDaos;
+      return daos;
     },
     {
       refetchInterval: config.refetchInterval,
@@ -202,7 +186,6 @@ export const useDaosQuery = () => {
 
 export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
-  const isWhitelisted = isDaoWhitelisted(daoAddress);
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
   const analytics = useAnalytics();
   const route = useCurrentRoute();
@@ -222,10 +205,6 @@ export const useDaoQuery = (daoAddress: string) => {
   return useQuery<Dao | null>(
     key,
     async ({ signal }) => {
-      if (!isWhitelisted) {
-        throw new Error("DAO not whitelisted");
-      }
-
       const mockDao = mock.isMockDao(daoAddress!);
       if (mockDao) {
         return {
@@ -286,9 +265,6 @@ export const useDaoQuery = (daoAddress: string) => {
         (it) => !BLACKLISTED_PROPOSALS.includes(it)
       );
 
-      if (daoAddress === FOUNDATION_DAO_ADDRESS) {        
-        daoProposals = _.uniq([...daoProposals, ...FOUNDATION_PROPOSALS_ADDRESSES]);
-      }
       return {
         ...dao,
         daoProposals,
@@ -296,7 +272,7 @@ export const useDaoQuery = (daoAddress: string) => {
     },
     {
       staleTime: config.staleTime,
-      refetchInterval: isWhitelisted ? config.refetchInterval : undefined,
+      refetchInterval: config.refetchInterval,
       enabled: !!daoAddress,
       retry: false,
     }
@@ -543,13 +519,6 @@ export const useProposalQuery = (
       const mockProposal = mock.getMockProposal(proposalAddress!);
       if (mockProposal) {
         return mockProposal;
-      }
-      const foundationProposals = await (
-        await import("../data/foundation/data")
-      ).getFoundationProposals();
-      const foundationProposal = foundationProposals[proposalAddress!];
-      if (foundationProposal) {
-        return foundationProposal;
       }
 
       if (isVoting) {

@@ -1,7 +1,6 @@
 import { useQueries } from "@tanstack/react-query";
 import { api } from "api";
 import { QueryKeys } from "config";
-import { getFoundationProposals } from "data/foundation/data";
 import _ from "lodash";
 import { mock } from "mock/mock";
 import { useMemo } from "react";
@@ -36,11 +35,6 @@ export const useSortedProposalAddresses = (proposalAddresses?: string[]) => {
         const mockProposal = mock.getMockProposal(proposalAddress);
         if (mockProposal) {
           return mockProposal;
-        }
-
-        const foundationProposals = await getFoundationProposals();
-        if (foundationProposals[proposalAddress]) {
-          return foundationProposals[proposalAddress];
         }
 
         return (await api.getProposal(proposalAddress)) || null;

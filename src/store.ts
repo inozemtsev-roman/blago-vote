@@ -5,7 +5,6 @@ import { ProposalResult } from "ton-vote-contracts-sdk";
 import { ThemeType, Vote } from "types";
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { isDaoWhitelisted } from "utils";
 
 interface NewDataStore {
   daos: string[];
@@ -22,10 +21,7 @@ export const useNewDataStore = create(
       daos: [],
       proposals: {},
       addDao: (dao) => {
-        // Проверяем, что адрес в белом списке перед добавлением
-        if (isDaoWhitelisted(dao)) {
-          set((state) => ({ daos: _.uniq([...state.daos, dao]) }));
-        }
+        set((state) => ({ daos: _.uniq([...state.daos, dao]) }));
       },
       removeDao: (dao) =>
         set((state) => ({ daos: state.daos.filter((d) => d !== dao) })),

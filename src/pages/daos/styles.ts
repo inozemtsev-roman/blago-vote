@@ -156,6 +156,35 @@ export const StyledSearch = styled(Search)({
   },
 });
 
+export const StyledAboutSection = styled(Box)(({ theme }) => ({
+  textAlign: "center",
+  padding: "40px 20px",
+  width: "100%",
+  ".title": {
+    fontSize: 28,
+    fontWeight: 800,
+    color: theme.typography.h2.color,
+    marginBottom: 12,
+  },
+  ".subtitle": {
+    fontSize: 16,
+    fontWeight: 500,
+    color: theme.palette.text.secondary,
+    maxWidth: 600,
+    margin: "0 auto",
+    lineHeight: "24px",
+  },
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    padding: "30px 10px",
+    ".title": {
+      fontSize: 22,
+    },
+    ".subtitle": {
+      fontSize: 14,
+    },
+  },
+}));
+
 export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
   ".container": {
     boxShadow: "none",

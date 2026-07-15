@@ -6,6 +6,7 @@ import {
   StyledSkeletonLoader,
 } from "styles";
 import {
+  StyledAboutSection,
   StyledDao,
   StyledDaoContent,
   StyledDaosAmount,
@@ -15,7 +16,7 @@ import {
   StyledNewDao,
   StyledSearch,
 } from "./styles";
-import { isDaoWhitelisted, nFormatter } from "utils";
+import { nFormatter } from "utils";
 import { Dao } from "types";
 import { useMemo } from "react";
 import _ from "lodash";
@@ -30,30 +31,26 @@ import { Page } from "wrappers";
 import { Typography } from "@mui/material";
 
 const sortDaos = (daos: Dao[]) => {
-  const primary = _.find(daos, { daoAddress: PRIMARY_DAO_ADDRESS });
-  const others = _.orderBy(
-    _.filter(daos, (it) => it.daoAddress !== PRIMARY_DAO_ADDRESS),
+  return _.orderBy(
+    daos,
     (it) => it.daoId ?? Number.MAX_SAFE_INTEGER,
     "asc"
   );
-  return primary ? [primary, ...others] : others;
 };
 
 const filterDaos = (daos: Dao[], searchValue: string) => {
-  let filtered = _.filter(daos, (it) => isDaoWhitelisted(it.daoAddress));
+  if (!searchValue) return sortDaos(daos);
 
-  if (!searchValue) return sortDaos(filtered);
-  
-  const nameFilter = _.filter(filtered, (it) =>
+  const nameFilter = _.filter(daos, (it) =>
     it.daoMetadata.metadataArgs.name
       .toLowerCase()
       .includes(searchValue.toLowerCase())
   );
-  const addressFilter = _.filter(filtered, (it) =>
+  const addressFilter = _.filter(daos, (it) =>
     it.daoAddress.toLowerCase().includes(searchValue.toLowerCase())
   );
 
-  const proposalsFilter = _.filter(filtered, (it) => {
+  const proposalsFilter = _.filter(daos, (it) => {
     let res = false;
     _.forEach(it.daoProposals, (it) => {
       if (it.toLowerCase().includes(searchValue.toLowerCase())) {
@@ -85,15 +82,28 @@ export function DaosPage() {
   };
   const translations = useDaosPageTranslations();
 
+  const visibleData = useMemo(
+    () => _.filter(data, (it) => it.daoAddress === PRIMARY_DAO_ADDRESS),
+    [data]
+  );
+
   const filteredDaos = useMemo(
-    () => filterDaos(data, searchValue),
-    [searchValue, dataUpdatedAt]
+    () => filterDaos(visibleData, searchValue),
+    [searchValue, visibleData]
   );
 
   const emptyList = !isLoading && !_.size(filteredDaos);
   return (
     <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={mobile ? 15 : 24}>
+        <StyledAboutSection>
+          <Typography className="title">
+            Управление будущим ДАО Градосфера
+          </Typography>
+          <Typography className="subtitle">
+            Децентрализованная, автономная и прозрачная система управления
+          </Typography>
+        </StyledAboutSection>
         <StyledHeader>
           <StyledSearch
             initialValue={query.search || ""}
@@ -101,7 +111,7 @@ export function DaosPage() {
             placeholder={translations.searchForDAO}
           />
           <StyledDaosAmount>
-            {nFormatter(_.size(data))} {translations.spaces}
+            {nFormatter(_.size(visibleData))} {translations.spaces}
           </StyledDaosAmount>
         </StyledHeader>
         <StyledFlexColumn gap={25}>

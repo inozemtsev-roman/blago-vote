@@ -45,9 +45,9 @@ function DesktopAbout() {
       <StyledProposalOwner justifyContent="flex-start">
         <ProposalStatus />
         <DaoInfo />
-        <ByProposalOwner />
         <StyledShareButton url={window.location.href} />
       </StyledProposalOwner>
+      <ProposalOwnerAddress />
       <Description />
     </StyledFlexColumn>
   );
@@ -63,10 +63,10 @@ function MobileAbout() {
           <DaoInfo />
         </StyledFlexRow>
         <StyledFlexRow>
-          <ByProposalOwner />
           <StyledShareButton url={window.location.href} />
         </StyledFlexRow>
       </StyledProposalOwner>
+      <ProposalOwnerAddress />
       <Description />
     </StyledFlexColumn>
   );
@@ -230,9 +230,8 @@ const DaoInfo = () => {
   );
 };
 
-const ByProposalOwner = () => {
+const ProposalOwnerAddress = () => {
   const { proposalAddress } = useAppParams();
-  const mobile = useMobile();
   const { data: proposal } = useProposalQuery(proposalAddress);
   const daoAddress = proposal?.daoAddress || "";
 
@@ -240,18 +239,35 @@ const ByProposalOwner = () => {
   if (!daoRoles?.proposalOwner) {
     return null;
   }
-  const padding = mobile ? 3 : 5;
   return (
-    <AddressDisplay
-      displayText={`от ${makeElipsisAddress(daoRoles?.proposalOwner, padding)}`}
-      address={daoRoles?.proposalOwner || ""}
-      padding={padding}
-    />
+    <StyledAddressRow justifyContent="flex-start" gap={5}>
+      <StyledAddressLabel>От:</StyledAddressLabel>
+      <AddressDisplay
+        address={daoRoles?.proposalOwner || ""}
+        padding={16}
+      />
+    </StyledAddressRow>
   );
 };
 
 const StyledLink = styled(Link)({
   display: "flex",
+});
+
+const StyledAddressRow = styled(StyledFlexRow)(({ theme }) => ({
+  width: "auto",
+  ".address-display-btn": {
+    p: {
+      color: theme.palette.primary.main,
+    },
+  },
+}));
+
+const StyledAddressLabel = styled(Typography)({
+  fontSize: 15,
+  fontWeight: 900,
+  opacity: 1,
+  whiteSpace: "nowrap",
 });
 
 const StyledDaoLink = styled(Link)({

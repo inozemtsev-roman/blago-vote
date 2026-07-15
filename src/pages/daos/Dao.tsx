@@ -50,7 +50,7 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
     areTonAddressesEqual(dao.daoRoles.owner, walletAddress) ||
     areTonAddressesEqual(dao.daoRoles.proposalOwner, walletAddress);
 
-  if (metadataArgs.hide && !isOwner) return null;
+  if ((metadataArgs.hide || !getIsVerifiedDao(dao.daoAddress)) && !isOwner) return null;
 
   const mockPrefix = mock.isMockDao(dao.daoAddress) ? "(mock)" : "";
 

@@ -20,7 +20,6 @@ import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslati
 import { mock } from "mock/mock";
 import { errorToast } from "toasts";
 import {  useAppParams, useProposalResults } from "hooks/hooks";
-import {  shouldHideVerify } from "data/foundation/data";
 import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
 const QUORUM_PERCENT = 66;
@@ -33,8 +32,6 @@ export const Results = () => {
   const [showAllResults, setShowAllResults] = useState(false);
   const translations = useProposalPageTranslations();
 
-  const hideVerify = shouldHideVerify(proposalAddress);
-  
   const results = useProposalResults(proposalAddress);
   const winnerPercent = Math.max(...results.map((it) => it.percent), 0);
   const isQuorumPassed = winnerPercent >= QUORUM_PERCENT;
@@ -72,7 +69,7 @@ export const Results = () => {
           />
         )}
       </StyledFlexColumn>
-      {!hideVerify && <VerifyResults />}
+      <VerifyResults />
     </StyledResults>
   );
 };

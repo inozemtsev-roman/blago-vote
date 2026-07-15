@@ -9,7 +9,7 @@ import { FormikInputsForm } from "./inputs/Inputs";
 import { AppTooltip } from "./Tooltip";
 import { FiSettings } from "react-icons/fi";
 import _ from "lodash";
-import { useDevFeatures } from "hooks/hooks";
+import { useAppQueryParams } from "hooks/hooks";
 import { useDaosQuery, useRegistryStateQuery } from "query/getters";
 import { registryAdminSetters } from "query/registry-admin";
 
@@ -159,7 +159,8 @@ export function DevParametersModal() {
   const registryState = useRegistryStateQuery().data;
 
   const { isLoading: daosLoading } = useDaosQuery();
-  const show = useDevFeatures();
+  const { query } = useAppQueryParams();
+  const show = query.dev;
   const formik = useFormik<IForm>({
     enableReinitialize: true,
     initialValues: {

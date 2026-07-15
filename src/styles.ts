@@ -162,7 +162,7 @@ export const StyledGrid = styled(StyledFlexColumn)({
   },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: "calc(100% - 20px)",
-    paddingLeft: "unset",
+    paddingLeft: TOOLBAR_WIDTH,
   },
 });
 

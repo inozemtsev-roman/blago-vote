@@ -213,8 +213,7 @@ export const useMobile = () => {
 };
 
 export const useDevFeatures = () => {
-  const beta = useAppSettings().beta;
-  return IS_DEV || beta;
+  return true;
 };
 
 export const useRole = (roles?: DaoRoles) => {
