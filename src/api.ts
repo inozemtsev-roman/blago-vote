@@ -135,6 +135,36 @@ const getUpdateTime = async (): Promise<number> => {
   return res.data;
 };
 
+export type JettonDisplayMetadata = {
+  name?: string;
+  symbol?: string;
+  image?: string;
+  decimals?: string;
+};
+
+const getJettonMetadata = async (
+  address: string,
+  signal?: AbortSignal
+): Promise<JettonDisplayMetadata | undefined> => {
+  try {
+    const res = await axios.get(`https://tonapi.io/v2/jettons/${address}`, {
+      signal,
+    });
+    const metadata = res.data?.metadata;
+    if (!metadata) return undefined;
+    return {
+      name: metadata.name,
+      symbol: metadata.symbol,
+      // preview — CDN TonAPI, стабильнее raw github/ipfs ссылок из metadata.image
+      image: res.data?.preview || metadata.image,
+      decimals: metadata.decimals,
+    };
+  } catch (error) {
+    Logger(`Failed to fetch jetton metadata for ${address}`);
+    return undefined;
+  }
+};
+
 export const api = {
   getDaos,
   getProposal,
@@ -144,6 +174,7 @@ export const api = {
   getUpdateTime,
   serverVersion,
   geOperatingValidatorsInfo,
+  getJettonMetadata,
 };
 
 export interface GetStateApiPayload {

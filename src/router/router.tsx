@@ -78,12 +78,10 @@ export const useRouter = () => {
                 {
                   path: routes.spaceSettings,
                   errorElement: <Navigate to={routes.spaces} />,
-                  element: devFeatures ? (
+                  element: (
                     <Suspense fallback={<PageFallback />}>
                       <DaoSettings />
                     </Suspense>
-                  ) : (
-                    <Navigate to={routes.space} />
                   ),
                 },
                 {

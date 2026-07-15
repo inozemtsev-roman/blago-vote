@@ -16,7 +16,7 @@ import {
   useProposalStrategyName,
   useStrategyArguments,
 } from "hooks/hooks";
-import { useProposalQuery } from "query/getters";
+import { useProposalQuery, useJettonMetadata } from "query/getters";
 import { ONE_WALLET_ONE_VOTE_URL } from "consts";
 import { getTonScanContractUrl, getVoteStrategyType } from "utils";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
@@ -191,16 +191,22 @@ const NFT = () => {
 const Jetton = () => {
   const { proposalAddress } = useAppParams();
   const data = useProposalQuery(proposalAddress).data;
-
   const strategyArgs = useStrategyArguments(proposalAddress);
+  const address = strategyArgs.jetton as string | undefined;
+  const proposalMeta = data?.metadata?.jettonMetadata?.metadata;
+  const { data: tonapiMeta } = useJettonMetadata(address);
 
-  return (
-    <Asset
-      metadata={data?.metadata?.jettonMetadata?.metadata}
-      address={strategyArgs.jetton}
-      label="Жетон"
-    />
-  );
+  const metadata = useMemo(() => {
+    if (!proposalMeta && !tonapiMeta) return undefined;
+    return {
+      ...proposalMeta,
+      ...tonapiMeta,
+      name: proposalMeta?.name || tonapiMeta?.name || tonapiMeta?.symbol,
+      image: proposalMeta?.image || tonapiMeta?.image,
+    };
+  }, [proposalMeta, tonapiMeta]);
+
+  return <Asset metadata={metadata} address={address} label="Жетон" />;
 };
 
 const Asset = ({

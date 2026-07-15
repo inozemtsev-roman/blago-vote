@@ -4,7 +4,6 @@ import { routes } from "consts";
 import {
   useAppParams,
   useCurrentRoute,
-  useDevFeatures,
   useMobile,
   useRole,
 } from "hooks/hooks";
@@ -224,7 +223,6 @@ const MobileNavigation = () => {
 };
 
 const useNavigationLinks = () => {
-  const showDev = useDevFeatures();
   const { daoAddress } = useAppParams();
 
   const translations = useDaoPageTranslations();
@@ -262,7 +260,7 @@ const useNavigationLinks = () => {
       path: appNavigation.daoPage.settings(daoAddress),
       selected: route === routes.spaceSettings,
       route: routes.spaceSettings,
-      hide: !showDev,
+      hide: !isOwner,
     },
   ];
 };

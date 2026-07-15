@@ -41,6 +41,7 @@ export enum QueryKeys {
   CLIENTS = "CLIENTS",
   DAO_STATE = "DAO_STATE",
   REGISTRY_STATE = "REGISTRY_STATE",
+  JETTON_METADATA = "JETTON_METADATA",
 }
 
 export const LANGUAGES = { en: "English", ru: "Русский" };

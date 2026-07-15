@@ -51,6 +51,7 @@ const StyledTopArea = styled(Box)({
   gap: 8,
   paddingLeft: 8,
   height: "100%",
+  marginRight: 16,
 });
 
 const StyledToolbar = styled(Box, {

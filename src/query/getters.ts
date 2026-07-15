@@ -606,3 +606,18 @@ export const useWalletsQuery = () => {
     enabled: !!tonConnectUI,
   });
 };
+
+export const useJettonMetadata = (address?: string) => {
+  return useQuery(
+    [QueryKeys.JETTON_METADATA, address],
+    async ({ signal }) => {
+      if (!address) return undefined;
+      return api.getJettonMetadata(address, signal);
+    },
+    {
+      enabled: !!address,
+      staleTime: Infinity,
+      retry: 1,
+    }
+  );
+};
