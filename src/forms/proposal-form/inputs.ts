@@ -45,6 +45,15 @@ export const useCreateProposalForm = (
           isMarkdown: true,
           required: true,
         },
+        ...(!editMode
+          ? [
+              {
+                label: "",
+                type: "custom" as const,
+                name: "_categorySelector",
+              },
+            ]
+          : []),
       ],
     };
 

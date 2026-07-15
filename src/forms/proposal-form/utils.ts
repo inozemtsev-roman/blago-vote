@@ -8,12 +8,13 @@ import {
 import { Dao, ProposalForm, ProposalInputArgs } from "types";
 import { fromUtcMoment, isZeroAddress, utcMoment } from "utils";
 
-const initialChoices = ["Да", "Нет", "Воздержаться"];
+const initialChoices = ["За", "Против", "Воздержаться"];
+const BLAGO_JETTON_ADDRESS = "EQBlaryI1HCY6hIlW9giBoqKGtuMHfxlULZOhD6UyzpqLcll";
 
 export const getInitialValues = (
   formData: ProposalForm,
   dao?: Dao,
-  editMode?: boolean
+  editMode?: boolean,
 ): ProposalForm => {
   const { proposalEndTime, proposalSnapshotTime, proposalStartTime } =
     getInitialTimestamps();
@@ -35,7 +36,7 @@ export const getInitialValues = (
     title_en: formData.title_en,
     votingPowerStrategies: handleInitialVotingPowerStrategies(
       formData.votingPowerStrategies,
-      dao
+      dao,
     ),
     hide: formData.hide || false,
     templateId: formData.templateId,
@@ -46,7 +47,7 @@ export const getInitialValues = (
 
 const handleInitialVotingPowerStrategies = (
   votingPowerStrategies?: VotingPowerStrategy[],
-  dao?: Dao
+  dao?: Dao,
 ): VotingPowerStrategy[] => {
   const metadataArgs = dao?.daoMetadata.metadataArgs;
   if (votingPowerStrategies && _.size(votingPowerStrategies)) {
@@ -56,7 +57,7 @@ const handleInitialVotingPowerStrategies = (
   const jetton =
     metadataArgs?.jetton && !isZeroAddress(metadataArgs?.jetton)
       ? metadataArgs.jetton
-      : "";
+      : BLAGO_JETTON_ADDRESS;
   const nft =
     metadataArgs?.nft && !isZeroAddress(metadataArgs?.nft)
       ? metadataArgs?.nft
@@ -111,7 +112,7 @@ const getInitialTimestamps = () => {
 
 export const handleDefaults = (
   input: ProposalInputArgs,
-  dao?: Dao | null
+  dao?: Dao | null,
 ): ProposalInputArgs => {
   const metadataArgs = dao?.daoMetadata.metadataArgs;
   const nftAddress =
@@ -121,7 +122,7 @@ export const handleDefaults = (
   const jettonAddress =
     metadataArgs?.jetton && !isZeroAddress(metadataArgs?.jetton)
       ? metadataArgs?.jetton
-      : "";
+      : BLAGO_JETTON_ADDRESS;
 
   switch (input.name) {
     case "nft-address":
@@ -141,17 +142,17 @@ export const handleDefaults = (
 };
 
 export const prepareMetadata = (
-  formValues: ProposalForm
+  formValues: ProposalForm,
 ): Partial<ProposalMetadata> => {
   return {
     proposalStartTime: Math.floor(
-      utcMoment(formValues.proposalStartTime).valueOf() / 1_000
+      utcMoment(formValues.proposalStartTime).valueOf() / 1_000,
     ),
     proposalEndTime: Math.floor(
-      utcMoment(formValues.proposalEndTime).valueOf() / 1_000
+      utcMoment(formValues.proposalEndTime).valueOf() / 1_000,
     ),
     proposalSnapshotTime: Math.floor(
-      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000
+      utcMoment(formValues.proposalSnapshotTime).valueOf() / 1_000,
     ),
     votingSystem: {
       votingSystemType: formValues.votingSystemType,

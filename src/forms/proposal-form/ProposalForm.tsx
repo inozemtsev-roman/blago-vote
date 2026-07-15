@@ -1,4 +1,4 @@
-import { Box, Fade, styled } from "@mui/material";
+import { Box, Fade, styled, Typography } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import {
   AppTooltip,
@@ -218,6 +218,15 @@ const StyledButton = styled(Button)({
 
 const useCustomInputHandler = (formik: FormikProps<ProposalFormType>) => {
   return (args: ProposalInputArgs) => {
+    if (args.name === "_categorySelector") {
+      return (
+        <StyledCategoryToggle
+          onClick={() => formik.setFieldValue("isManual", false)}
+        >
+          Выбрать категорию
+        </StyledCategoryToggle>
+      );
+    }
     const value = formik.values.votingPowerStrategies;
     return (
       <StrategySelect
@@ -231,3 +240,13 @@ const useCustomInputHandler = (formik: FormikProps<ProposalFormType>) => {
     );
   };
 };
+
+const StyledCategoryToggle = styled(Typography)(({ theme }) => ({
+  cursor: "pointer",
+  fontSize: 14,
+  color: theme.palette.primary.main,
+  fontWeight: 600,
+  "&:hover": {
+    textDecoration: "underline",
+  },
+}));
