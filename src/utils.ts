@@ -446,6 +446,18 @@ export const getIsVerifiedDao = (address?: string) => {
   return VERIFIED_DAOS.includes(address || "");
 };
 
+export const normalizeImageUrl = (url?: string): string => {
+  if (!url) return "";
+  const githubBlobRegex =
+    /^https:\/\/github\.com\/([^/]+)\/([^/]+)\/blob\/([^/]+)\/(.+)$/;
+  const match = url.match(githubBlobRegex);
+  if (match) {
+    const [, owner, repo, ref, path] = match;
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${path}`;
+  }
+  return url;
+};
+
 export const isNftProposal = (
   votingPowerStrategies?: VotingPowerStrategy[],
 ) => {

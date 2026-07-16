@@ -1,5 +1,6 @@
 import { Box, Fade, styled } from "@mui/material";
 import React, { useState } from "react";
+import { normalizeImageUrl } from "utils";
 import { StyledSkeletonLoader } from "styles";
 
 export function Img({
@@ -11,11 +12,10 @@ export function Img({
 }) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(false);
-  
 
-  const showPlaceholder = error ? true : isLoading ? false : !src
+  const normalizedSrc = normalizeImageUrl(src);
+  const showPlaceholder = error ? true : isLoading ? false : !normalizedSrc;
 
-  
   return (
     <StyledContainer className={`${className} img`}>
       {showPlaceholder ? (
@@ -24,9 +24,9 @@ export function Img({
         <>
           <Fade in={!isLoading}>
             <StyledImg
-            referrerPolicy='no-referrer'
+              referrerPolicy="no-referrer"
               onError={() => setError(true)}
-              src={src}
+              src={normalizedSrc}
               onLoad={() => setIsLoading(false)}
             />
           </Fade>
