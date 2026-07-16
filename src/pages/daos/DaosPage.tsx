@@ -22,7 +22,7 @@ import { useMemo } from "react";
 import _ from "lodash";
 import { PRIMARY_DAO_ADDRESS } from "whitelisted";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
-import { useAppQueryParams, useMobile } from "hooks/hooks";
+import { useAppQueryParams, useMobile, useRole } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
@@ -72,6 +72,7 @@ export function DaosPage() {
   const { data = [], isLoading, dataUpdatedAt } = useDaosQuery();
   const { limit, loadMore } = useDaosListLimit();
   const mobile = useMobile();
+  const { getRole } = useRole();
 
   const { query, setSearch } = useAppQueryParams();
 
@@ -83,8 +84,13 @@ export function DaosPage() {
   const translations = useDaosPageTranslations();
 
   const visibleData = useMemo(
-    () => _.filter(data, (it) => it.daoAddress === PRIMARY_DAO_ADDRESS),
-    [data]
+    () =>
+      _.filter(data, (it) => {
+        if (it.daoAddress === PRIMARY_DAO_ADDRESS) return true;
+        const { isOwner, isProposalPublisher } = getRole(it.daoRoles);
+        return isOwner || isProposalPublisher;
+      }),
+    [data, getRole]
   );
 
   const filteredDaos = useMemo(
