@@ -133,7 +133,10 @@ const Description = () => {
       setDescriptionHeight(elRef.current.offsetHeight);
     }
   }, [data?.metadata?.description]);
-  const description = parseLanguage(data?.metadata?.description);
+  const description = parseLanguage(data?.metadata?.description)
+    .split("\n")
+    .filter((line: string) => !line.match(/^\*?\*?Место проведения:\*?\*?/))
+    .join("\n");
 
   const showMoreButton = descriptionHeight > MIN_DESCRIPTION_HEIGHT;
 
