@@ -1,115 +1,103 @@
 import { useQueries } from "@tanstack/react-query";
-import { styled, Typography } from "@mui/material";
-import { Status } from "components";
+import { Box, styled, Typography } from "@mui/material";
+import { IoArrowDown, IoArrowUp } from "react-icons/io5";
 import { QueryKeys } from "config";
 import _ from "lodash";
 import moment from "moment";
-import { useMemo } from "react";
-import { useIntersectionObserver } from "react-intersection-observer-hook";
+import { useMemo, useState } from "react";
 import { api } from "api";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
 import { parseLanguage } from "utils";
 import { FEATURED_DAOS } from "whitelisted";
-import removeMd from "remove-markdown";
-import { useDaosQuery, useProposalQuery } from "query/getters";
-import { useProposalStatus } from "hooks/hooks";
-import {
-  StyledActiveProposalsSection,
-  StyledActiveProposalCard,
-  StyledActiveProposalTitle,
-  StyledActiveProposalDescription,
-  StyledActiveProposalDaoName,
-  StyledActiveProposalEndDate,
-} from "./styles";
+import { useDaosQuery } from "query/getters";
+import { MOBILE_WIDTH } from "consts";
 
-const ActiveProposalsLoader = () => {
-  return (
-    <StyledActiveProposalsSection>
-      <StyledFlexColumn gap={12} alignItems="flex-start" style={{ width: "100%" }}>
-        <StyledSkeletonLoader style={{ width: 200, height: 24 }} />
-        {_.range(0, 2).map((_, i) => (
-          <StyledActiveProposalCard key={i}>
-            <StyledFlexColumn gap={8} alignItems="flex-start">
-              <StyledSkeletonLoader style={{ width: "60%", height: 20 }} />
-              <StyledSkeletonLoader style={{ width: "90%", height: 16 }} />
-            </StyledFlexColumn>
-          </StyledActiveProposalCard>
-        ))}
-      </StyledFlexColumn>
-    </StyledActiveProposalsSection>
-  );
-};
-
-const ActiveProposalCard = ({
-  proposalAddress,
-  daoName,
-  endTime,
-}: {
+interface ActiveProposal {
   proposalAddress: string;
   daoName: string;
   endTime: number;
-}) => {
-  const [ref, { entry }] = useIntersectionObserver();
-  const isVisible = entry && entry.isIntersecting;
+  startTime: number;
+  votesCount: number;
+  title: string;
+  description: string;
+}
+
+interface ActiveProposal {
+  proposalAddress: string;
+  daoName: string;
+  endTime: number;
+  startTime: number;
+  votesCount: number;
+  title: string;
+}
+
+const ActiveProposalsLoader = () => {
+  return (
+    <StyledSection>
+      <StyledFlexColumn gap={0} alignItems="flex-start" style={{ width: "100%" }}>
+        <StyledSkeletonLoader style={{ width: 200, height: 24, marginBottom: 16 }} />
+        {_.range(0, 3).map((_, i) => (
+          <StyledTableRow key={i}>
+            <StyledSkeletonLoader style={{ width: "100%", height: 40 }} />
+          </StyledTableRow>
+        ))}
+      </StyledFlexColumn>
+    </StyledSection>
+  );
+};
+
+const SortIcon = ({ direction }: { direction: "asc" | "desc" }) => {
+  return direction === "asc" ? (
+    <IoArrowUp size={14} style={{ marginLeft: 4 }} />
+  ) : (
+    <IoArrowDown size={14} style={{ marginLeft: 4 }} />
+  );
+};
+
+const ActiveProposalRow = ({
+  proposalAddress,
+  daoName,
+  endTime,
+  votesCount,
+  title,
+  description,
+}: Omit<ActiveProposal, "startTime">) => {
   const { proposalPage } = useAppNavigation();
-
-  const { data: proposal, isLoading } = useProposalQuery(proposalAddress, {
-    disabled: !isVisible,
-  });
-  const { proposalStatusText } = useProposalStatus(proposalAddress);
-
-  const title = useMemo(
-    () => parseLanguage(proposal?.metadata?.title),
-    [proposal?.metadata?.title]
-  );
-  const description = useMemo(
-    () =>
-      parseLanguage(proposal?.metadata?.description, "en")
-        .split("\n")
-        .filter((line: string) => !line.match(/^\*?\*?Место проведения:\*?\*?/))
-        .join("\n"),
-    [proposal?.metadata?.description]
-  );
 
   const onClick = () => {
     proposalPage.root(proposalAddress);
   };
 
-  const formattedEndDate = moment.unix(endTime).format("DD.MM.YYYY HH:mm");
+  const formattedEndDate = moment.unix(endTime).format("DD.MM.YYYY");
+  const shortDescription = description
+    ? description.substring(0, 80) + (description.length > 80 ? "..." : "")
+    : "";
 
   return (
-    <div ref={ref} onClick={onClick} style={{ width: "100%", cursor: "pointer" }}>
-      {isLoading ? (
-        <StyledActiveProposalCard>
-          <StyledFlexColumn gap={8} alignItems="flex-start">
-            <StyledSkeletonLoader style={{ width: "60%", height: 20 }} />
-            <StyledSkeletonLoader style={{ width: "90%", height: 16 }} />
-          </StyledFlexColumn>
-        </StyledActiveProposalCard>
-      ) : (
-        <StyledActiveProposalCard>
-          <StyledFlexColumn gap={6} alignItems="flex-start">
-            <StyledFlexRow justifyContent="space-between" style={{ width: "100%" }}>
-              <StyledActiveProposalDaoName>{daoName}</StyledActiveProposalDaoName>
-              <Status status={proposalStatusText} />
-            </StyledFlexRow>
-            <StyledActiveProposalTitle>{title}</StyledActiveProposalTitle>
-            <StyledActiveProposalEndDate>
-              Окончание: {formattedEndDate}
-            </StyledActiveProposalEndDate>
-            <StyledActiveProposalDescription>
-              {removeMd(description || "", { useImgAltText: true })}
-            </StyledActiveProposalDescription>
-          </StyledFlexColumn>
-        </StyledActiveProposalCard>
-      )}
-    </div>
+    <StyledTableRow onClick={onClick}>
+      <StyledTableCell style={{ flex: 3 }}>
+        <StyledFlexColumn alignItems="flex-start" gap={2}>
+          <StyledProposalTitle>{title}</StyledProposalTitle>
+          {shortDescription && (
+            <StyledProposalDescription>{shortDescription}</StyledProposalDescription>
+          )}
+          <StyledDaoName>{daoName}</StyledDaoName>
+        </StyledFlexColumn>
+      </StyledTableCell>
+      <StyledTableCellCenter style={{ flex: 1.5 }}>
+        <StyledEndDate>{formattedEndDate}</StyledEndDate>
+      </StyledTableCellCenter>
+      <StyledTableCellCenter style={{ flex: 1 }}>
+        <StyledVotesCount>{votesCount}</StyledVotesCount>
+      </StyledTableCellCenter>
+    </StyledTableRow>
   );
 };
 
 export const ActiveProposals = () => {
   const { data: allDaos = [], isLoading: daosLoading } = useDaosQuery();
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const featuredProposalAddresses = useMemo(() => {
     const addresses: { proposalAddress: string; daoAddress: string }[] = [];
@@ -138,7 +126,7 @@ export const ActiveProposals = () => {
 
   const activeProposals = useMemo(() => {
     const now = Date.now();
-    const proposals = featuredProposalAddresses
+    const proposals: ActiveProposal[] = featuredProposalAddresses
       .filter(({ proposalAddress }: { proposalAddress: string }, index: number) => {
         const query = proposalQueries[index];
         if (!query?.data) return false;
@@ -149,17 +137,29 @@ export const ActiveProposals = () => {
         return startTime <= now && endTime > now;
       })
       .map(({ proposalAddress, daoAddress }: { proposalAddress: string; daoAddress: string }) => {
-        const query = featuredProposalAddresses.findIndex(
+        const idx = featuredProposalAddresses.findIndex(
           (a: { proposalAddress: string }) => a.proposalAddress === proposalAddress
         );
-        const metadata = (proposalQueries[query]?.data as any)?.metadata;
+        const proposalData = proposalQueries[idx]?.data as any;
+        const metadata = proposalData?.metadata;
         const endTime = Number(metadata?.proposalEndTime) || 0;
+        const startTime = Number(metadata?.proposalStartTime) || 0;
+        const votesCount = _.size(proposalData?.votes) || 0;
         const dao = allDaos.find((d: any) => d.daoAddress === daoAddress);
         const daoName = parseLanguage(dao?.daoMetadata?.metadataArgs?.name);
-        return { proposalAddress, daoName, endTime };
+        const title = parseLanguage(metadata?.title);
+        const description = parseLanguage(metadata?.description, "en")
+          .split("\n")
+          .filter((line: string) => !line.match(/^\*?\*?Место проведения:\*?\*?/))
+          .join("\n");
+        return { proposalAddress, daoName, endTime, startTime, votesCount, title, description };
       });
-    return _.orderBy(proposals, "endTime", "asc");
-  }, [featuredProposalAddresses, proposalQueries, allDaos]);
+    return _.orderBy(proposals, "endTime", sortDirection);
+  }, [featuredProposalAddresses, proposalQueries, allDaos, sortDirection]);
+
+  const toggleSort = () => {
+    setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
+  };
 
   if (daosLoading) {
     return <ActiveProposalsLoader />;
@@ -170,25 +170,152 @@ export const ActiveProposals = () => {
   }
 
   return (
-    <StyledActiveProposalsSection>
-      <StyledFlexColumn gap={12} alignItems="flex-start" style={{ width: "100%" }}>
+    <StyledSection>
+      <StyledFlexColumn gap={0} alignItems="flex-start" style={{ width: "100%" }}>
         <StyledActiveProposalsTitle>Активные предложения</StyledActiveProposalsTitle>
-        {activeProposals.map(({ proposalAddress, daoName, endTime }: { proposalAddress: string; daoName: string; endTime: number }) => (
-          <ActiveProposalCard
-            key={proposalAddress}
-            proposalAddress={proposalAddress}
-            daoName={daoName}
-            endTime={endTime}
+        <StyledTableHeader>
+          <StyledHeaderCell style={{ flex: 3 }}>Предложение</StyledHeaderCell>
+          <StyledHeaderCellCenter style={{ flex: 1.5 }} onClick={toggleSort} clickable>
+            Дата окончания <SortIcon direction={sortDirection} />
+          </StyledHeaderCellCenter>
+          <StyledHeaderCellRight style={{ flex: 1 }}>Голоса</StyledHeaderCellRight>
+        </StyledTableHeader>
+        {activeProposals.map((proposal: ActiveProposal) => (
+          <ActiveProposalRow
+            key={proposal.proposalAddress}
+            proposalAddress={proposal.proposalAddress}
+            daoName={proposal.daoName}
+            endTime={proposal.endTime}
+            votesCount={proposal.votesCount}
+            title={proposal.title}
+            description={proposal.description}
           />
         ))}
       </StyledFlexColumn>
-    </StyledActiveProposalsSection>
+    </StyledSection>
   );
 };
+
+const StyledSection = styled(Box)({
+  width: "100%",
+});
 
 const StyledActiveProposalsTitle = styled(Typography)(({ theme }) => ({
   fontSize: 20,
   fontWeight: 800,
   color: theme.typography.h2.color,
-  marginBottom: 4,
+  marginBottom: 12,
+}));
+
+const StyledTableHeader = styled(StyledFlexRow)(({ theme }) => ({
+  width: "100%",
+  padding: "10px 16px",
+  borderBottom: `2px solid ${theme.palette.divider}`,
+  alignItems: "center",
+}));
+
+const StyledHeaderCell = styled(Typography)({
+  fontSize: 12,
+  fontWeight: 700,
+  textTransform: "uppercase",
+  letterSpacing: 0.5,
+  opacity: 0.5,
+});
+
+const StyledHeaderCellCenter = styled(StyledHeaderCell)<{ clickable?: boolean }>(
+  ({ clickable, theme }) => ({
+    textAlign: "center",
+    cursor: clickable ? "pointer" : "default",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    userSelect: clickable ? "none" : "auto",
+    "&:hover": clickable
+      ? { color: theme.palette.primary.main }
+      : {},
+  })
+);
+
+const StyledHeaderCellRight = styled(StyledHeaderCell)({
+  textAlign: "right",
+});
+
+const StyledTableRow = styled(StyledFlexRow)(({ theme }) => ({
+  width: "100%",
+  padding: "14px 16px",
+  cursor: "pointer",
+  alignItems: "center",
+  borderBottom: `1px solid ${theme.palette.divider}`,
+  transition: "background 0.15s",
+  "&:hover": {
+    background:
+      theme.palette.mode === "light"
+        ? "rgba(0, 136, 204, 0.04)"
+        : "rgba(255, 255, 255, 0.04)",
+  },
+}));
+
+const StyledTableCell = styled(Box)({
+  display: "flex",
+  alignItems: "center",
+});
+
+const StyledTableCellCenter = styled(Box)({
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+});
+
+const StyledTableCellRight = styled(Box)({
+  display: "flex",
+  justifyContent: "flex-end",
+  alignItems: "center",
+});
+
+const StyledProposalTitle = styled(Typography)(({ theme }) => ({
+  fontSize: 15,
+  fontWeight: 700,
+  color: theme.typography.h2.color,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 14,
+  },
+}));
+
+const StyledDaoName = styled(Typography)({
+  fontSize: 12,
+  fontWeight: 600,
+  opacity: 0.5,
+});
+
+const StyledProposalDescription = styled(Typography)(({ theme }) => ({
+  fontSize: 13,
+  fontWeight: 500,
+  opacity: 0.5,
+  lineHeight: "18px",
+  display: "-webkit-box",
+  overflow: "hidden",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 2,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 12,
+  },
+}));
+
+const StyledEndDate = styled(Typography)(({ theme }) => ({
+  fontSize: 14,
+  fontWeight: 600,
+  color: theme.palette.primary.main,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 13,
+  },
+}));
+
+const StyledVotesCount = styled(Typography)(({ theme }) => ({
+  fontSize: 18,
+  fontWeight: 800,
+  textAlign: "center",
+  color: theme.typography.h2.color,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 16,
+  },
 }));

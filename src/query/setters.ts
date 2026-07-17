@@ -47,7 +47,6 @@ import {
 import { delay, getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { useAnalytics } from "analytics";
 import { Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
@@ -59,8 +58,6 @@ export const useCreateDaoQuery = () => {
   const showErrorToast = useErrorToast();
   const appNavigation = useAppNavigation();
   const { addDao } = useNewDataStore();
-
-  const analytics = useAnalytics();
 
   return useMutation(
     async (args: CreateDaoArgs) => {
@@ -111,12 +108,10 @@ export const useCreateDaoQuery = () => {
     {
       onError: (error: Error, args) => {
         showErrorToast(error);
-        analytics.createSpaceFailed(args.metadataAddress, error.message);
       },
       onSuccess: (address, args) => {
         appNavigation.daoPage.root(address);
         addDao(address);
-        analytics.createSpaceSuccess(args.metadataAddress, address);
         showSuccessToast(`Пространство успешно создано`);
         args.onSuccess();
       },
@@ -127,7 +122,7 @@ export const useCreateDaoQuery = () => {
 export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
-  const analytics = useAnalytics();
+
 
   return useMutation(
     async (args: CreateMetadataArgs) => {
@@ -153,10 +148,8 @@ export const useCreateMetadataQuery = () => {
     {
       onError: (error: Error, args) => {
         errorToast(error);
-        analytics.createSpaceMetadataFailed(error.message, args.metadata);
       },
       onSuccess: (address, args) => {
-        analytics.createSpaceMetadataSucess(address, args.metadata);
         args.onSuccess(address);
       },
     },
@@ -176,7 +169,7 @@ export const useCreateProposalQuery = () => {
   const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
-  const analytics = useAnalytics();
+
 
   return useMutation(
     async (args: CreateProposalArgs) => {
@@ -206,16 +199,8 @@ export const useCreateProposalQuery = () => {
     {
       onError: (error: Error, args) => {
         showErrorToast(error);
-        analytics.createProposalFailed(
-          args.metadata as ProposalMetadata,
-          error.message,
-        );
       },
       onSuccess: (address, args) => {
-        analytics.createProposalSuccess(
-          args.metadata as ProposalMetadata,
-          address,
-        );
         showSuccessToast("Предложение успешно создано");
         args.onSuccess(address);
       },
@@ -315,7 +300,7 @@ export const useUpdateDaoMetadataQuery = () => {
   const refetchUpdatedDao = useDaoQuery(daoAddress).refetch;
 
   const errorToast = useErrorToast();
-  const analytics = useAnalytics();
+
 
   return useMutation(
     async (args: UpdateMetadataArgs) => {
@@ -351,18 +336,12 @@ export const useUpdateDaoMetadataQuery = () => {
     {
       onError: (error: Error, args) => {
         errorToast(error);
-        analytics.updateDaoMetatdaFailed(
-          args.metadata,
-          args.daoAddress,
-          error.message,
-        );
       },
       onSuccess: (_, args) => {
         showSuccessToast("Метаданные обновлены");
         setDaoUpdateMillis(args.daoAddress);
         refetchDaos();
         refetchUpdatedDao();
-        analytics.updateDaoMetadataSuccess(args.metadata, args.daoAddress);
       },
     },
   );
@@ -378,7 +357,7 @@ export const useVote = () => {
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
-  const analytics = useAnalytics();
+
 
   return useMutation(
     async (_vote: string) => {
@@ -402,7 +381,6 @@ export const useVote = () => {
     },
     {
       onSuccess: (values, _vote) => {
-        analytics.voteSuccess(proposalAddress, _vote);
         showSuccessToast(`Голос за ${_vote} подтвержден`);
         if (!values) {
           throw new Error(
@@ -441,7 +419,6 @@ export const useVote = () => {
       },
       onError: (error: Error, vote) => {
         errorToast(error, 8_000);
-        analytics.voteError(proposalAddress, vote, error.message);
       },
     },
   );
@@ -502,7 +479,7 @@ export const useUpdateProposalMutation = () => {
 
 export const useVoteSuccessCallback = (proposalAddress: string) => {
   const walletAddress = useTonAddress();
-  const analytics = useAnalytics();
+
 
   return async (proposal: Proposal) => {
     const promise = async (bail: any, attempt: number) => {
@@ -524,10 +501,6 @@ export const useVoteSuccessCallback = (proposalAddress: string) => {
       } catch (error) {
         if (attempt > 5) {
           const message = error instanceof Error ? error.message : "";
-          analytics.getProposalFromContractAfterVotingFailed(
-            proposalAddress,
-            message,
-          );
         }
         Logger(error);
         throw error;

@@ -41,7 +41,6 @@ import { api } from "api";
 import { useMemo, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
-import { useAnalytics } from "analytics";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
 
 const BLAGO_JETTON_ADDRESS = "EQBlaryI1HCY6hIlW9giBoqKGtuMHfxlULZOhD6UyzpqLcll";
@@ -187,7 +186,6 @@ export const useDaosQuery = () => {
 export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
-  const analytics = useAnalytics();
   const route = useCurrentRoute();
 
   const config = useMemo(() => {
@@ -227,14 +225,12 @@ export const useDaoQuery = (daoAddress: string) => {
           removeDaoUpdateMillis(daoAddress!);
         }
       } catch (error) {
-        analytics.getDaoFromContractFailed(daoAddress!, error);
       }
 
       if (!dao) {
         try {
           dao = await api.getDao(daoAddress!, signal);
         } catch (error) {
-          analytics.getDaoFromServerFailed(daoAddress!, error);
         }
       }
 
@@ -242,7 +238,6 @@ export const useDaoQuery = (daoAddress: string) => {
         try {
           dao = await getDaoFromContract();
         } catch (error) {
-          analytics.getDaoFromContractFailed(daoAddress!, error);
         }
       }
 
@@ -374,7 +369,6 @@ interface ProposalQueryArgs {
 }
 
 const useGetProposalWithFallback = (proposalAddress: string) => {
-  const analytics = useAnalytics();
   const queryClient = useQueryClient();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
@@ -423,10 +417,6 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
         removeProposalUpdateMillis(proposalAddress);
       }
     } catch (error) {
-      analytics.getProposalFromContractFailed(
-        proposalAddress,
-        error instanceof Error ? error.message : ""
-      );
     }
 
     let proposal;
@@ -443,20 +433,12 @@ const useGetProposalWithFallback = (proposalAddress: string) => {
       }
       proposal = await enrichWithOneWalletOneVoteFallback(proposal);
     } catch (error) {
-      analytics.getProposalFromServerFailed(
-        proposalAddress,
-        error instanceof Error ? error.message : ""
-      );
     }
     // try to fetch proposal from contract
     if (!proposal) {
       try {
         proposal = await getProposalFromContract();
       } catch (error) {
-        analytics.getProposalFromContractFailed(
-          proposalAddress,
-          error instanceof Error ? error.message : ""
-        );
       }
     }
     proposal = await enrichWithOneWalletOneVoteFallback(proposal);
