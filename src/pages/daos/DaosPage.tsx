@@ -20,7 +20,7 @@ import { nFormatter } from "utils";
 import { Dao } from "types";
 import { useMemo } from "react";
 import _ from "lodash";
-import { PRIMARY_DAO_ADDRESS } from "whitelisted";
+import { FEATURED_DAOS } from "whitelisted";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useAppQueryParams, useMobile, useRole } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
@@ -86,7 +86,7 @@ export function DaosPage() {
   const visibleData = useMemo(
     () =>
       _.filter(data, (it) => {
-        if (it.daoAddress === PRIMARY_DAO_ADDRESS) return true;
+        if (FEATURED_DAOS.includes(it.daoAddress)) return true;
         const { isOwner, isProposalPublisher } = getRole(it.daoRoles);
         return isOwner || isProposalPublisher;
       }),

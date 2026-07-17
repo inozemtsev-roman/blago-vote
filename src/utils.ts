@@ -299,9 +299,9 @@ export const parseLanguage = (json?: string, lang: string = "en") => {
     if (!value) {
       throw new Error("No value");
     }
-    return value;
+    return value.trim();
   } catch (error) {
-    return json;
+    return json.trim();
   }
 };
 

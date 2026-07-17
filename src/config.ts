@@ -48,6 +48,7 @@ export const LANGUAGES = { en: "English", ru: "Русский" };
 
 export const VERIFIED_DAOS = [
   "EQBcWmVMuby9kFuB0bAyLQpDvCeosTX3h4m7lct0c8GI8QOG",
+  "EQCOjq7w658I7FjGoMdJdWxpkw6pHvSBQHkfs-wCBCbhU8BU",
   "EQCxbXzrtDQ9ZHvFL91xnCm6YtFYO1Lks9tImMHJHVICKD9X",
   "EQD4GRGo2Exp0yt3L9-2TW7KPM8GK5gzyhJ1tEweIVz4jIQY",
   "EQCEnW_oq1RmMJ4ciTTsccLIzu2vy0VVLo_hfa84tZZfh_Qy",
@@ -97,6 +98,7 @@ export const VERIFIED_DAOS = [
   "EQAW6n5B029HoOFkRFeMXyGDvUBF6gbVrS6bnNYJ6aWv_y1S",
   "EQD1PIvZLeDmgICYjkzEbvyIZRWNQNS6izrxQJuoXZk_uF2y",
   "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V",
+  "EQCOjq7w658I7FjGoMdJdWxpkw6pHvSBQHkfs-wCBCbhU8BU",
 ];
 
 export const releaseMode = import.meta.env.VITE_STAGING

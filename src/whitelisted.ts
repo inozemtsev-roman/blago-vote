@@ -3,6 +3,11 @@ import { IS_DEV } from "config";
 export const PRIMARY_DAO_ADDRESS =
   "EQDExlp6EjkVN-OJ1ZcGLEYlITaold5ytBP3e8g6g_BIRaZX";
 
+export const FEATURED_DAOS = [
+  PRIMARY_DAO_ADDRESS,
+  "EQCOjq7w658I7FjGoMdJdWxpkw6pHvSBQHkfs-wCBCbhU8BU",
+];
+
 export const WHITELISTED_DAOS: string[] = [
   PRIMARY_DAO_ADDRESS,
   "EQDQvywF226NXojPky_9gwbCz0FPoygqY11bGl03SONNBs5V",
