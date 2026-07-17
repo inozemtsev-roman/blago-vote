@@ -24,6 +24,7 @@ import { FEATURED_DAOS } from "whitelisted";
 import { DAOS_LIMIT, useDaosListLimit } from "./store";
 import { useAppQueryParams, useMobile, useRole } from "hooks/hooks";
 import { DaoListItem } from "./Dao";
+import { ActiveProposals } from "./ActiveProposals";
 import { useDaosPageTranslations } from "i18n/hooks/useDaosPageTranslations";
 import { useDaosQuery } from "query/getters";
 import { useAppNavigation } from "router/navigation";
@@ -110,6 +111,7 @@ export function DaosPage() {
             Децентрализованная, автономная и прозрачная система управления
           </Typography>
         </StyledAboutSection>
+        <ActiveProposals />
         <StyledHeader>
           <StyledSearch
             initialValue={query.search || ""}

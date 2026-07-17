@@ -1,7 +1,7 @@
 import { Box, Chip, styled, Typography } from "@mui/material";
 import { Button, Container, Img, Search } from "components";
 import { MOBILE_WIDTH } from "consts";
-import { StyledFlexRow } from "styles";
+import { StyledContainer, StyledFlexRow } from "styles";
 
 export const StyledDaoContent = styled(Container)({
   display: "flex",
@@ -208,4 +208,54 @@ export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
     justifyContent: "center",
     height: "100%",
   },
+}));
+
+export const StyledActiveProposalsSection = styled(Box)({
+  width: "100%",
+});
+
+export const StyledActiveProposalCard = styled(StyledContainer)(({ theme }) => ({
+  width: "100%",
+  cursor: "pointer",
+  padding: 16,
+  transition: "border-color 0.2s",
+  "&:hover": {
+    border: theme.palette.mode === "light"
+      ? `1px solid ${theme.palette.primary.main}`
+      : "1px solid rgba(255,255,255, 0.7)",
+  },
+}));
+
+export const StyledActiveProposalTitle = styled(Typography)({
+  fontSize: 17,
+  fontWeight: 800,
+  lineHeight: "24px",
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 15,
+  },
+});
+
+export const StyledActiveProposalDescription = styled(Typography)({
+  fontWeight: 600,
+  fontSize: 14,
+  display: "-webkit-box",
+  overflow: "hidden",
+  WebkitBoxOrient: "vertical",
+  WebkitLineClamp: 2,
+  opacity: 0.7,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    fontSize: 13,
+  },
+});
+
+export const StyledActiveProposalDaoName = styled(Typography)({
+  fontSize: 13,
+  fontWeight: 700,
+  opacity: 0.6,
+});
+
+export const StyledActiveProposalEndDate = styled(Typography)(({ theme }) => ({
+  fontSize: 13,
+  fontWeight: 600,
+  color: theme.palette.primary.main,
 }));
