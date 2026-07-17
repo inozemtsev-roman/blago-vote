@@ -1,6 +1,7 @@
 import { useQueries } from "@tanstack/react-query";
 import { Box, styled, Typography } from "@mui/material";
 import { IoArrowDown, IoArrowUp } from "react-icons/io5";
+import { IoTriangle } from "react-icons/io5";
 import { QueryKeys } from "config";
 import _ from "lodash";
 import moment from "moment";
@@ -21,6 +22,8 @@ interface ActiveProposal {
   votesCount: number;
   title: string;
   description: string;
+  leadingChoice: string;
+  totalChoices: string[];
 }
 
 interface ActiveProposal {
@@ -62,8 +65,12 @@ const ActiveProposalRow = ({
   votesCount,
   title,
   description,
+  leadingChoice,
+  totalChoices,
 }: Omit<ActiveProposal, "startTime">) => {
   const { proposalPage } = useAppNavigation();
+
+  const isPositive = totalChoices.length > 0 && leadingChoice === totalChoices[0];
 
   const onClick = () => {
     proposalPage.root(proposalAddress);
@@ -89,7 +96,13 @@ const ActiveProposalRow = ({
         <StyledEndDate>{formattedEndDate}</StyledEndDate>
       </StyledTableCellCenter>
       <StyledTableCellCenter style={{ flex: 1 }}>
-        <StyledVotesCount>{votesCount}</StyledVotesCount>
+        <StyledFlexColumn alignItems="center" gap={2}>
+          <IoTriangle
+            size={12}
+            color={isPositive ? "#4caf50" : "#f44336"}
+          />
+          <StyledVotesCount>{votesCount}</StyledVotesCount>
+        </StyledFlexColumn>
       </StyledTableCellCenter>
     </StyledTableRow>
   );
@@ -145,6 +158,23 @@ export const ActiveProposals = () => {
         const endTime = Number(metadata?.proposalEndTime) || 0;
         const startTime = Number(metadata?.proposalStartTime) || 0;
         const votesCount = _.size(proposalData?.votes) || 0;
+        const choices = metadata?.votingSystem?.choices || [];
+        const votesByChoice: Record<string, number> = {};
+        _.forEach(proposalData?.votes || [], (currentVote: any) => {
+          const rawVotes = _.isArray(currentVote.vote) ? currentVote.vote : [currentVote.vote];
+          _.forEach(rawVotes, (rawVoteValue: any) => {
+            const value = String(rawVoteValue ?? "").trim();
+            if (!value) return;
+            const numIdx = Number(value);
+            if (!Number.isNaN(numIdx)) {
+              const choice = choices[numIdx] || choices[numIdx - 1];
+              if (choice) { votesByChoice[choice] = (votesByChoice[choice] || 0) + 1; return; }
+            }
+            const matched = _.find(choices, (c: string) => c.toLowerCase() === value.toLowerCase());
+            if (matched) { votesByChoice[matched] = (votesByChoice[matched] || 0) + 1; }
+          });
+        });
+        const leadingChoice = _.maxBy(_.entries(votesByChoice), ([, v]) => v)?.[0] || "";
         const dao = allDaos.find((d: any) => d.daoAddress === daoAddress);
         const daoName = parseLanguage(dao?.daoMetadata?.metadataArgs?.name);
         const title = parseLanguage(metadata?.title);
@@ -152,7 +182,7 @@ export const ActiveProposals = () => {
           .split("\n")
           .filter((line: string) => !line.match(/^\*?\*?Место проведения:\*?\*?/))
           .join("\n");
-        return { proposalAddress, daoName, endTime, startTime, votesCount, title, description };
+        return { proposalAddress, daoName, endTime, startTime, votesCount, title, description, leadingChoice, totalChoices: choices };
       });
     return _.orderBy(proposals, "endTime", sortDirection);
   }, [featuredProposalAddresses, proposalQueries, allDaos, sortDirection]);
@@ -189,6 +219,8 @@ export const ActiveProposals = () => {
             votesCount={proposal.votesCount}
             title={proposal.title}
             description={proposal.description}
+            leadingChoice={proposal.leadingChoice}
+            totalChoices={proposal.totalChoices}
           />
         ))}
       </StyledFlexColumn>
@@ -264,6 +296,7 @@ const StyledTableCellCenter = styled(Box)({
   display: "flex",
   justifyContent: "center",
   alignItems: "center",
+  height: "100%",
 });
 
 const StyledTableCellRight = styled(Box)({
@@ -314,6 +347,7 @@ const StyledVotesCount = styled(Typography)(({ theme }) => ({
   fontSize: 18,
   fontWeight: 800,
   textAlign: "center",
+  width: "100%",
   color: theme.typography.h2.color,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 16,
