@@ -99,7 +99,11 @@ export function EndpointPopup({
     if (customSelected) {
       formik.submitForm();
     } else {
-      onSubmit({});
+      onSubmit({
+        clientV2Endpoint: DEFAULT_CLIENT_V2_ENDPOINT,
+         clientV4Endpoint: DEFAULT_CLIENT_V4_ENDPOINT,
+        apiKey: CLIENT_V2_API_KEY,
+      });
        onClose();
     }
    
