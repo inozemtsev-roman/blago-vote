@@ -256,8 +256,6 @@ const StyledButton = styled(Button)({
   ".icon": {
     width: 18,
     height: 18,
-    position: "relative",
-    top: -1,
   },
   ".loader": {
     maxWidth: 20,
