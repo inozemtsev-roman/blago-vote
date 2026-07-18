@@ -10,11 +10,11 @@ export const manifestUrl =
   "https://vote.gradosphera.org/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
-  "https://toncenter.com/api/v3/jsonRPC";
+  "https://toncenter.com/api/v2/jsonRPC";
 export const DEFAULT_CLIENT_V4_ENDPOINT = "https://mainnet-v4.tonhubapi.com";
 
 export const CLIENT_V2_API_KEY =
-  "79243b36d184ea543b75d94175156ed98f944031db45acb00f62f5904b570709";
+  "6b8fe2b7360f4fec15b470d89f3ad32843bc92e9b55c9a2b80c743837a3aa5f3";
 
 export const USER_VOTE_LOCAL_STORAGE = "ton_vote_user_vote";
 

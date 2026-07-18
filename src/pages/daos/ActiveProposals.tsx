@@ -269,7 +269,7 @@ const StyledHeaderCellCenter = styled(StyledHeaderCell)<{ clickable?: boolean }>
 );
 
 const StyledHeaderCellRight = styled(StyledHeaderCell)({
-  textAlign: "right",
+  textAlign: "center",
 });
 
 const StyledTableRow = styled(StyledFlexRow)(({ theme }) => ({
