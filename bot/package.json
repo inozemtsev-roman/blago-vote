@@ -1,0 +1,16 @@
+{
+  "name": "blago-vote-bot",
+  "version": "1.0.0",
+  "description": "Telegram bot для платформы Голос с уведомлениями о событиях вашего ДАО",
+  "main": "bot.js",
+  "type": "module",
+  "scripts": {
+    "start": "node bot.js",
+    "dev": "node --watch bot.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "socks-proxy-agent": "^10.1.0"
+  }
+}
