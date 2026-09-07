@@ -450,6 +450,10 @@ const StyledProposalDescription = styled(Typography)(({ theme }) => ({
   overflow: "hidden",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
+  minWidth: 0,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
+  whiteSpace: "normal",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 12,
   },

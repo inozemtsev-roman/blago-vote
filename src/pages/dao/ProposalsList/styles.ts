@@ -71,12 +71,19 @@ export const StyledDescription = styled(Typography)({
   overflow: "hidden",
   WebkitBoxOrient: "vertical",
   WebkitLineClamp: 2,
+  minWidth: 0,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
 });
 
 export const StyledMarkdown = styled(Typography)({
   fontWeight: 600,
   fontSize: 16,
   marginBottom: 10,
+  minWidth: 0,
+  maxWidth: "100%",
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 15,
   },
@@ -86,6 +93,9 @@ export const StyledProposalTitle = styled(Typography)({
   fontSize: 20,
   fontWeight: 800,
   lineHeight: "28px",
+  minWidth: 0,
+  overflowWrap: "anywhere",
+  wordBreak: "break-word",
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 17,
     lineHeight: "26px",

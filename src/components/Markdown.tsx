@@ -29,6 +29,7 @@ export const StyledMarkdown = styled(Box)(({ theme }) => ({
 
   "*": {
     wordBreak: "break-word",
+    overflowWrap: "anywhere",
     color: theme.palette.text.primary,
     margin: 0,
     marginBottom: 15,
