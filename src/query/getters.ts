@@ -32,6 +32,7 @@ import { Address, fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import {
+  compareDaoMetadataWithChain,
   getIsServerUpToDate,
   useDaoNewProposals,
   useIsDaosUpToDate,
@@ -213,16 +214,28 @@ export const useDaoQuery = (daoAddress: string) => {
 
       const metadataLastUpdate = getDaoUpdateMillis(daoAddress!);
 
-      const isMetadataUpToDate = await getIsServerUpToDate(metadataLastUpdate);
-
       const getDaoFromContract = () => contract.getDao(daoAddress);
 
       let dao;
       try {
-        if (!isMetadataUpToDate) {
-          dao = await getDaoFromContract();
-        } else {
-          removeDaoUpdateMillis(daoAddress!);
+        if (metadataLastUpdate) {
+          let serverDao: Dao | undefined;
+          try {
+            serverDao = await api.getDao(daoAddress!, signal);
+          } catch (error) {
+          }
+
+          const comparison = await compareDaoMetadataWithChain(
+            daoAddress!,
+            serverDao?.daoMetadata?.metadataAddress || ""
+          );
+
+          if (comparison.isUpToDate) {
+            removeDaoUpdateMillis(daoAddress!);
+            dao = serverDao;
+          } else if (comparison.chainMetadataAddress) {
+            dao = await getDaoFromContract();
+          }
         }
       } catch (error) {
       }
