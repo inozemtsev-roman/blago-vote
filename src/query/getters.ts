@@ -32,11 +32,12 @@ import { Address, fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
 import {
-  compareDaoWithChain,
   getIsServerUpToDate,
+  syncDaoFromChain,
   useDaoNewProposals,
   useIsDaosUpToDate,
   useNewDaoAddresses,
+  verifyDaoWithChain,
 } from "./hooks";
 import { api } from "api";
 import { useMemo, useState } from "react";
@@ -184,6 +185,63 @@ export const useDaosQuery = () => {
   );
 };
 
+const DAO_SYNC_TIMEOUT_MS = 15_000;
+
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> =>
+  new Promise((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("timeout")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
+// фоновая сверка ДАО с цепочкой: возвращает актуализированные роли и метаданные
+const syncDaoWithChain = async (
+  daoAddress: string,
+  serverDao: Dao,
+  force: boolean,
+  daoProposals: string[],
+  onUpToDate?: () => void
+): Promise<Dao | null> => {
+  try {
+    const client = await getClientV2();
+
+    const verification = await withTimeout(
+      verifyDaoWithChain(daoAddress, serverDao, force, client),
+      DAO_SYNC_TIMEOUT_MS
+    );
+
+    if (verification.isUpToDate) {
+      onUpToDate?.();
+      return null;
+    }
+
+    if (verification.chainMetadataAddress) {
+      const synced = await withTimeout(
+        syncDaoFromChain(serverDao, verification, client),
+        DAO_SYNC_TIMEOUT_MS
+      );
+
+      return {
+        ...synced,
+        daoProposals,
+      };
+    }
+
+    return null;
+  } catch (error) {
+    Logger("Failed to sync DAO with chain:", error);
+    return null;
+  }
+};
+
 export const useDaoQuery = (daoAddress: string) => {
   const addNewProposals = useDaoNewProposals();
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
@@ -198,6 +256,18 @@ export const useDaoQuery = (daoAddress: string) => {
         isProposalRoute ? undefined : REFETCH_INTERVALS.dao,
     };
   }, [route]);
+
+  // страницы, где роли и метаданные ДАО видны пользователю:
+  // страница ДАО, «О ДАО», настройки и страница голосования
+  const shouldSynchronizeWithChain = useMemo(
+    () =>
+      route === routes.space ||
+      route === routes.spaceAbout ||
+      route === routes.spaceSettings ||
+      route === routes.proposal ||
+      route === routes.proposalLegacy,
+    [route]
+  );
 
   const queryClient = useQueryClient();
   const key = [QueryKeys.DAO, daoAddress];
@@ -216,25 +286,14 @@ export const useDaoQuery = (daoAddress: string) => {
 
       const getDaoFromContract = () => contract.getDao(daoAddress);
 
-      let dao;
-      try {
-        if (metadataLastUpdate) {
-          let serverDao: Dao | undefined;
-          try {
-            serverDao = await api.getDao(daoAddress!, signal);
-          } catch (error) {
-          }
-
-          const comparison = await compareDaoWithChain(daoAddress!, serverDao);
-
-          if (comparison.isUpToDate) {
-            removeDaoUpdateMillis(daoAddress!);
-            dao = serverDao;
-          } else if (comparison.chainMetadataAddress) {
-            dao = await getDaoFromContract();
-          }
+      // данные ДАО и список предложений сначала берём из API — страница ДАО
+      // рендерится сразу, а сверка с цепочкой выполняется фоном и не блокирует её
+      let dao: Dao | undefined;
+      if (metadataLastUpdate || shouldSynchronizeWithChain) {
+        try {
+          dao = await api.getDao(daoAddress!, signal);
+        } catch (error) {
         }
-      } catch (error) {
       }
 
       if (!dao) {
@@ -253,7 +312,7 @@ export const useDaoQuery = (daoAddress: string) => {
 
       // try to return dao from cache
       if (!dao) {
-        dao = queryClient.getQueryData<Dao>(key) || null;
+        dao = queryClient.getQueryData<Dao>(key) || undefined;
       }
 
       if (!dao) {
@@ -270,10 +329,34 @@ export const useDaoQuery = (daoAddress: string) => {
         (it) => !BLACKLISTED_PROPOSALS.includes(it)
       );
 
-      return {
+      const result: Dao = {
         ...dao,
         daoProposals,
       };
+
+      // сверка с цепочкой не блокирует рендер: обновлённые роли и метаданные
+      // попадают в кэш и подхватываются интерфейсом позже
+      if (shouldSynchronizeWithChain) {
+        syncDaoWithChain(
+          daoAddress!,
+          dao,
+          !!metadataLastUpdate,
+          daoProposals,
+          () => {
+            if (metadataLastUpdate) {
+              removeDaoUpdateMillis(daoAddress!);
+            }
+          }
+        )
+          .then((syncedDao) => {
+            if (syncedDao) {
+              queryClient.setQueryData<Dao>(key, syncedDao);
+            }
+          })
+          .catch(() => undefined);
+      }
+
+      return result;
     },
     {
       staleTime: config.staleTime,

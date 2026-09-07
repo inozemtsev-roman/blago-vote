@@ -60,6 +60,72 @@ export const compareDaoWithChain = async (
   };
 };
 
+const DAO_VERIFY_TTL = 60_000;
+
+export interface DaoVerification {
+  isUpToDate: boolean;
+  chainMetadataAddress: string;
+  chainOwner: string;
+  chainProposalOwner: string;
+}
+
+const daoVerificationCache = new Map<
+  string,
+  { verifiedAt: number; verification: DaoVerification }
+>();
+
+export const verifyDaoWithChain = async (
+  daoAddress: string,
+  serverDao?: Pick<Dao, "daoRoles" | "daoMetadata"> | null,
+  force = false,
+  client?: TonClient
+): Promise<DaoVerification> => {
+  if (!force) {
+    const cached = daoVerificationCache.get(daoAddress);
+    if (cached && Date.now() - cached.verifiedAt < DAO_VERIFY_TTL) {
+      return cached.verification;
+    }
+  }
+
+  const comparison = await compareDaoWithChain(daoAddress, serverDao, client);
+
+  const verification: DaoVerification = {
+    isUpToDate: comparison.isUpToDate,
+    chainMetadataAddress: comparison.chainMetadataAddress,
+    chainOwner: comparison.chainOwner,
+    chainProposalOwner: comparison.chainProposalOwner,
+  };
+
+  daoVerificationCache.set(daoAddress, { verifiedAt: Date.now(), verification });
+
+  return verification;
+};
+
+export const syncDaoFromChain = async (
+  serverDao: Dao,
+  verification: DaoVerification,
+  client?: TonClient
+): Promise<Dao> => {
+  const connection = client || (await getClientV2());
+
+  const metadataArgs =
+    (verification.chainMetadataAddress &&
+      (await getDaoMetadata(connection, verification.chainMetadataAddress))) ||
+    serverDao.daoMetadata.metadataArgs;
+
+  return {
+    ...serverDao,
+    daoRoles: {
+      owner: verification.chainOwner,
+      proposalOwner: verification.chainProposalOwner,
+    },
+    daoMetadata: {
+      metadataAddress: "",
+      metadataArgs,
+    },
+  };
+};
+
 export const useNewDaoAddresses = () => {
   const { daos: newDaosAddresses, removeDao } = useNewDataStore();
 

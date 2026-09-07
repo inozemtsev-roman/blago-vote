@@ -9,6 +9,7 @@ import {
 } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
 import _ from "lodash";
+import { usePublisherMultisigSigner } from "multisig/usePublisherMultisigSigner";
 import { useDaoQuery } from "query/getters";
 import { useMemo } from "react";
 import { useNavigate } from "react-router-dom";
@@ -228,6 +229,7 @@ const useNavigationLinks = () => {
   const translations = useDaoPageTranslations();
   const { data, isLoading } = useDaoQuery(daoAddress);
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
+  const { isSigner } = usePublisherMultisigSigner(data?.daoRoles.proposalOwner);
   const route = useCurrentRoute();
   if (isLoading) {
     return null;
@@ -252,7 +254,7 @@ const useNavigationLinks = () => {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
       selected: route === routes.createProposal,
-      hide: !isOwner && !isProposalPublisher,
+      hide: !isOwner && !isProposalPublisher && !isSigner,
       route: routes.createProposal,
     },
     {
