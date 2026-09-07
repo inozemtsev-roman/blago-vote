@@ -5,6 +5,12 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.10.1] - 2026-09-07
+
+### Исправлено
+
+- **Сборка на Vercel падала с TS2322 (`Type 'TonConnect' is not assignable to type 'ITonConnect'`).** Причина: `package.json` указывал `@tonconnect/ui-react@3.0.2`, которой требует `@tonconnect/sdk@4.0.2`, а прямая зависимость была зафиксирована на `4.0.0`; из-за этого при чистой установке образовывались две физические копии `@tonconnect/sdk` (4.0.0 в корне и 4.0.2 внутри `@tonconnect/ui`), у которых типы `TonConnectError` несовместимы. Версия `@tonconnect/ui-react` возвращена на `3.0.0` (совпадает со всеми lock-файлами и установленным окружением, требует `@tonconnect/sdk@4.0.0` — один общий экземпляр).
+
 ## [1.10.0] - 2026-09-07
 
 ### Исправлено
