@@ -305,9 +305,9 @@ const StyledConnectButton = styled(MuiButton)<{ connected: number }>(
     },
     [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
       height: 36,
-      padding: "0 14px",
+      padding: "0 12px",
       fontSize: 13,
-      maxWidth: 160,
+      maxWidth: "calc(100vw - 174px)",
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",
