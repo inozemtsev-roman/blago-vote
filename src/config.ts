@@ -7,7 +7,7 @@ export const TONVIEWER_ADDRESS_URL = `${TONVIEWER}/`;
 export const APP_NAME = "Голос";
 
 export const manifestUrl =
-  "https://vote.gradosphera.org/tonconnect-manifest.json";
+  "https://blago-vote.vercel.app/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";

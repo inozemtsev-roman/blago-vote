@@ -5,7 +5,7 @@ import { IoTriangle } from "react-icons/io5";
 import { QueryKeys } from "config";
 import _ from "lodash";
 import moment from "moment";
-import { useMemo, useState } from "react";
+import { useMemo, useEffect, useState } from "react";
 import { api } from "api";
 import { useAppNavigation } from "router/navigation";
 import { StyledFlexColumn, StyledFlexRow, StyledSkeletonLoader } from "styles";
@@ -114,6 +114,11 @@ export const ActiveProposals = () => {
   const { data: allDaos = [], isLoading: daosLoading } = useDaosQuery();
   const [filter, setFilter] = useState<"active" | "finished">("active");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [finishedLimit, setFinishedLimit] = useState(3);
+
+  useEffect(() => {
+    setFinishedLimit(3);
+  }, [filter]);
 
   const featuredProposalAddresses = useMemo(() => {
     const addresses: { proposalAddress: string; daoAddress: string }[] = [];
@@ -213,13 +218,20 @@ export const ActiveProposals = () => {
 
   const displayedProposals = useMemo(() => {
     if (filter === "finished") {
-      return finishedProposals;
+      return _.take(finishedProposals, finishedLimit);
     }
     if (activeProposals.length) {
       return activeProposals;
     }
-    return _.take(finishedProposals, 3);
-  }, [filter, activeProposals, finishedProposals]);
+    return _.take(finishedProposals, finishedLimit);
+  }, [filter, activeProposals, finishedProposals, finishedLimit]);
+
+  const showMoreFinished =
+    filter === "finished" && _.size(finishedProposals) > finishedLimit;
+
+  const loadMoreFinished = () => {
+    setFinishedLimit((prev) => prev + 3);
+  };
 
   const toggleSort = () => {
     setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -278,6 +290,13 @@ export const ActiveProposals = () => {
             isActive={proposal.isActive}
           />
         ))}
+        {showMoreFinished && (
+          <StyledMoreRow>
+            <StyledMoreButton onClick={loadMoreFinished}>
+              Далее
+            </StyledMoreButton>
+          </StyledMoreRow>
+        )}
       </StyledFlexColumn>
     </StyledSection>
   );
@@ -463,5 +482,29 @@ const StyledVotesCount = styled(Typography)(({ theme }) => ({
   color: theme.typography.h2.color,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     fontSize: 16,
+  },
+}));
+
+const StyledMoreRow = styled(Box)({
+  width: "100%",
+  display: "flex",
+  justifyContent: "flex-end",
+  paddingTop: 12,
+});
+
+const StyledMoreButton = styled(Button)(({ theme }) => ({
+  fontSize: 14,
+  fontWeight: 700,
+  textTransform: "none",
+  borderRadius: 40,
+  border: `1px solid ${theme.palette.primary.main}`,
+  color: theme.palette.primary.main,
+  background: "transparent",
+  padding: "8px 28px",
+  "&:hover": {
+    background:
+      theme.palette.mode === "light"
+        ? "rgba(0, 136, 204, 0.06)"
+        : "rgba(255, 255, 255, 0.06)",
   },
 }));

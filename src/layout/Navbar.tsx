@@ -1,4 +1,5 @@
 import {
+  Button as MuiButton,
   IconButton,
   MenuItem,
   styled,
@@ -18,7 +19,7 @@ import { BsGlobeAmericas } from "react-icons/bs";
 import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
 
@@ -205,28 +206,60 @@ const StyledNav = styled(StyledGrid)({
 });
 
 function ConnectButton() {
+  const [tonConnectUI] = useTonConnectUI();
+  const wallet = useTonWallet();
   const address = useTonAddress();
 
+  const walletName = (wallet && (wallet as any).name) as string | undefined;
+  const display = address
+    ? `${address.slice(0, 4)}...${address.slice(-4)}`
+    : "Кошелек";
+
+  const onConnectClick = () => {
+    tonConnectUI.openModal().catch((e) => {
+      console.error("Не удалось открыть окно подключения кошелька:", e);
+    });
+  };
+
   return (
-    <>
-      <StyledButton connected={address ? 1 : 0} />
-    </>
+    <StyledConnectButton
+      connected={address ? 1 : 0}
+      onClick={onConnectClick}
+    >
+      {walletName ? `${walletName} · ` : null}
+      {display}
+    </StyledConnectButton>
   );
 }
 
-const StyledButton = styled(TonConnectButton)<{ connected: number }>(
-  ({ theme }) => ({
-    button: {
-      background: theme.palette.primary.main,
-      "*": {
-        color: "white",
-        stroke: "white",
-      },
+const StyledConnectButton = styled(MuiButton)<{ connected: number }>(
+  ({ theme, connected }) => ({
+    borderRadius: 40,
+    height: 40,
+    padding: "0 20px",
+    fontSize: 14,
+    fontWeight: 700,
+    textTransform: "none",
+    background: connected
+      ? theme.palette.background.paper
+      : theme.palette.primary.main,
+    color: connected ? theme.palette.primary.main : "#fff",
+    border: connected
+      ? `1px solid ${theme.palette.primary.main}`
+      : "none",
+    "&:hover": {
+      background: connected
+        ? theme.palette.action.hover
+        : theme.palette.primary.dark,
     },
     [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-      "*": {
-        fontSize: 13,
-      },
+      height: 36,
+      padding: "0 14px",
+      fontSize: 13,
+      maxWidth: 160,
+      whiteSpace: "nowrap",
+      overflow: "hidden",
+      textOverflow: "ellipsis",
     },
   })
 );
