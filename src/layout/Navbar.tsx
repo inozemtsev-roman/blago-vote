@@ -11,7 +11,7 @@ import { AppTooltip, Button, Github, Menu } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation, appNavigation } from "router/navigation";
-import { useAppSettings } from "hooks/hooks";
+import { useAppSettings, useCopyToClipboard } from "hooks/hooks";
 import { APP_NAME, LANGUAGES } from "config";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -209,28 +209,79 @@ function ConnectButton() {
   const [tonConnectUI] = useTonConnectUI();
   const wallet = useTonWallet();
   const address = useTonAddress();
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [, copy] = useCopyToClipboard();
 
   const walletName = (wallet && (wallet as any).name) as string | undefined;
   const display = address
     ? `${address.slice(0, 4)}...${address.slice(-4)}`
     : "Кошелек";
 
-  const onConnectClick = () => {
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    if (address) {
+      setAnchorEl(event.currentTarget);
+      return;
+    }
     tonConnectUI.openModal().catch((e) => {
       console.error("Не удалось открыть окно подключения кошелька:", e);
     });
   };
 
+  const handleCopy = () => {
+    if (address) {
+      copy(address);
+    }
+    setAnchorEl(null);
+  };
+
+  const handleDisconnect = () => {
+    setAnchorEl(null);
+    tonConnectUI.disconnect().catch((e) => {
+      console.error("Не удалось отключить кошелёк:", e);
+    });
+  };
+
   return (
-    <StyledConnectButton
-      connected={address ? 1 : 0}
-      onClick={onConnectClick}
-    >
-      {walletName ? `${walletName} · ` : null}
-      {display}
-    </StyledConnectButton>
+    <>
+      <StyledConnectButton
+        connected={address ? 1 : 0}
+        onClick={handleClick}
+      >
+        {walletName ? `${walletName} · ` : null}
+        {display}
+      </StyledConnectButton>
+      <StyledWalletMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
+        {address ? (
+          <StyledWalletMenuItem>
+            <Typography>{walletName}</Typography>
+            <Typography className="address">{address}</Typography>
+          </StyledWalletMenuItem>
+        ) : null}
+        <MenuItem onClick={handleCopy}>Скопировать адрес</MenuItem>
+        <MenuItem onClick={handleDisconnect}>Выйти</MenuItem>
+      </StyledWalletMenu>
+    </>
   );
 }
+
+const StyledWalletMenu = styled(Menu)({
+  "& .address": {
+    fontSize: 12,
+    fontFamily: "monospace",
+    wordBreak: "break-all",
+  },
+  "& .MuiMenuItem-root": {
+    minWidth: 220,
+  },
+});
+
+const StyledWalletMenuItem = styled(Box)(({ theme }) => ({
+  display: "flex",
+  flexDirection: "column",
+  gap: 4,
+  padding: "10px 16px",
+  borderBottom: `1px solid ${getBorderColor(theme.palette.mode)}`,
+}));
 
 const StyledConnectButton = styled(MuiButton)<{ connected: number }>(
   ({ theme, connected }) => ({

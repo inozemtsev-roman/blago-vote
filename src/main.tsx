@@ -6,10 +6,10 @@ import { CssBaseline } from "@mui/material";
 import "./i18n/index";
 import App from "App";
 import { THEME, TonConnectUIProvider } from "@tonconnect/ui-react";
-import { manifestUrl } from "config";
 import { clearAllToasts } from "toasts";
 import { useSettingsStore } from "store";
 import { TonConnectInitializer } from "components/TonConnectInitializer";
+import { tonConnect } from "tonConnect";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -28,7 +28,7 @@ ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
     <CssBaseline />
 
     <TonConnectUIProvider
-      manifestUrl={manifestUrl}
+      connector={tonConnect}
       analytics={{ mode: "off" }}
       uiPreferences={{
         theme: defaultTheme
