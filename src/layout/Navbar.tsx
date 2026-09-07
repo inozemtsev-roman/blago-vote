@@ -247,7 +247,6 @@ function ConnectButton() {
         connected={address ? 1 : 0}
         onClick={handleClick}
       >
-        {walletName ? `${walletName} · ` : null}
         {display}
       </StyledConnectButton>
       <StyledWalletMenu anchorEl={anchorEl} setAnchorEl={setAnchorEl}>
