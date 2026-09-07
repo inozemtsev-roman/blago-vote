@@ -27,9 +27,9 @@ const toCanonicalAddress = (address?: string) => {
   }
 };
 
-export const compareDaoMetadataWithChain = async (
+export const compareDaoWithChain = async (
   daoAddress: string,
-  apiMetadataAddress: string,
+  serverDao?: Pick<Dao, "daoRoles" | "daoMetadata"> | null,
   client?: TonClient
 ) => {
   const connection = client || (await getClientV2());
@@ -37,11 +37,26 @@ export const compareDaoMetadataWithChain = async (
   const daoState = await getDaoState(connection, daoAddress);
 
   const chainMetadataAddress = toCanonicalAddress(daoState.metadata);
+  const chainOwner = toCanonicalAddress(daoState.owner);
+  const chainProposalOwner = toCanonicalAddress(daoState.proposalOwner);
+
+  const metadataIsUpToDate =
+    chainMetadataAddress ===
+    toCanonicalAddress(serverDao?.daoMetadata?.metadataAddress);
+  const ownerIsUpToDate =
+    chainOwner === toCanonicalAddress(serverDao?.daoRoles?.owner);
+  const proposalOwnerIsUpToDate =
+    chainProposalOwner ===
+    toCanonicalAddress(serverDao?.daoRoles?.proposalOwner);
 
   return {
+    daoState,
     chainMetadataAddress,
+    chainOwner,
+    chainProposalOwner,
+    metadataIsUpToDate,
     isUpToDate:
-      chainMetadataAddress === toCanonicalAddress(apiMetadataAddress),
+      metadataIsUpToDate && ownerIsUpToDate && proposalOwnerIsUpToDate,
   };
 };
 
@@ -96,9 +111,9 @@ export const useIsDaosUpToDate = () => {
         try {
           const client = await getClientV2();
 
-          const comparison = await compareDaoMetadataWithChain(
+          const comparison = await compareDaoWithChain(
             dao.daoAddress,
-            dao.daoMetadata?.metadataAddress || "",
+            dao,
             client
           );
 
@@ -118,6 +133,10 @@ export const useIsDaosUpToDate = () => {
 
           return {
             ...dao,
+            daoRoles: {
+              owner: comparison.chainOwner,
+              proposalOwner: comparison.chainProposalOwner,
+            },
             daoMetadata: {
               metadataAddress: "",
               metadataArgs,
