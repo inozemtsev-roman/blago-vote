@@ -5,6 +5,12 @@
 Формат основан на [Keep a Changelog](https://keepachangelog.com/ru/1.1.0/),
 проект придерживается [Semantic Versioning](https://semver.org/lang/ru/).
 
+## [1.10.10] - 2026-09-08
+
+### Исправлено
+
+- **Заявки мультикошелька с полем адреса падали с «Invalid address. Got [object Object]».** `Address.parseFriendly` в `@ton/core` 0.60 уже возвращает `AddressInfo` (`{ address, isBounceable, isTestOnly }`), а `validateOrderField` для типа «Address» оборачивал результат ещё раз — `toAddress.address` оказывался обычным объектом, и `storeAddress` бросал «Invalid address. Got [object Object]». Теперь значение возвращается без двойной обёртки; это чинит не только заявку «Произвольная заявка» (создание голосования через мультикошелёк-издателя), но и все остальные типы заявок с адресом («Перевод GRAM», джеттон-операции и т.д.). Проверено node-прогоном полной сериализации `validateOrderField → packOrder → newOrderMessage` на реальном BOC заявки ДАО «Градосфера» (`src/multisig/orderTypes.ts`).
+
 ## [1.10.9] - 2026-09-08
 
 ### Исправлено

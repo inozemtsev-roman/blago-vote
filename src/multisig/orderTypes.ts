@@ -119,12 +119,11 @@ export const validateOrderField = (
       if (address.isTestOnly && !isTestnet) {
         return makeError("Пожалуйста, введите адрес основной сети");
       }
-      // Возвращаем AddressInfo, как ожидают makeMessage/storeAddress.
-      return makeValue({
-        address,
-        isBounceable: address.isBounceable,
-        isTestOnly: address.isTestOnly,
-      } as unknown as AddressInfo);
+      // parseFriendly в @ton/core 0.60 уже возвращает AddressInfo
+      // ({ address, isBounceable, isTestOnly }) — не оборачиваем его повторно,
+      // иначе toAddress.address окажется объектом и storeAddress бросит
+      // «Invalid address. Got [object Object]».
+      return makeValue(address as AddressInfo);
     }
 
     case "URL":
