@@ -453,6 +453,126 @@ export const checkMultisigOrder = async (
       console.error(e);
     }
 
+    try {
+      const slice = cell.beginParse();
+      const envelopeOp = slice.loadUint(32);
+      if (envelopeOp !== 0x64c3c3e4) throw new Error("Not a FwdMsg");
+
+      slice.loadBit();
+      const proposalDeployer = slice.loadAddress();
+      slice.loadUintBig(257);
+      slice.loadUintBig(257);
+      if (!slice.loadBit()) throw new Error("FwdMsg without body");
+      const bodyCell = slice.loadRef();
+      if (slice.loadBit()) slice.loadRef();
+      if (slice.loadBit()) slice.loadRef();
+
+      const bodySlice = bodyCell.beginParse();
+      const bodyOp = bodySlice.loadUint(32);
+      if (bodyOp !== 0x5938a1cb) throw new Error("Not a DeployAndInitProposal");
+
+      const proposalStartTime = bodySlice.loadUintBig(64);
+      const proposalEndTime = bodySlice.loadUintBig(64);
+      const proposalSnapshotTime = bodySlice.loadUintBig(64);
+      const votingSystemJson = bodySlice.loadStringRefTail();
+      const votingPowerStrategiesJson = bodySlice.loadStringRefTail();
+      const title = bodySlice.loadStringRefTail();
+
+      const paramsSlice = bodySlice.loadRef().beginParse();
+      const description = paramsSlice.loadStringRefTail();
+      const quorum = paramsSlice.loadStringRefTail();
+      const hide = paramsSlice.loadBit();
+
+      let optionsText = votingSystemJson;
+      try {
+        const parsed = JSON.parse(votingSystemJson);
+        const votingSystem =
+          typeof parsed === "string" ? JSON.parse(parsed) : parsed;
+        const options: unknown[] = Array.isArray(votingSystem)
+          ? (votingSystem as unknown[])
+          : Array.isArray(votingSystem?.choices)
+            ? (votingSystem.choices as unknown[])
+            : Object.values(votingSystem ?? {});
+        optionsText = options
+          .map((o) => `"${sanitizeHTML(String(o))}"`)
+          .join(", ");
+      } catch (e) {}
+      optionsText = sanitizeHTML(optionsText);
+
+      const strategyNames: Record<string, string> = {
+        "0": "Держатели TON",
+        "1": "Владельцы жетона",
+        "2": "Владельцы NFT",
+        "3": "Держатели TON (1 кошелёк = 1 голос)",
+        "4": "Владельцы жетона (1 кошелёк = 1 голос)",
+        "5": "Владельцы NFT (1 кошелёк = 1 голос)",
+        "6": "Голос валидаторов",
+        "7": "Держатели TON + голос валидаторов",
+      };
+      let strategiesText = "";
+      try {
+        const raw = JSON.parse(votingPowerStrategiesJson);
+        const list = Array.isArray(raw) ? raw : [];
+        strategiesText = list
+          .map((s: unknown) => {
+            const entry = s as {
+              type?: number;
+              name?: string;
+              arguments?: { name?: string; value?: string }[];
+            };
+            const name =
+              typeof entry?.name === "string" && entry.name
+                ? entry.name
+                : (strategyNames[String(entry?.type)] ??
+                  `Стратегия #${String(entry?.type)}`);
+            const args = (Array.isArray(entry?.arguments)
+              ? entry.arguments
+              : []
+            )
+              .map((a) => a?.value ?? "")
+              .filter(Boolean)
+              .map((a) => sanitizeHTML(a));
+            return (
+              name +
+              (args.length ? ` (${args.join(", ")})` : "")
+            );
+          })
+          .join("; ");
+      } catch (e) {}
+
+      const fmtTime = (t: bigint) =>
+        new Date(Number(t) * 1000).toLocaleString("ru-RU", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+          hour: "2-digit",
+          minute: "2-digit",
+        });
+
+      const deployerUrl = await formatAddressAndUrl(
+        proposalDeployer,
+        isTestnet,
+      );
+
+      let actionString = `<div class="label">Создать предложение в ДАО:</div>`;
+      actionString += `<div>Название: "${sanitizeHTML(title)}"</div>`;
+      if (description) {
+        actionString += `<div>Описание: ${sanitizeHTML(description)}</div>`;
+      }
+      actionString += `<div>Варианты голосования: ${optionsText}</div>`;
+      if (strategiesText) {
+        actionString += `<div>Стратегии подсчёта голосов: ${strategiesText}</div>`;
+      }
+      actionString += `<div>Кворум: ${sanitizeHTML(quorum)}%</div>`;
+      actionString += `<div>Снимок балансов: ${fmtTime(proposalSnapshotTime)}</div>`;
+      actionString += `<div>Начало голосования: ${fmtTime(proposalStartTime)}</div>`;
+      actionString += `<div>Окончание голосования: ${fmtTime(proposalEndTime)}</div>`;
+      actionString += `<div>Скрытое: ${hide ? "да" : "нет"}</div>`;
+      actionString += `<div>Деплоер предложений: ${deployerUrl}</div>`;
+
+      return { text: actionString };
+    } catch (e) {}
+
     return {
       text: `<b><span class="error">ВНИМАНИЕ - Неизвестное действие! Эта заявка содержит произвольные действия! Опасно! Не подписывайте, если точно не знаете, что делаете!</span></b><br>Необработанные данные тела сообщения: "${cell.toBoc().toString("base64")}".`,
     };
