@@ -229,7 +229,7 @@ const useNavigationLinks = () => {
   const translations = useDaoPageTranslations();
   const { data, isLoading } = useDaoQuery(daoAddress);
   const { isOwner, isProposalPublisher } = useRole(data?.daoRoles);
-  const { isSigner } = usePublisherMultisigSigner(data?.daoRoles.proposalOwner);
+  const { isSigner } = usePublisherMultisigSigner(data);
   const route = useCurrentRoute();
   if (isLoading) {
     return null;

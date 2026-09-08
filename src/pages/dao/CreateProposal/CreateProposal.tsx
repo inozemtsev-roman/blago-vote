@@ -28,9 +28,7 @@ export const CreateProposal = () => {
   const { addProposal } = useNewDataStore();
   const showErrorToast = useErrorToast();
   const [isPreparingOrder, setIsPreparingOrder] = useState(false);
-  const { isSigner, multisigAddress } = usePublisherMultisigSigner(
-    dao?.daoRoles.proposalOwner,
-  );
+  const { isSigner, multisigAddress } = usePublisherMultisigSigner(dao);
 
   const onSubmit = async (formValues: ProposalFormType) => {
     const metadata = prepareMetadata(formValues);

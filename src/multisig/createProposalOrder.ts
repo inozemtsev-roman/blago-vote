@@ -1,4 +1,5 @@
 import { Address, Cell, beginCell, fromNano } from "@ton/core";
+import { Address as SdkAddress } from "ton-core";
 import {
   getClientV2,
   getDaoState,
@@ -36,7 +37,12 @@ export const buildCreateProposalOrder = async (params: {
   const client = await getClientV2();
   const daoState = await getDaoState(client, daoAddress);
 
-  const deployerInit = await ProposalDeployer.fromInit(Address.parse(daoAddress));
+  // ProposalDeployer — контракт SDK (ton-core 0.48), поэтому адрес ДАО передаём
+  // его же классом Address, а не @ton/core: storeAddress из SDK проверяет
+  // instanceof своего ton-core и иначе бросает «Invalid address»
+  const deployerInit = await ProposalDeployer.fromInit(
+    SdkAddress.parse(daoAddress),
+  );
   const isDeployed = await client.isContractDeployed(deployerInit.address);
 
   const code = isDeployed ? null : deployerInit.init?.code ?? null;
