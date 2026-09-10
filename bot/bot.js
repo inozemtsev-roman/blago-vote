@@ -735,25 +735,17 @@ async function main() {
     saveState(state);
     log(`Seeded ${seeded} proposals.`);
 
-    // Временно: публиковать последние голосования ДАО из списка (SEND_LATEST=true).
+    // Публиковать последние голосования ДАО при первом запуске (SEND_LATEST=true).
+    // Публикуются ТОЛЬКО активные голосования — предстоящие и завершённые не публикуются.
     if (config.sendLatest) {
-      log("SEND_LATEST=true — публикуем последние голосования ДАО...");
+      log("SEND_LATEST=true — публикуем последнее активное голосование ДАО...");
 
-      // Последнее активное/предстоящее (не завершённое)
-      const latestActive = await findLatestProposal(Status.CLOSED);
+      // Последнее активное голосование (только текущие).
+      const latestActive = await findLatestProposal(null, Status.ACTIVE);
       if (latestActive) {
         const text = buildNewProposalMessage(latestActive.daoName, latestActive.proposal, latestActive.address);
         if (await sendToAll(text, latestActive.address, latestActive.daoName)) {
           log(`[LATEST ACTIVE] ${latestActive.address} (${latestActive.daoName})`);
-        }
-      }
-
-      // Последнее завершённое
-      const latestEnded = await findLatestProposal(null, Status.CLOSED);
-      if (latestEnded) {
-        const text = buildEndMessage(latestEnded.daoName, latestEnded.proposal, latestEnded.address);
-        if (await sendToAll(text, latestEnded.address, latestEnded.daoName)) {
-          log(`[LATEST ENDED] ${latestEnded.address} (${latestEnded.daoName})`);
         }
       }
     }

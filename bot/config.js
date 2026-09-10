@@ -13,7 +13,7 @@ export const config = {
   privateChatIds: (env.PRIVATE_CHAT_IDS || "").split(",").filter(Boolean),
   pollInterval: Number(env.POLL_INTERVAL) || 60_000,
   daoAddress: env.DAO_ADDRESS || "",
-  // Временно: публиковать последние голосования ДАО при первом запуске (true/false).
+  // Публиковать последнее активное голосование при первом запуске (true/false).
   sendLatest: env.SEND_LATEST === "true",
   daoAddresses: (env.DAO_ADDRESS || "")
     .split(",")
