@@ -45,10 +45,10 @@ import {
   useVotePersistedStore,
   useVoteStore,
 } from "store";
-import { delay, getTxFee, Logger, validateAddress } from "utils";
+import { getTxFee, getIsOneWalletOneVote, Logger, normalizeTonAddress, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { Dao, Proposal, ProposalStatus } from "types";
+import { Dao, Proposal, ProposalStatus, Vote } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
 import retry from "async-retry";
@@ -393,13 +393,14 @@ export const useVote = () => {
   const { data: proposal } = useProposalQuery(proposalAddress);
   const queryClient = useQueryClient();
   const successCallback = useVoteSuccessCallback(proposalAddress);
+  const walletAddress = useTonAddress();
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
 
 
   return useMutation(
-    async (_vote: string) => {
+    async (vote: string) => {
       if (!proposal) {
         throw new Error("Предложение не найдено");
       }
@@ -412,56 +413,95 @@ export const useVote = () => {
       // proposalSendMessage из SDK, которая перед отправкой делала get-method'ы
       // через orbs-дискавери — при недоступности/429 orbs голосование молча
       // «зависало» либо падало с ошибкой про fetch(mngr/nodes).
-      await sendVoteMessage(sender, proposalAddress!, _vote);
-
-      await delay(2000);
-      try {
-        return await successCallback(proposal);
-      } catch (error) {
-        Logger("Failed to update proposal results after vote:", error);
-        return null;
-      }
+      //
+      // Мутация завершается сразу после отправки транзакции — уведомление
+      // «Ваш голос принят» показывается незамедлительно, а пересчёт результатов
+      // и обновление кэша выполняются в фоне (onSuccess), не блокируя UI.
+      await sendVoteMessage(sender, proposalAddress!, vote);
+      return vote;
     },
     {
-      onSuccess: (values, _vote) => {
-        if (!values) {
-          errorToast(
-            `Вы успешно проголосовали за ${_vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
-            12_000,
+      onSuccess: async (vote) => {
+        if (!proposal) return;
+
+        // Мгновенно добавляем новый голос в «Последние голоса» (и показываем его
+        // в шапке для подключённого кошелька), не дожидаясь пересчёта результатов
+        // по цепочке — он может идти долго или упасть из-за RPC, из-за чего голос
+        // долго «не отображался», хотя уже виден в контракте.
+        const isOneWalletOneVote = getIsOneWalletOneVote(
+          proposal.metadata?.votingPowerStrategies,
+        );
+        if (walletAddress) {
+          const optimisticVote: Vote = {
+            address: walletAddress,
+            vote,
+            votingPower: isOneWalletOneVote ? "1" : "0",
+            timestamp: Math.floor(Date.now() / 1000),
+            hash: "",
+          };
+          queryClient.setQueryData(
+            [QueryKeys.PROPOSAL, proposalAddress],
+            (prev?: Proposal | null) => {
+              if (!prev) return prev;
+              const votes = _.filter(
+                prev.votes || [],
+                (v) =>
+                  normalizeTonAddress(v.address) !==
+                  normalizeTonAddress(walletAddress),
+              );
+              return {
+                ...prev,
+                votes: _.orderBy(
+                  [optimisticVote, ...votes],
+                  "timestamp",
+                  "desc",
+                ),
+              };
+            },
           );
-          return;
         }
 
-        const { proposalResults, vote, maxLt } = values;
+        try {
+          const values = await successCallback(proposal);
+          if (!values) return;
 
-        queryClient.setQueryData(
-          [QueryKeys.PROPOSAL, proposalAddress],
-          (prev?: any) => {
-            const votes = _.filter(
-              prev?.votes,
-              (v) => v.address !== vote.address,
-            );
-            return {
-              ...prev,
-              proposalResult: proposalResults,
-              votes: [vote, ...votes],
-            };
-          },
-        );
+          const { proposalResults, vote: walletVote, maxLt } = values;
 
-        Logger(
-          `успешное голосование вручную обновляет запрос предложения и настраивает локальное хранилище`,
-        );
-        Logger(maxLt, "maxLt");
-        Logger(vote, "walletVote");
-        Logger(proposalResults, "results");
-        // we save this data in local storage, and display it untill the server is up to date
-        return store.setValues(proposalAddress, maxLt, vote, proposalResults);
+          queryClient.setQueryData(
+            [QueryKeys.PROPOSAL, proposalAddress],
+            (prev?: any) => {
+              const votes = _.filter(
+                prev?.votes,
+                (v) => v.address !== walletVote.address,
+              );
+              return {
+                ...prev,
+                proposalResult: proposalResults,
+                votes: [walletVote, ...votes],
+              };
+            },
+          );
+
+          Logger(
+            `успешное голосование вручную обновляет запрос предложения и настраивает локальное хранилище`,
+          );
+          Logger(maxLt, "maxLt");
+          Logger(walletVote, "walletVote");
+          Logger(proposalResults, "results");
+          // we save this data in local storage, and display it untill the server is up to date
+          store.setValues(proposalAddress, maxLt, walletVote, proposalResults);
+        } catch (error) {
+          Logger("Failed to update proposal results after vote:", error);
+          errorToast(
+            `Вы успешно проголосовали за ${vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
+            12_000,
+          );
+        }
       },
       onSettled: () => {
         setIsVoting(false);
       },
-      onError: (error: Error, vote) => {
+      onError: (error: Error, vote: string) => {
         errorToast(error, 8_000);
       },
     },

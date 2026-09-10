@@ -1,7 +1,7 @@
 import { Fade } from "@mui/material";
 import { styled, Typography } from "@mui/material";
 import { AppTooltip, Button, ConnectButton, TitleContainer } from "components";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useWalletVote } from "../hooks";
@@ -17,11 +17,17 @@ import { useAppParams, useIsOneWalletOneVote } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { MOBILE_WIDTH } from "consts";
 
+interface SuccessVote {
+  vote: string;
+  alreadyVoted?: boolean;
+}
+
 export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
-  const [successVote, setSuccessVote] = useState<string | null>(null);
+  const [successVote, setSuccessVote] = useState<SuccessVote | null>(null);
+  const successNotified = useRef(false);
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
 
@@ -37,6 +43,15 @@ export function Vote() {
       setVote(walletVote?.vote as string);
     }
   }, [walletVote?.vote]);
+
+  // Если голос в этом голосовании уже был принят — показываем явное уведомление
+  // при открытии предложения (один раз за открытие страницы).
+  useEffect(() => {
+    if (currentVote && !successVote && !successNotified.current) {
+      successNotified.current = true;
+      setSuccessVote({ vote: currentVote, alreadyVoted: true });
+    }
+  }, [currentVote, successVote]);
 
   const onSubmit = () => {
     if (mock.isMockProposal(proposalAddress)) {
@@ -90,15 +105,17 @@ export function Vote() {
           if (!vote) return;
           mutate(vote, {
             onSuccess: () => {
+              successNotified.current = true;
               setConfirmation(false);
-              setSuccessVote(vote);
+              setSuccessVote({ vote, alreadyVoted: false });
             },
           });
         }}
       />
       <VoteSuccess
         open={!!successVote}
-        vote={successVote || undefined}
+        vote={successVote?.vote}
+        alreadyVoted={successVote?.alreadyVoted}
         onClose={() => setSuccessVote(null)}
       />
     </StyledContainer>

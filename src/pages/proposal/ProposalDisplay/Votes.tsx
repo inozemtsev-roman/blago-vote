@@ -114,6 +114,13 @@ export function Votes() {
 
   const { data, isLoading } = useProposalQuery(proposalAddress);
 
+  // Всегда показываем голоса от новых к старым, независимо от порядка,
+  // в котором их вернул сервер или локальное хранилище.
+  const votes = useMemo(
+    () => _.orderBy(data?.votes, "timestamp", "desc"),
+    [data?.votes]
+  );
+
   const isOneWalletOneVote = useIsOneWalletOneVote(proposalAddress);
 
   const symbol = useGetProposalSymbol(proposalAddress);
@@ -137,7 +144,7 @@ export function Votes() {
       >
         <StyledList gap={0}>
           <ConnectedWalletVote />
-          {data?.votes?.map((vote, index) => {
+          {votes?.map((vote, index) => {
             if (
               index >= votesShowAmount ||
               normalizeTonAddress(vote.address) === connectedAddress

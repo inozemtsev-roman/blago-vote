@@ -730,7 +730,11 @@ export const useProposalQuery = (
       return {
         ...proposal,
         proposalResult: persistedResult,
-        votes: [persistedVote, ...filteredVotes],
+        votes: _.orderBy(
+          [persistedVote, ...filteredVotes],
+          "timestamp",
+          "desc"
+        ),
       };
     },
     {

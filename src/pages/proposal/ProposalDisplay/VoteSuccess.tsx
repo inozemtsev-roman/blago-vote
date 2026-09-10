@@ -6,17 +6,24 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 interface Props {
   open: boolean;
   vote?: string;
+  alreadyVoted?: boolean;
   onClose: () => void;
 }
 
-export function VoteSuccess({ open, vote, onClose }: Props) {
+export function VoteSuccess({ open, vote, alreadyVoted, onClose }: Props) {
   return (
-    <StyledPopup hideCloseButton title="Ваш голос принят" open={open}>
+    <StyledPopup
+      hideCloseButton
+      title={alreadyVoted ? "Ваш голос уже принят" : "Ваш голос принят"}
+      open={open}
+    >
       <StyledContainer gap={22}>
         <StyledIcon>
           <FiCheck style={{ width: 22, height: 22 }} />
         </StyledIcon>
-        <Typography className="subtitle">Вы проголосовали за:</Typography>
+        <Typography className="subtitle">
+          {alreadyVoted ? "Вы голосовали за:" : "Вы проголосовали за:"}
+        </Typography>
         <StyledVoteLabel>{vote}</StyledVoteLabel>
         <Button onClick={onClose}>ОК</Button>
       </StyledContainer>
