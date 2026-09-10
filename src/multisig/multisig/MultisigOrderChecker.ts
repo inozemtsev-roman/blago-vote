@@ -18,6 +18,7 @@ import {
 } from "@ton/core";
 import { cellToArray, endParse } from "./Multisig";
 import { Order, parseOrderData } from "./Order";
+import { marked } from "marked";
 import { MultisigInfo } from "./MultisigChecker";
 import {
   MyNetworkProvider,
@@ -476,14 +477,27 @@ export const checkMultisigOrder = async (
       const proposalSnapshotTime = bodySlice.loadUintBig(64);
       const votingSystemJson = bodySlice.loadStringRefTail();
       const votingPowerStrategiesJson = bodySlice.loadStringRefTail();
-      const title = bodySlice.loadStringRefTail();
+      const titleRaw = bodySlice.loadStringRefTail();
 
       const paramsSlice = bodySlice.loadRef().beginParse();
-      const description = paramsSlice.loadStringRefTail();
+      const descriptionRaw = paramsSlice.loadStringRefTail();
+
+      const parseLang = (json?: string) => {
+        if (!json) return "";
+        try {
+          const parsed = JSON.parse(json);
+          return (parsed.en || parsed.ru || Object.values(parsed)[0] || "").toString().trim();
+        } catch {
+          return json.trim();
+        }
+      };
+      const title = parseLang(titleRaw);
+      const description = parseLang(descriptionRaw);
       const quorum = paramsSlice.loadStringRefTail();
       const hide = paramsSlice.loadBit();
 
       let optionsText = votingSystemJson;
+      let choicesArray: string[] = [];
       try {
         const parsed = JSON.parse(votingSystemJson);
         const votingSystem =
@@ -493,21 +507,22 @@ export const checkMultisigOrder = async (
           : Array.isArray(votingSystem?.choices)
             ? (votingSystem.choices as unknown[])
             : Object.values(votingSystem ?? {});
-        optionsText = options
-          .map((o) => `"${sanitizeHTML(String(o))}"`)
+        choicesArray = options.map((o) => String(o));
+        optionsText = choicesArray
+          .map((o) => `"${sanitizeHTML(o)}"`)
           .join(", ");
       } catch (e) {}
       optionsText = sanitizeHTML(optionsText);
 
       const strategyNames: Record<string, string> = {
-        "0": "Держатели TON",
+        "0": "Держатели GRAM",
         "1": "Владельцы жетона",
         "2": "Владельцы NFT",
-        "3": "Держатели TON (1 кошелёк = 1 голос)",
+        "3": "Держатели GRAM (1 кошелёк = 1 голос)",
         "4": "Владельцы жетона (1 кошелёк = 1 голос)",
         "5": "Владельцы NFT (1 кошелёк = 1 голос)",
         "6": "Голос валидаторов",
-        "7": "Держатели TON + голос валидаторов",
+        "7": "Держатели GRAM + голос валидаторов",
       };
       let strategiesText = "";
       try {
@@ -554,21 +569,38 @@ export const checkMultisigOrder = async (
         isTestnet,
       );
 
-      let actionString = `<div class="label">Создать предложение в ДАО:</div>`;
-      actionString += `<div>Название: "${sanitizeHTML(title)}"</div>`;
+      let actionString = `<div class="proposalAction">`;
+      actionString += `<div class="proposalActionTitle">${sanitizeHTML(title)}</div>`;
       if (description) {
-        actionString += `<div>Описание: ${sanitizeHTML(description)}</div>`;
+        const descHtml = marked.parse(description) as string;
+        actionString += `<div class="proposalActionDesc">${descHtml}</div>`;
       }
-      actionString += `<div>Варианты голосования: ${optionsText}</div>`;
+      actionString += `<div class="proposalActionMeta">`;
+      if (choicesArray.length > 0) {
+        actionString += `<div class="proposalActionChoices">`;
+        actionString += `<div class="proposalActionLabel">Варианты голосования:</div>`;
+        choicesArray.forEach((choice) => {
+          actionString += `<div class="proposalActionChoice"><span class="proposalActionCheckbox"></span> ${sanitizeHTML(choice)}</div>`;
+        });
+        actionString += `</div>`;
+      }
       if (strategiesText) {
-        actionString += `<div>Стратегии подсчёта голосов: ${strategiesText}</div>`;
+        actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Стратегии подсчёта голосов:</span> <span class="proposalActionValue">${strategiesText}</span></div>`;
       }
-      actionString += `<div>Кворум: ${sanitizeHTML(quorum)}%</div>`;
-      actionString += `<div>Снимок балансов: ${fmtTime(proposalSnapshotTime)}</div>`;
-      actionString += `<div>Начало голосования: ${fmtTime(proposalStartTime)}</div>`;
-      actionString += `<div>Окончание голосования: ${fmtTime(proposalEndTime)}</div>`;
-      actionString += `<div>Скрытое: ${hide ? "да" : "нет"}</div>`;
-      actionString += `<div>Деплоер предложений: ${deployerUrl}</div>`;
+      const quorumValue = parseInt(quorum, 10) || 0;
+      if (quorumValue > 0) {
+        actionString += `<div class="proposalActionQuorum">`;
+        actionString += `<div class="proposalActionLabel">Кворум:</div>`;
+        actionString += `<div class="proposalActionQuorumBar"><div class="proposalActionQuorumFill" style="width: ${Math.min(quorumValue, 100)}%"></div></div>`;
+        actionString += `<div class="proposalActionQuorumText">${quorumValue}%</div>`;
+        actionString += `</div>`;
+      }
+      actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Снимок балансов:</span> <span class="proposalActionValue">${fmtTime(proposalSnapshotTime)}</span></div>`;
+      actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Начало голосования:</span> <span class="proposalActionValue">${fmtTime(proposalStartTime)}</span></div>`;
+      actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Окончание голосования:</span> <span class="proposalActionValue">${fmtTime(proposalEndTime)}</span></div>`;
+      actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Скрытое:</span> <span class="proposalActionValue">${hide ? "да" : "нет"}</span></div>`;
+      actionString += `<div class="proposalActionMetaRow"><span class="proposalActionLabel">Деплоер предложений:</span> <span class="proposalActionValue">${deployerUrl}</span></div>`;
+      actionString += `</div></div>`;
 
       return { text: actionString };
     } catch (e) {}
