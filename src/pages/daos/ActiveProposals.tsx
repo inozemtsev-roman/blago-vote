@@ -25,6 +25,7 @@ interface ActiveProposal {
   leadingChoice: string;
   totalChoices: string[];
   isActive: boolean;
+  hasNotStarted: boolean;
 }
 
 const HIDDEN_PROPOSALS = [
@@ -66,6 +67,7 @@ const ActiveProposalRow = ({
   leadingChoice,
   totalChoices,
   isActive,
+  hasNotStarted,
 }: Omit<ActiveProposal, "startTime">) => {
   const { proposalPage } = useAppNavigation();
 
@@ -93,20 +95,24 @@ const ActiveProposalRow = ({
         </StyledFlexColumn>
       </StyledTableCell>
       <StyledTableCellCenter style={{ flex: 1.5 }}>
-        {isActive ? (
+        {hasNotStarted ? (
+          <StyledEndedText>Ещё не начато</StyledEndedText>
+        ) : isActive ? (
           <StyledEndDate>{formattedEndDate}</StyledEndDate>
         ) : (
           <StyledEndedText>Голосование закончено</StyledEndedText>
         )}
       </StyledTableCellCenter>
       <StyledTableCellCenter style={{ flex: 1 }}>
-        <StyledFlexColumn alignItems="center" gap={2}>
-          <IoTriangle
-            size={12}
-            color={isPositive ? "#4caf50" : "#f44336"}
-          />
-          <StyledVotesCount>{votesCount}</StyledVotesCount>
-        </StyledFlexColumn>
+        {votesCount > 0 && (
+          <StyledFlexColumn alignItems="center" gap={2}>
+            <IoTriangle
+              size={12}
+              color={isPositive ? "#4caf50" : "#f44336"}
+            />
+            <StyledVotesCount>{votesCount}</StyledVotesCount>
+          </StyledFlexColumn>
+        )}
       </StyledTableCellCenter>
     </StyledTableRow>
   );
@@ -197,6 +203,7 @@ export const ActiveProposals = () => {
           leadingChoice,
           totalChoices: choices,
           isActive: startTime <= now && endTime > now,
+          hasNotStarted: startTime > now,
         } as ActiveProposal;
       })
       .filter((p): p is ActiveProposal => !!p && !HIDDEN_PROPOSALS.includes(p.proposalAddress));
@@ -290,6 +297,7 @@ export const ActiveProposals = () => {
             leadingChoice={proposal.leadingChoice}
             totalChoices={proposal.totalChoices}
             isActive={proposal.isActive}
+            hasNotStarted={proposal.hasNotStarted}
           />
         ))}
         {showMoreFinished && (
