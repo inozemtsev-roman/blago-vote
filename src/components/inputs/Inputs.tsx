@@ -519,7 +519,7 @@ export const ListInputs = ({
   disabled,
   tooltip,
   placeholder = "",
-  max = 7,
+  max = 14,
   limit,
 }: ListProps) => {
   const onInputChange = (index: number, _value: string) => {
