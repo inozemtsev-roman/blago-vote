@@ -32,6 +32,24 @@ interface GetProposalArgs {
 
 const VOTE_OPCODE = "0x7c420ea2";
 
+// RPC бывает медленным/нестабильным: ограничиваем суммарное время фолбэков
+const CONTRACT_CALL_TIMEOUT_MS = 12_000;
+
+const withTimeout = <T>(promise: Promise<T>, ms: number): Promise<T> =>
+  new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new Error("timeout")), ms);
+    promise.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error) => {
+        clearTimeout(timer);
+        reject(error);
+      }
+    );
+  });
+
 const parseChoiceFromRawBody = (rawBody?: string) => {
   if (!rawBody) return "";
   try {
@@ -53,7 +71,8 @@ const getOneWalletOneVoteFallback = async (
   metadata: ProposalMetadata
 ) => {
   const response = await axios.get(
-    `https://tonapi.io/v2/blockchain/accounts/${proposalAddress}/transactions?limit=100`
+    `https://tonapi.io/v2/blockchain/accounts/${proposalAddress}/transactions?limit=100`,
+    { timeout: 12_000 }
   );
   const txs = response.data?.transactions || [];
   const choices = metadata.votingSystem?.choices || [];
@@ -227,7 +246,8 @@ const getProposal = async (args: GetProposalArgs): Promise<Proposal | null> => {
     }
   };
 
-  return retry(promise, { retries: CONTRACT_RETRIES });
+  return withTimeout(retry(promise, { retries: CONTRACT_RETRIES }),
+    CONTRACT_CALL_TIMEOUT_MS);
 };
 
 interface GetProposalResultsAfterVoteArgs {
@@ -301,6 +321,21 @@ export const getDao = async (daoAddress: string, clientV2?: TonClient) => {
       daoState.metadata
     );
 
+    let proposalAddresses: string[] = [];
+    try {
+      // перечисление предложений с цепочки может падать (например, для ДАО
+      // Градосферы get-method get_proposal_address не отрабатывает для части
+      // идентификаторов), поэтому оно не должно ронять получение ДАО в целом
+      proposalAddresses =
+        (await TonVoteSDK.getDaoProposals(client, daoAddress))
+          .proposalAddresses || [];
+    } catch (error) {
+      Logger(
+        `Failed to enumerate proposals from chain for ${daoAddress}:`,
+        error
+      );
+    }
+
     const daoFromContract: Dao = {
       daoAddress: daoAddress,
       daoRoles: {
@@ -312,14 +347,13 @@ export const getDao = async (daoAddress: string, clientV2?: TonClient) => {
         metadataArgs,
       },
       daoId: daoState.daoIndex,
-      daoProposals:
-        (await TonVoteSDK.getDaoProposals(client, daoAddress))
-          .proposalAddresses || [],
+      daoProposals: proposalAddresses,
     };
     return daoFromContract;
   };
 
-  return retry(promise, { retries: CONTRACT_RETRIES });
+  return withTimeout(retry(promise, { retries: CONTRACT_RETRIES }),
+    CONTRACT_CALL_TIMEOUT_MS);
 };
 
 const _getAllNftHolders = (

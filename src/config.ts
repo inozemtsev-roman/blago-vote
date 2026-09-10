@@ -191,7 +191,7 @@ export const REFETCH_INTERVALS = {
   daos: 60_000,
 };
 
-export const API_RETRIES = 2;
+export const API_RETRIES = 1;
 export const CONTRACT_RETRIES = 2;
 
 export const RETRY_DELAY = 1000;

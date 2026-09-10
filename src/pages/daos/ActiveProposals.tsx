@@ -30,6 +30,7 @@ interface ActiveProposal {
 const HIDDEN_PROPOSALS = [
   "EQDzyp8GQpTcL3UxBfppfhHr4oizVxIir6RPbgZNAL6mmXxS",
   "EQCXLon8hgGkRIk9RzIcDO4xa8YX7Fpmv5ubMYzrmF8b6srQ",
+  "EQDvp9-ZV2M-TeqLRhnPYNmshnna6LkSAvF2FGU7UIRUbQBF",
 ];
 
 const ActiveProposalsLoader = () => {
@@ -74,7 +75,8 @@ const ActiveProposalRow = ({
     proposalPage.root(proposalAddress);
   };
 
-  const formattedEndDate = moment.unix(endTime).format("DD.MM.YYYY");
+  // endTime приходит уже в миллисекундах (см. конвертацию *1000 выше)
+  const formattedEndDate = moment(endTime).format("DD.MM.YYYY");
   const shortDescription = description
     ? description.substring(0, 80) + (description.length > 80 ? "..." : "")
     : "";

@@ -3,17 +3,15 @@ import _ from "lodash";
 import { Dao, Proposal, ProposalResults, RawVotes, VotingPower } from "types";
 import { Logger, parseVotes } from "utils";
 import { API_RETRIES } from "config";
-import axiosRetry from "axios-retry";
 import retry from "async-retry";
 
 const baseURL = "https://api.ton.vote";
 
+// индексёр может отвечать очень долго (минуты), поэтому каждый запрос
+// ограничен таймаутом, а повторы делает только async-retry ниже
 const axiosInstance = axios.create({
   baseURL,
-});
-axiosRetry(axiosInstance, {
-  retries: API_RETRIES,
-  retryDelay: axiosRetry.exponentialDelay,
+  timeout: 12_000,
 });
 
 const getDaos = async (signal?: AbortSignal): Promise<Dao[]> => {
@@ -149,6 +147,7 @@ const getJettonMetadata = async (
   try {
     const res = await axios.get(`https://tonapi.io/v2/jettons/${address}`, {
       signal,
+      timeout: 12_000,
     });
     const metadata = res.data?.metadata;
     if (!metadata) return undefined;

@@ -289,18 +289,11 @@ export const useDaoQuery = (daoAddress: string) => {
       // данные ДАО и список предложений сначала берём из API — страница ДАО
       // рендерится сразу, а сверка с цепочкой выполняется фоном и не блокирует её
       let dao: Dao | undefined;
-      if (metadataLastUpdate || shouldSynchronizeWithChain) {
-        try {
-          dao = await api.getDao(daoAddress!, signal);
-        } catch (error) {
-        }
-      }
-
-      if (!dao) {
-        try {
-          dao = await api.getDao(daoAddress!, signal);
-        } catch (error) {
-        }
+      try {
+        // api.getDao сам повторяет запрос внутри (async-retry), поэтому
+        // дублировать вызов здесь не нужно
+        dao = await api.getDao(daoAddress!, signal);
+      } catch (error) {
       }
 
       if (!dao) {
@@ -319,10 +312,31 @@ export const useDaoQuery = (daoAddress: string) => {
         throw new Error("DAO not found");
       }
 
-      const proposals = addNewProposals(daoAddress!, dao.daoProposals);
-      let daoProposals = IS_DEV
-        ? _.concat(proposals, mock.proposalAddresses)
-        : proposals;
+      let proposalAddresses = dao.daoProposals ? [...dao.daoProposals] : [];
+
+      // если индексёр вернул пустой список предложений (например, при отставании
+      // индексации), пробуем получить его из второго источника — /daos.
+      // Перечисление с цепочки здесь не подходит: для части ДАО (включая
+      // «Градосферу») get-method get_proposal_address падает на отдельных
+      // идентификаторах (exit_code -13), и полный список собрать нельзя.
+      if (!_.size(proposalAddresses)) {
+        try {
+          const daos = (await api.getDaos(signal)) || [];
+          const entry = _.find(
+            daos,
+            (it) => toRaw(it.daoAddress) === toRaw(daoAddress!)
+          );
+          if (entry?.daoProposals?.length) {
+            proposalAddresses = entry.daoProposals;
+          }
+        } catch (error) {
+        }
+      }
+
+      let daoProposals = addNewProposals(daoAddress!, proposalAddresses);
+      daoProposals = IS_DEV
+        ? _.concat(daoProposals, mock.proposalAddresses)
+        : daoProposals;
 
       daoProposals = _.filter(
         daoProposals,
