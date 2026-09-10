@@ -1,17 +1,16 @@
-import { styled, Typography } from "@mui/material";
-import { TonConnectButton, useTonAddress } from "@tonconnect/ui-react";
+import { Typography } from "@mui/material";
+import { useTonConnectUI } from "@tonconnect/ui-react";
 
 import React from "react";
 import { Button } from "./Button";
 
 export function ConnectButton({ className = "" }: { className?: string }) {
-  const onConnect = () => {
-    const container = document.getElementById("ton-connect-button");
-    const btn = container?.querySelector("button");
+  const [tonConnectUI] = useTonConnectUI();
 
-    if (btn) {
-      btn.click();
-    }
+  const onConnect = () => {
+    tonConnectUI.openModal().catch((e) => {
+      console.error("Не удалось открыть окно подключения кошелька:", e);
+    });
   };
 
   return (
@@ -20,4 +19,3 @@ export function ConnectButton({ className = "" }: { className?: string }) {
     </Button>
   );
 }
-

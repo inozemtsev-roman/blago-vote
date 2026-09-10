@@ -64,14 +64,10 @@ const ActiveProposalRow = ({
   votesCount,
   title,
   description,
-  leadingChoice,
-  totalChoices,
   isActive,
   hasNotStarted,
-}: Omit<ActiveProposal, "startTime">) => {
+}: Omit<ActiveProposal, "startTime" | "leadingChoice" | "totalChoices">) => {
   const { proposalPage } = useAppNavigation();
-
-  const isPositive = totalChoices.length > 0 && leadingChoice === totalChoices[0];
 
   const onClick = () => {
     proposalPage.root(proposalAddress);
@@ -108,7 +104,7 @@ const ActiveProposalRow = ({
           <StyledFlexColumn alignItems="center" gap={2}>
             <IoTriangle
               size={12}
-              color={isPositive ? "#4caf50" : "#f44336"}
+              color="#4caf50"
             />
             <StyledVotesCount>{votesCount}</StyledVotesCount>
           </StyledFlexColumn>
@@ -294,8 +290,6 @@ export const ActiveProposals = () => {
             votesCount={proposal.votesCount}
             title={proposal.title}
             description={proposal.description}
-            leadingChoice={proposal.leadingChoice}
-            totalChoices={proposal.totalChoices}
             isActive={proposal.isActive}
             hasNotStarted={proposal.hasNotStarted}
           />

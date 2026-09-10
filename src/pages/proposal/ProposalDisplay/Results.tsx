@@ -22,7 +22,6 @@ import { errorToast } from "toasts";
 import {  useAppParams, useProposalResults } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 const LIMIT = 5;
-const QUORUM_PERCENT = 66;
 
 export const Results = () => {
     const { proposalAddress } = useAppParams();
@@ -33,8 +32,6 @@ export const Results = () => {
   const translations = useProposalPageTranslations();
 
   const results = useProposalResults(proposalAddress);
-  const winnerPercent = Math.max(...results.map((it) => it.percent), 0);
-  const isQuorumPassed = winnerPercent >= QUORUM_PERCENT;
 
 
   if (isLoading) {
@@ -44,10 +41,6 @@ export const Results = () => {
   return (
     <StyledResults title={translations.results}>
       <StyledFlexColumn gap={15}>
-        <StyledQuorumChip
-          label={isQuorumPassed ? "Кворум 2/3 пройден" : "Кворум 2/3 не пройден"}
-          color={isQuorumPassed ? "success" : "warning"}
-        />
         {results.map((result, index) => {
           if (index >= LIMIT && !showAllResults) return null;
 
@@ -147,12 +140,6 @@ const StyledChip = styled(Chip)({
     paddingLeft: 10,
     paddingRight: 10,
   },
-});
-
-const StyledQuorumChip = styled(Chip)({
-  width: "fit-content",
-  fontWeight: 600,
-  marginBottom: 5,
 });
 
 const StyledResultRowRight = styled(StyledFlexRow)({

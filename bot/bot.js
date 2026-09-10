@@ -444,7 +444,7 @@ function buildNewProposalMessage(daoName, proposal, addr) {
     `<b>Предложение:</b> <a href="${proposalLink(addr)}">${title || shortAddr(addr)}</a>`,
   ];
 
-  if (description) lines.push(description);
+  if (description) lines.push(`<blockquote>${description}</blockquote>`);
   if (leader) lines.push(`<b>Ведущий/руководитель:</b> ${formatLeader(leader)}`);
   if (statusText) lines.push(`<b>Статус:</b> ${statusText}`);
 
@@ -452,7 +452,7 @@ function buildNewProposalMessage(daoName, proposal, addr) {
     lines.push(
       ``,
       `<b>Варианты:</b>`,
-      ...choices.map((c, i) => `  ${i + 1}. ${c}`),
+      ...choices.map((c) => `  ☐ ${c}`),
     );
   }
 
@@ -485,14 +485,14 @@ function buildStartMessage(daoName, proposal, addr) {
     `<b>Статус:</b> 🗳 Начато голосование`,
   ];
 
-  if (description) lines.push(description);
+  if (description) lines.push(`<blockquote>${description}</blockquote>`);
   if (leader) lines.push(`<b>Ведущий/руководитель:</b> ${formatLeader(leader)}`);
 
   if (choices.length) {
     lines.push(
       ``,
       `<b>Варианты:</b>`,
-      ...choices.map((c, i) => `  ${i + 1}. ${c}`),
+      ...choices.map((c) => `  ☐ ${c}`),
     );
   }
 
@@ -555,7 +555,7 @@ function buildEndMessage(daoName, proposal, addr) {
     `<b>Статус:</b> ⏰ Голосование завершено`,
   ];
 
-  if (description) lines.push(description);
+  if (description) lines.push(`<blockquote>${description}</blockquote>`);
   if (leader) lines.push(`<b>Ведущий/руководитель:</b> ${formatLeader(leader)}`);
 
   lines.push(
