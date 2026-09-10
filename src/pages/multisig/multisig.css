@@ -671,6 +671,7 @@
   flex-direction: column;
   gap: 16px;
   overflow: hidden;
+  margin-top: 8px;
 }
 
 .proposalActionTitle {
