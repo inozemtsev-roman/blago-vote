@@ -74,6 +74,13 @@ function parseLang(json, lang = "ru") {
   }
 }
 
+// Тестовые голосования (заголовок содержит «тест»/«test») не публикуются ботом —
+// ни на старте (SEND_LATEST), ни по вехам (start/mid/end), и не попадают в state.json.
+function isTestProposal(meta) {
+  const title = parseLang(meta?.title).toLowerCase();
+  return /тест|test/.test(title);
+}
+
 function formatDate(unixSeconds) {
   if (!unixSeconds) return "—";
   const d = new Date(Number(unixSeconds) * 1000);
@@ -349,7 +356,7 @@ async function findLatestProposal(excludeStatus, onlyStatus) {
     const results = await Promise.all(
       batch.map(async (c) => {
         const p = await fetchProposal(c.addr);
-        if (!p?.metadata) return null;
+        if (!p?.metadata || isTestProposal(p.metadata)) return null;
         const status = getProposalStatus(p.metadata);
         if (onlyStatus) {
           if (status !== onlyStatus) return null;
@@ -611,7 +618,7 @@ async function pollProposals(state) {
 
     for (const proposalAddr of dao.daoProposals || []) {
       const proposal = await fetchProposal(proposalAddr);
-      if (!proposal?.metadata) continue;
+      if (!proposal?.metadata || isTestProposal(proposal.metadata)) continue;
 
       const meta = proposal.metadata;
       const currentStatus = getProposalStatus(meta);
@@ -718,7 +725,7 @@ async function main() {
       const daoName = parseLang(dao.daoMetadata?.metadataArgs?.name);
       for (const proposalAddr of dao.daoProposals || []) {
         const proposal = await fetchProposal(proposalAddr);
-        if (!proposal?.metadata) continue;
+        if (!proposal?.metadata || isTestProposal(proposal.metadata)) continue;
         const status = getProposalStatus(proposal.metadata);
         if (!status) continue;
         state.proposals[proposalAddr] = {
