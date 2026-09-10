@@ -83,10 +83,12 @@ export const Proposal = ({ proposalAddress }: { proposalAddress: string }) => {
     useProposalStatus(proposalAddress);
   const hideProposal = useHideProposal(proposalAddress);
   
-  const description = useMemo(
-    () => parseLanguage(proposal?.metadata?.description, "en"),
-    [proposal?.metadata?.description]
-  );
+  const description = useMemo(() => {
+    return parseLanguage(proposal?.metadata?.description, "en")
+      .split("\n")
+      .filter((line: string) => !line.match(/^\*?\*?Место проведения:\*?\*?/))
+      .join("\n");
+  }, [proposal?.metadata?.description]);
   const title = useMemo(
     () => parseLanguage(proposal?.metadata?.title),
     [proposal?.metadata?.title]
