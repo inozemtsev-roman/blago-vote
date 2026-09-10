@@ -61,9 +61,9 @@ const SNAPSHOT: RegistryFile = {
       },
     },
     {
-      name: "Чистая Лига",
+      name: "ДАО Городские дебаты",
       address: "UQACfRYh7GcZJwtB6zI5bn1DO58MXj1GIyY1u94Eg4TJFp8v",
-      logo: "https://raw.githubusercontent.com/gradosphera/brand-assets/refs/heads/main/cleanliga/logo.svg",
+      logo: "https://raw.githubusercontent.com/gradosphera/brand-assets/6e7b91f4bc624002cfbe87a42609762f38db64bd/blago-vesting/logo_256x256.png",
       jetton: {
         name: "Благо",
         address: "EQBlaryI1HCY6hIlW9giBoqKGtuMHfxlULZOhD6UyzpqLcll",
