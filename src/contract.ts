@@ -343,7 +343,7 @@ export const getDao = async (daoAddress: string, clientV2?: TonClient) => {
         proposalOwner: daoState.proposalOwner,
       },
       daoMetadata: {
-        metadataAddress: "",
+        metadataAddress: daoState.metadata,
         metadataArgs,
       },
       daoId: daoState.daoIndex,

@@ -162,71 +162,134 @@ export const useNewDaoAddresses = () => {
   };
 };
 
+// кэш результатов сверки списка ДАО с цепочкой: чтобы не дёргать цепочку
+// для каждого ДАО при каждом рефетче, повторно сверяемся только если данные
+// из API изменились (сменился адрес метаданных) или истёк TTL
+const DSP_DAO_LIST_TTL = 60_000;
+interface ListCorrection {
+  verifiedAt: number;
+  serverMetadataAddress: string;
+  syncedDao: Pick<Dao, "daoRoles" | "daoMetadata"> | null;
+}
+const daoListCorrections = new Map<string, ListCorrection>();
+
 export const useIsDaosUpToDate = () => {
   const { getDaoUpdateMillis, removeDaoUpdateMillis } = useSyncStore();
 
-  return async (daos: Dao[]) => {
-    const promise = await Promise.allSettled(
-      _.map(daos, async (dao): Promise<Dao> => {
-        const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
+  const reconcile = async (
+    dao: Dao,
+    client: TonClient,
+    metadataLastUpdate: number | undefined
+  ): Promise<Dao> => {
+    const daoAddress = dao.daoAddress;
+    const serverAddress = dao.daoMetadata?.metadataAddress || "";
+    const cached = daoListCorrections.get(daoAddress);
 
-        if (!metadataLastUpdate) {
-          return dao;
+    // недавно уже сверялись, данные из API не менялись — применяем результат повторно
+    if (
+      !metadataLastUpdate &&
+      cached &&
+      cached.serverMetadataAddress === serverAddress &&
+      Date.now() - cached.verifiedAt < DSP_DAO_LIST_TTL
+    ) {
+      return cached.syncedDao ? { ...dao, ...cached.syncedDao } : dao;
+    }
+
+    try {
+      const comparison = await compareDaoWithChain(daoAddress, dao, client);
+
+      let syncedDao: Pick<Dao, "daoRoles" | "daoMetadata"> | null = null;
+
+      if (!comparison.isUpToDate && comparison.chainMetadataAddress) {
+        const metadataArgs = await getDaoMetadata(
+          client,
+          comparison.chainMetadataAddress
+        );
+        syncedDao = {
+          daoRoles: {
+            owner: comparison.chainOwner,
+            proposalOwner: comparison.chainProposalOwner,
+          },
+          daoMetadata: {
+            metadataAddress: "",
+            metadataArgs,
+          },
+        };
+      } else if (metadataLastUpdate) {
+        removeDaoUpdateMillis(daoAddress);
+      }
+
+      daoListCorrections.set(daoAddress, {
+        verifiedAt: Date.now(),
+        serverMetadataAddress: serverAddress,
+        syncedDao,
+      });
+
+      return syncedDao ? { ...dao, ...syncedDao } : dao;
+    } catch (error) {
+      Logger(`Failed to verify DAO ${daoAddress} on chain:`, error);
+      return dao;
+    }
+  };
+
+  return async (daos: Dao[], onDaoCorrected?: (dao: Dao) => void) => {
+    let client: TonClient;
+    try {
+      client = await getClientV2();
+    } catch (error) {
+      // RPC недоступен — оставляем данные из API как есть
+      Logger("Failed to create client for DAO verification:", error);
+      return daos;
+    }
+
+    // список ДАО нельзя блокировать десятками запросов к цепочке (RPC может
+    // отвечать секундами): сначала применяем уже известные исправления, а
+    // перепроверку остальных выполняем в фоне, обновляя кэш по мере готовности
+    const corrected: Dao[] = [];
+    const pending: Array<Promise<void>> = [];
+
+    daos.forEach((dao) => {
+      const metadataLastUpdate = getDaoUpdateMillis(dao.daoAddress);
+      const serverAddress = dao.daoMetadata?.metadataAddress || "";
+      const cached = daoListCorrections.get(dao.daoAddress);
+      const applyFresh = (d: Dao): Dao =>
+        cached && cached.syncedDao
+          ? { ...d, ...cached.syncedDao }
+          : d;
+
+      if (
+        !metadataLastUpdate &&
+        cached &&
+        cached.serverMetadataAddress === serverAddress &&
+        Date.now() - cached.verifiedAt < DSP_DAO_LIST_TTL
+      ) {
+        corrected.push(applyFresh(dao));
+        return;
+      }
+
+      corrected.push(dao);
+      pending.push(
+        reconcile(dao, client, metadataLastUpdate).then((synced) => {
+          if (onDaoCorrected) onDaoCorrected(synced);
+        })
+      );
+    });
+
+    // сверяемся порциями, чтобы не обрушить публичные RPC разом, и не
+    // блокируем отрисовку списка — результат применяем в фоне по мере готовности
+    const CHUNK_SIZE = 15;
+    const sweep = async () => {
+      try {
+        for (let i = 0; i < pending.length; i += CHUNK_SIZE) {
+          await Promise.allSettled(pending.slice(i, i + CHUNK_SIZE));
         }
+      } catch (error) {
+        Logger("DAO list background sync error:", error);
+      }
+    };
+    void sweep();
 
-        try {
-          const client = await getClientV2();
-
-          const comparison = await compareDaoWithChain(
-            dao.daoAddress,
-            dao,
-            client
-          );
-
-          if (comparison.isUpToDate) {
-            removeDaoUpdateMillis(dao.daoAddress);
-            return dao;
-          }
-
-          if (!comparison.chainMetadataAddress) {
-            return dao;
-          }
-
-          const metadataArgs = await getDaoMetadata(
-            client,
-            comparison.chainMetadataAddress
-          );
-
-          return {
-            ...dao,
-            daoRoles: {
-              owner: comparison.chainOwner,
-              proposalOwner: comparison.chainProposalOwner,
-            },
-            daoMetadata: {
-              metadataAddress: "",
-              metadataArgs,
-            },
-          };
-        } catch (error) {
-          Logger(
-            `Failed to verify DAO ${dao.daoAddress} on chain:`,
-            error
-          );
-          return dao;
-        }
-      })
-    );
-
-    return _.compact(
-      promise.map((it) => {
-        if (it.status === "fulfilled") {
-          return it.value;
-        } else {
-          return null;
-        }
-      })
-    );
+    return corrected;
   };
 };
 

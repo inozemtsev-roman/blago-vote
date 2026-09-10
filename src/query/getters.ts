@@ -13,6 +13,7 @@ import _ from "lodash";
 import {
   getClientV2,
   getClientV4,
+  getDaoMetadata,
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
@@ -40,7 +41,7 @@ import {
   verifyDaoWithChain,
 } from "./hooks";
 import { api } from "api";
-import { useMemo, useState } from "react";
+import { useMemo, useCallback, useState } from "react";
 import { routes } from "consts";
 import { lib } from "lib";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
@@ -144,6 +145,7 @@ export const useDaoStateQuery = (daoAddress?: string) => {
 
 export const useDaosQuery = () => {
   const devFeatures = useDevFeatures();
+  const queryClient = useQueryClient();
 
   const handleNewDaoAddresses = useNewDaoAddresses();
   const handleDaosUpToDate = useIsDaosUpToDate();
@@ -157,12 +159,29 @@ export const useDaosQuery = () => {
     };
   }, [route]);
 
+  // фоновая сверка списка с цепочкой обновляет кэш по мере готовности каждого
+  // ДАО, чтобы пользователь видел актуальные название/иконку без перезагрузки
+  const queueDaoCorrection = useCallback(
+    (correctedDao: Dao) => {
+      queryClient.setQueryData<Dao[]>(
+        [QueryKeys.DAOS, devFeatures],
+        (prev = []) =>
+          prev.map((dao) =>
+            dao.daoAddress === correctedDao.daoAddress
+              ? correctedDao
+              : dao
+          )
+      );
+    },
+    [queryClient, devFeatures]
+  );
+
   return useQuery(
     [QueryKeys.DAOS, devFeatures],
     async ({ signal }) => {
       const payload = (await api.getDaos(signal)) || [];
 
-      const prodDaos = await handleDaosUpToDate(payload);
+      const prodDaos = await handleDaosUpToDate(payload, queueDaoCorrection);
 
       // add mock daos if dev mode
       let daos = IS_DEV ? _.concat(prodDaos, mock.daos) : prodDaos;
@@ -287,16 +306,29 @@ export const useDaoQuery = (daoAddress: string) => {
       const getDaoFromContract = () => contract.getDao(daoAddress);
 
       // данные ДАО и список предложений сначала берём из API — страница ДАО
-      // рендерится сразу, а сверка с цепочкой выполняется фоном и не блокирует её
+      // рендерится сразу, а сверка с цепочкой выполняется фоном и не блокирует её.
+      // Исключение — непосредственно после ончейн-обновления метаданных/ролей
+      // (задан metadataLastUpdate): индексёр может ещё отдавать старые данные,
+      // поэтому новую информацию (название, описание и т.п.) читаем с цепочки,
+      // чтобы она отображалась сразу, а не после фоновой сверки.
       let dao: Dao | undefined;
-      try {
-        // api.getDao сам повторяет запрос внутри (async-retry), поэтому
-        // дублировать вызов здесь не нужно
-        dao = await api.getDao(daoAddress!, signal);
-      } catch (error) {
+      if (metadataLastUpdate) {
+        try {
+          dao = await getDaoFromContract();
+        } catch (error) {
+        }
       }
 
       if (!dao) {
+        try {
+          // api.getDao сам повторяет запрос внутри (async-retry), поэтому
+          // дублировать вызов здесь не нужно
+          dao = await api.getDao(daoAddress!, signal);
+        } catch (error) {
+        }
+      }
+
+      if (!dao && !metadataLastUpdate) {
         try {
           dao = await getDaoFromContract();
         } catch (error) {
@@ -310,6 +342,41 @@ export const useDaoQuery = (daoAddress: string) => {
 
       if (!dao) {
         throw new Error("DAO not found");
+      }
+
+      // метаданные и роли из API могут отставать от цепочки (индексёр ещё не
+      // подхватил ончейн-обновление) — сверяемся с цепочкой и при расхождении
+      // сразу подставляем актуальные данные (название, описание и т.п.),
+      // а не ждём фоновой сверки
+      if (!mock.isMockDao(daoAddress!)) {
+        try {
+          const client = await getClientV2();
+          const verification = await verifyDaoWithChain(
+            daoAddress!,
+            dao,
+            true,
+            client
+          );
+          if (!verification.isUpToDate && verification.chainMetadataAddress) {
+            const metadataArgs = await getDaoMetadata(
+              client,
+              verification.chainMetadataAddress
+            );
+            dao = {
+              ...dao,
+              daoRoles: {
+                owner: verification.chainOwner,
+                proposalOwner: verification.chainProposalOwner,
+              },
+              daoMetadata: {
+                metadataAddress: verification.chainMetadataAddress,
+                metadataArgs,
+              },
+            };
+          }
+        } catch (error) {
+          Logger("Failed to reconcile DAO with chain:", error);
+        }
       }
 
       let proposalAddresses = dao.daoProposals ? [...dao.daoProposals] : [];

@@ -47,7 +47,7 @@ import {
 import { delay, getTxFee, Logger, validateAddress } from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
-import { Proposal, ProposalStatus } from "types";
+import { Dao, Proposal, ProposalStatus } from "types";
 import { useAppNavigation } from "router/navigation";
 import { contract } from "contract";
 import retry from "async-retry";
@@ -294,6 +294,7 @@ export const useSetDaoPublisherQuery = () => {
 export const useUpdateDaoMetadataQuery = () => {
   const getSender = useGetSender();
   const { setDaoUpdateMillis } = useSyncStore();
+  const queryClient = useQueryClient();
   const refetchDaos = useDaosQuery().refetch;
   const { daoAddress } = useAppParams();
 
@@ -339,6 +340,23 @@ export const useUpdateDaoMetadataQuery = () => {
       },
       onSuccess: (_, args) => {
         showSuccessToast("Метаданные обновлены");
+        // сразу подставляем новые метаданные (название, описание и т.п.)
+        // в кэш, не дожидаясь повторного запроса к API — индексёр может ещё
+        // отдавать старые данные, а повторный запрос уже пойдёт на цепочку
+        // (см. metadataLastUpdate в useDaoQuery)
+        queryClient.setQueryData<Dao | null>(
+          [QueryKeys.DAO, args.daoAddress],
+          (currentDao) => {
+            if (!currentDao) return currentDao;
+            return {
+              ...currentDao,
+              daoMetadata: {
+                ...currentDao.daoMetadata,
+                metadataArgs: args.metadata,
+              },
+            };
+          }
+        );
         setDaoUpdateMillis(args.daoAddress);
         refetchDaos();
         refetchUpdatedDao();
