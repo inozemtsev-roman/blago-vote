@@ -11,13 +11,13 @@ import {
 import { Dao, Proposal } from "types";
 import _ from "lodash";
 import {
-  getClientV2,
   getClientV4,
   getDaoMetadata,
   getSingleVoterPower,
   getDaoState,
   getRegistryState,
 } from "ton-vote-contracts-sdk";
+import { getClientV2 } from "../tonRpc";
 import {
   getIsOneWalletOneVote,
   getProposalSymbol,
@@ -640,7 +640,6 @@ export const useProposalQuery = (
   proposalAddress: string,
   args?: ProposalQueryArgs
 ) => {
-  const clients = useGetClients().data;
   const votePersistStore = useVotePersistedStore();
   const { getProposalUpdateMillis, removeProposalUpdateMillis } =
     useSyncStore();
@@ -739,11 +738,7 @@ export const useProposalQuery = (
         setError(true);
       },
       refetchOnReconnect: false,
-      enabled:
-        !!proposalAddress &&
-        !!clients?.clientV2 &&
-        !!clients.clientV4 &&
-        !args?.disabled,
+      enabled: !!proposalAddress && !args?.disabled,
       staleTime: Infinity,
       refetchInterval: error
         ? 0

@@ -6,6 +6,7 @@ import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { FiCheck } from "react-icons/fi";
 import { useWalletVote } from "../hooks";
 import { VoteConfirmation } from "./VoteConfirmation";
+import { VoteSuccess } from "./VoteSuccess";
 import { useProposalPageTranslations } from "i18n/hooks/useProposalPageTranslations";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { useVote } from "query/setters";
@@ -20,6 +21,7 @@ export function Vote() {
   const [vote, setVote] = useState<string | undefined>();
   const { mutate, isLoading } = useVote();
   const [confirmation, setConfirmation] = useState(false);
+  const [successVote, setSuccessVote] = useState<string | null>(null);
   const translations = useProposalPageTranslations();
   const { proposalAddress } = useAppParams();
 
@@ -82,11 +84,22 @@ export function Vote() {
       <VoteConfirmation
         open={confirmation}
         vote={vote}
+        isSubmitting={isLoading}
         onClose={() => setConfirmation(false)}
         onSubmit={() => {
           if (!vote) return;
-          mutate(vote);
+          mutate(vote, {
+            onSuccess: () => {
+              setConfirmation(false);
+              setSuccessVote(vote);
+            },
+          });
         }}
+      />
+      <VoteSuccess
+        open={!!successVote}
+        vote={successVote || undefined}
+        onClose={() => setSuccessVote(null)}
       />
     </StyledContainer>
   );

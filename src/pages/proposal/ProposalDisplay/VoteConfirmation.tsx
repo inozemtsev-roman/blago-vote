@@ -14,9 +14,16 @@ interface Props {
   onClose: () => void;
   vote?: string;
   onSubmit: () => void;
+  isSubmitting?: boolean;
 }
 
-export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
+export function VoteConfirmation({
+  open,
+  onClose,
+  vote,
+  onSubmit,
+  isSubmitting,
+}: Props) {
   const translations = useProposalPageTranslations();
 
   const { proposalAddress } = useAppParams();
@@ -72,13 +79,16 @@ export function VoteConfirmation({ open, onClose, vote, onSubmit }: Props) {
             Отменить
           </Button>
           <Button
-            disabled={NoVotingPower || votingDataLoading}
+            disabled={NoVotingPower || votingDataLoading || isSubmitting}
             onClick={() => {
               onSubmit();
-              onClose();
             }}
           >
-            {translations.confirm}
+            {isSubmitting ? (
+              <CircularProgress style={{ width: 18, height: 18 }} />
+            ) : (
+              translations.confirm
+            )}
           </Button>
         </StyledButtons>
       </StyledContainer>

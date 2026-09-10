@@ -3,10 +3,10 @@ import { contract } from "contract";
 import _ from "lodash";
 import { useNewDataStore, useSyncStore } from "store";
 import {
-  getClientV2,
   getDaoMetadata,
   getDaoState,
 } from "ton-vote-contracts-sdk";
+import { getClientV2 } from "../tonRpc";
 import { Address } from "ton-core";
 import { TonClient } from "ton";
 import { Dao } from "types";

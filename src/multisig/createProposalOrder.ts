@@ -1,10 +1,10 @@
 import { Address, Cell, beginCell, fromNano } from "@ton/core";
 import { Address as SdkAddress } from "ton-core";
 import {
-  getClientV2,
   getDaoState,
   ProposalMetadata,
 } from "ton-vote-contracts-sdk";
+import { getClientV2 } from "../tonRpc";
 import { ProposalDeployer } from "ton-vote-contracts-sdk/dist/contracts/output/ton-vote_ProposalDeployer";
 import { TX_FEES } from "config";
 import { getTxFee } from "utils";

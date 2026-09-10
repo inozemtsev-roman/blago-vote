@@ -2,7 +2,7 @@ import { styled, useTheme } from "@mui/material";
 import { useCopyToClipboard } from "hooks/hooks";
 import { StyledFlexRow } from "styles";
 import { IoCopyOutline } from "react-icons/io5";
-import { getTonScanContractUrl, makeElipsisAddress, toNoBounceAddress } from "utils";
+import { getTonViewerContractUrl, makeElipsisAddress, toNoBounceAddress } from "utils";
 import { OverflowWithTooltip } from "./OverflowWithTooltip";
 
 export function AddressDisplay({
@@ -27,7 +27,7 @@ export function AddressDisplay({
 
   const onLinkClick = (e: any) => {
     e.stopPropagation();
-    window.open(getTonScanContractUrl(address || ""), "_blank");
+    window.open(getTonViewerContractUrl(address || ""), "_blank");
   };
 
   return (

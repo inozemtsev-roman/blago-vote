@@ -88,6 +88,7 @@ const ConnectedWalletVote = () => {
       hideVotingPower={!!isOneWalletOneVote}
       symbol={symbol}
       data={walletVote}
+      isCurrentUser
     />
   );
 };
@@ -206,11 +207,14 @@ const VoteComponent = ({
   data,
   symbol,
   hideVotingPower,
+  isCurrentUser,
 }: {
   data?: Vote;
   symbol?: string;
   hideVotingPower: boolean;
+  isCurrentUser?: boolean;
 }) => {
+  const translations = useProposalPageTranslations();
   if (!data) return null;
   const { address, votingPower, vote, hash, timestamp } = data;
 
@@ -222,10 +226,15 @@ const VoteComponent = ({
       placement="top"
     >
       <StyledVote justifyContent="flex-start">
-        <StyledAddressDisplay
-          address={address}
-          displayText={displayAddress}
-        />
+        <StyledAddressWrapper>
+          <StyledAddressDisplay
+            address={address}
+            displayText={displayAddress}
+          />
+          {isCurrentUser && (
+            <StyledYouChip>{translations.you}</StyledYouChip>
+          )}
+        </StyledAddressWrapper>
         <Typography
           className="vote"
           style={{ textAlign: hideVotingPower ? "right" : "center" }}
@@ -248,8 +257,23 @@ const StyledAppTooltip = styled(AppTooltip)({
 
 const StyledAddressDisplay = styled(AddressDisplay)({
   justifyContent: "flex-start",
-  width: 160,
 });
+
+const StyledAddressWrapper = styled(StyledFlexRow)({
+  width: 160,
+  justifyContent: "flex-start",
+  gap: 8,
+});
+
+const StyledYouChip = styled("span")(({ theme }) => ({
+  flexShrink: 0,
+  padding: "1px 8px",
+  borderRadius: 10,
+  fontSize: 12,
+  fontWeight: 700,
+  color: theme.palette.mode === "light" ? "#fff" : "#fff",
+  background: theme.palette.primary.main,
+}));
 
 const StyledNoVotes = styled(Box)({
   padding: "20px",
@@ -266,12 +290,17 @@ const StyledVote = styled(StyledFlexRow)({
   gap: 10,
   ".vote": {
     flex: 1,
+    minWidth: 0,
     textAlign: "center",
+    whiteSpace: "nowrap",
+    overflow: "hidden",
+    textOverflow: "ellipsis",
   },
   ".voting-power": {
     width: 160,
     textAlign: "right",
     gap: 5,
+    whiteSpace: "nowrap",
     ".number-display": {
       flex: 1,
     },
@@ -288,6 +317,8 @@ const StyledVote = styled(StyledFlexRow)({
     ".vote": {
       flex: "unset",
       marginLeft: "auto",
+      maxWidth: "40%",
+      textAlign: "right",
     },
     ".voting-power": {
       width: "100%",

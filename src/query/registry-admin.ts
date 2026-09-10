@@ -5,7 +5,6 @@ import { useGetSender } from "hooks/hooks";
 import _ from "lodash";
 import { showSuccessToast, useErrorToast } from "toasts";
 import {
-  getClientV2,
   newRegistry,
   ReleaseMode,
   setDeployAndInitDaoFee,
@@ -13,6 +12,7 @@ import {
   setNewDaoFwdMsgFee,
   setRegistryAdmin,
 } from "ton-vote-contracts-sdk";
+import { getClientV2 } from "../tonRpc";
 import { validateAddress } from "utils";
 import { useRegistryStateQuery } from "./getters";
 

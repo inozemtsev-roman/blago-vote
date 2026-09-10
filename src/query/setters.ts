@@ -13,17 +13,18 @@ import {
   createNewDaoOnProdAndDev,
   daoSetOwner,
   daoSetProposalOwner,
-  getClientV2,
   metdataExists,
   newDao,
   newMetdata,
   newProposal,
   ProposalMetadata,
-  proposalSendMessage,
   ReleaseMode,
   setMetadata,
   updateProposal,
 } from "ton-vote-contracts-sdk";
+import { storeVote } from "ton-vote-contracts-sdk/dist/contracts/output/ton-vote_Proposal";
+import { Address, beginCell, Sender, toNano } from "ton-core";
+import { getClientV2 } from "../tonRpc";
 import {
   useAppParams,
   useGetProposalStatusCallback,
@@ -365,6 +366,26 @@ export const useUpdateDaoMetadataQuery = () => {
   );
 };
 
+const sendVoteMessage = async (
+  sender: Sender,
+  proposalAddress: string,
+  vote: string,
+) => {
+  if (!sender.address) {
+    throw new Error("Not connected");
+  }
+
+  const body = beginCell()
+    .store(storeVote({ $$type: "Vote", comment: vote }))
+    .endCell();
+
+  await sender.send({
+    to: Address.parse(proposalAddress),
+    value: toNano(TX_FEES.VOTE_FEE.toString()),
+    body,
+  });
+};
+
 export const useVote = () => {
   const getSender = useGetSender();
   const { proposalAddress } = useAppParams();
@@ -384,26 +405,31 @@ export const useVote = () => {
       }
       setIsVoting(true);
       const sender = getSender();
-      const client = await getClientV2();
 
-      await proposalSendMessage(
-        sender,
-        client,
-        TX_FEES.VOTE_FEE.toString(),
-        proposalAddress,
-        _vote,
-      );
+      // Отправка голоса не должна зависеть от RPC-клиента: тело сообщения Vote
+      // собирается локально, а сама транзакция уходит через TonConnect (кошелёк
+      // сам взаимодействует с цепочкой). Раньше здесь вызывалась
+      // proposalSendMessage из SDK, которая перед отправкой делала get-method'ы
+      // через orbs-дискавери — при недоступности/429 orbs голосование молча
+      // «зависало» либо падало с ошибкой про fetch(mngr/nodes).
+      await sendVoteMessage(sender, proposalAddress!, _vote);
 
       await delay(2000);
-      return successCallback(proposal);
+      try {
+        return await successCallback(proposal);
+      } catch (error) {
+        Logger("Failed to update proposal results after vote:", error);
+        return null;
+      }
     },
     {
       onSuccess: (values, _vote) => {
-        showSuccessToast(`Голос за ${_vote} подтвержден`);
         if (!values) {
-          throw new Error(
+          errorToast(
             `Вы успешно проголосовали за ${_vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
+            12_000,
           );
+          return;
         }
 
         const { proposalResults, vote, maxLt } = values;

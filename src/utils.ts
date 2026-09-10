@@ -209,7 +209,7 @@ export const makeElipsisAddress = (address?: string, padding = 6): string => {
   )}`;
 };
 
-export const getTonScanContractUrl = (address?: string) => {
+export const getTonViewerContractUrl = (address?: string) => {
   if (!address) return "";
   return `${TONVIEWER}/${toTonviewerAddress(address)}`;
 };

@@ -18,7 +18,7 @@ import {
 } from "hooks/hooks";
 import { useProposalQuery, useJettonMetadata } from "query/getters";
 import { ONE_WALLET_ONE_VOTE_URL } from "consts";
-import { getTonScanContractUrl, getVoteStrategyType } from "utils";
+import { getTonViewerContractUrl, getVoteStrategyType } from "utils";
 import { VotingPowerStrategyType } from "ton-vote-contracts-sdk";
 import CheckImg from "assets/check.svg";
 import CheckImgGray from "assets/check-gray.svg";
@@ -231,7 +231,7 @@ const Asset = ({
   return (
     <InformationRow label={label}>
       <StyledAsset
-        href={getTonScanContractUrl(address)}
+        href={getTonViewerContractUrl(address)}
         target="_blank"
       >
         <OverflowWithTooltip text={displayName} />

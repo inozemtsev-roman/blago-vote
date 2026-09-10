@@ -2,12 +2,12 @@ import _ from "lodash";
 import { TonClient, TonClient4, Transaction } from "ton";
 import { Cell } from "ton-core";
 import * as TonVoteSDK from "ton-vote-contracts-sdk";
+import { getClientV2 } from "./tonRpc";
 import {
   calcProposalResult,
   filterTxByTimestamp,
   getAllNftHolders,
   getAllVotes,
-  getClientV2,
   getClientV4,
   getProposalMetadata,
   getSingleVoterPower,
