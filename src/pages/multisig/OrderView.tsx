@@ -2,7 +2,7 @@ import { Box, Button, Typography, CircularProgress } from "@mui/material";
 import "./multisig.css";
 import { useEffect, useMemo, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Address } from "@ton/core";
+import { Address, fromNano } from "@ton/core";
 import { useMultisigInfo } from "multisig/useMultisigInfo";
 import { useMyAddress } from "multisig/useMyAddress";
 import { useMultisigSendTransaction } from "multisig/useMultisigSendTransaction";
@@ -235,7 +235,7 @@ export default function OrderView() {
 
       <Box className="orderField">
         <Typography className="label">Баланс заявки:</Typography>
-        <Typography className="value">{tonBalance.toString()} GRAM</Typography>
+        <Typography className="value">{fromNano(tonBalance)} GRAM</Typography>
       </Box>
 
       <Box className="orderField">

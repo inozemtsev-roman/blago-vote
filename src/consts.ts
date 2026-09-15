@@ -34,7 +34,7 @@ export const TELETGRAM_URL = "https://t.me/gradosphera";
 export const SUPPORT_URL = "https://t.me/gradosphera?direct";
 export const WHITEPAPER_URL = "https://github.com/gradosphera/whitepaper";
 export const ABOUT_URL = "https://gradosphera.ru";
-export const ABOUT_CHARS_LIMIT = 2350;
+export const ABOUT_CHARS_LIMIT = 10000;
 export const TITLE_LIMIT = 180;
 
 export const MOBILE_WIDTH = 768;
