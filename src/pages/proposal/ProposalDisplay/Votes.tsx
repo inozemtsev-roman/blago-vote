@@ -20,7 +20,6 @@ import { PAGE_SIZE } from "config";
 import { Vote } from "types";
 import { fromNano } from "ton";
 import { useMemo, useState } from "react";
-import moment from "moment";
 import _ from "lodash";
 import { CSVLink } from "react-csv";
 
@@ -210,6 +209,35 @@ const StyledIcon = styled(GrDocumentCsv)(({ theme }) => ({
   },
 }));
 
+// Относительное время «N назад» на русском языке. Пишем сами, чтобы не зависеть
+// от локалей moment (в браузерной сборке locale ru может не подхватиться).
+const russianPlural = (n: number, one: string, few: string, many: string) => {
+  const m10 = n % 10;
+  const m100 = n % 100;
+  if (m10 === 1 && m100 !== 11) return one;
+  if (m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14)) return few;
+  return many;
+};
+
+const formatRelativeRu = (timestamp: number) => {
+  const diff = Math.max(0, Math.floor(Date.now() / 1000) - timestamp);
+  if (diff < 60) return "только что";
+  const minutes = Math.floor(diff / 60);
+  const hours = Math.floor(diff / 3600);
+  const days = Math.floor(diff / 86400);
+  const months = Math.floor(days / 30);
+  const years = Math.floor(days / 365);
+  if (years >= 1)
+    return `${years} ${russianPlural(years, "год", "года", "лет")} назад`;
+  if (months >= 1)
+    return `${months} ${russianPlural(months, "месяц", "месяца", "месяцев")} назад`;
+  if (days >= 1)
+    return `${days} ${russianPlural(days, "день", "дня", "дней")} назад`;
+  if (hours >= 1)
+    return `${hours} ${russianPlural(hours, "час", "часа", "часов")} назад`;
+  return `${minutes} ${russianPlural(minutes, "минута", "минуты", "минут")} назад`;
+};
+
 const VoteComponent = ({
   data,
   symbol,
@@ -229,7 +257,7 @@ const VoteComponent = ({
 
   return (
     <StyledAppTooltip
-      text={`${moment.unix(timestamp).utc().fromNow()}`}
+      text={formatRelativeRu(timestamp)}
       placement="top"
     >
       <StyledVote justifyContent="flex-start">
