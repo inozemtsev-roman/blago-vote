@@ -1,10 +1,27 @@
 import { Chip, styled, Typography } from "@mui/material";
+import { Address } from "@ton/core";
 import { useGetProposalSymbol, useProposalResults } from "hooks/hooks";
 import { useDaoPageTranslations } from "i18n/hooks/useDaoPageTranslations";
+import { useMemo } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { StyledAlert, StyledProposalPercent, StyledProposalResult, StyledProposalResultContent, StyledProposalResultProgress, StyledResultName, StyledTonAmount } from "../styles";
 
 const QUORUM_PERCENT = 66;
+
+const QUORUM_BADGE_HIDDEN_PROPOSALS = [
+  "UQBaoXs1P1WGXYGJ_V1GuQCZi3iDr5wQKuJYBeiIEuOO4A9A",
+];
+
+const shouldShowQuorumBadge = (proposalAddress: string): boolean => {
+  try {
+    const target = Address.parse(proposalAddress).toRawString();
+    return !QUORUM_BADGE_HIDDEN_PROPOSALS.some(
+      (item) => Address.parse(item).toRawString() === target,
+    );
+  } catch {
+    return true;
+  }
+};
 
 export const Results = ({
   proposalAddress,
@@ -15,13 +32,19 @@ export const Results = ({
   const results = useProposalResults(proposalAddress);
   const winnerPercent = Math.max(...results.map((it) => it.percent), 0);
   const isQuorumPassed = winnerPercent >= QUORUM_PERCENT;
+  const showQuorumBadge = useMemo(
+    () => shouldShowQuorumBadge(proposalAddress),
+    [proposalAddress],
+  );
 
   return (
     <StyledResults gap={10}>
-      <StyledQuorumChip
-        label={isQuorumPassed ? "Кворум 2/3 пройден" : "Кворум 2/3 не пройден"}
-        color={isQuorumPassed ? "success" : "warning"}
-      />
+      {showQuorumBadge && (
+        <StyledQuorumChip
+          label={isQuorumPassed ? "Кворум 2/3 пройден" : "Кворум 2/3 не пройден"}
+          color={isQuorumPassed ? "success" : "warning"}
+        />
+      )}
       {!isQuorumPassed && (
         <StyledAlert severity="warning">
           <Typography>{translations.endedAndDidntPassedQuorum}</Typography>

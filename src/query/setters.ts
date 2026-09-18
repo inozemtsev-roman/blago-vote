@@ -45,7 +45,13 @@ import {
   useVotePersistedStore,
   useVoteStore,
 } from "store";
-import { getTxFee, getIsOneWalletOneVote, Logger, normalizeTonAddress, validateAddress } from "utils";
+import {
+  getTxFee,
+  getIsOneWalletOneVote,
+  Logger,
+  normalizeTonAddress,
+  validateAddress,
+} from "utils";
 import { CreateDaoArgs, CreateMetadataArgs, UpdateMetadataArgs } from "./types";
 import { useTonAddress } from "@tonconnect/ui-react";
 import { Dao, Proposal, ProposalStatus, Vote } from "types";
@@ -124,7 +130,6 @@ export const useCreateMetadataQuery = () => {
   const getSender = useGetSender();
   const errorToast = useErrorToast();
 
-
   return useMutation(
     async (args: CreateMetadataArgs) => {
       const { metadata } = args;
@@ -170,7 +175,6 @@ export const useCreateProposalQuery = () => {
   const daoState = useDaoStateQuery(dao?.daoAddress).data;
   const { isOwner, isProposalPublisher } = useRole(dao?.daoRoles);
   const showErrorToast = useErrorToast();
-
 
   return useMutation(
     async (args: CreateProposalArgs) => {
@@ -303,7 +307,6 @@ export const useUpdateDaoMetadataQuery = () => {
 
   const errorToast = useErrorToast();
 
-
   return useMutation(
     async (args: UpdateMetadataArgs) => {
       const { metadata, daoAddress } = args;
@@ -356,7 +359,7 @@ export const useUpdateDaoMetadataQuery = () => {
                 metadataArgs: args.metadata,
               },
             };
-          }
+          },
         );
         setDaoUpdateMillis(args.daoAddress);
         refetchDaos();
@@ -397,7 +400,6 @@ export const useVote = () => {
 
   const errorToast = useErrorToast();
   const { setIsVoting } = useVoteStore();
-
 
   return useMutation(
     async (vote: string) => {
@@ -493,7 +495,7 @@ export const useVote = () => {
         } catch (error) {
           Logger("Failed to update proposal results after vote:", error);
           errorToast(
-            `Вы успешно проголосовали за ${vote}, но нам не удалось обновить результаты, напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
+            `Вы успешно проголосовали за ${vote}, но нам не удалось обновить результаты, подождите 30 секунд или напишите в [службу поддержки](${TELEGRAM_SUPPORT_GROUP})`,
             12_000,
           );
         }
@@ -563,7 +565,6 @@ export const useUpdateProposalMutation = () => {
 
 export const useVoteSuccessCallback = (proposalAddress: string) => {
   const walletAddress = useTonAddress();
-
 
   return async (proposal: Proposal) => {
     const promise = async (bail: any, attempt: number) => {
