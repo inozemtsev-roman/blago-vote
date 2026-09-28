@@ -1,5 +1,6 @@
 import { Box, Typography, styled } from "@mui/material";
 import { useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
+import { isMobile } from "react-device-detect";
 import { MOBILE_WIDTH } from "consts";
 import { Img } from "./Img";
 import { StyledFlexRow } from "styles";
@@ -22,13 +23,38 @@ export function GradospheraConnectButton({
       const target = wallets.find(
         (wallet) => wallet.appName === GRADOSPHERA_WALLET_APP_NAME
       );
-      if (target) {
-        await tonConnectUI.openSingleWalletModal(target.appName);
-      } else {
+
+      if (!target) {
         await tonConnectUI.openModal();
+        return;
+      }
+
+      if ("jsBridgeKey" in target && target.injected) {
+        await tonConnectUI.connector.connect({
+          jsBridgeKey: target.jsBridgeKey,
+        });
+        return;
+      }
+
+      if (!("universalLink" in target) || !("bridgeUrl" in target)) {
+        await tonConnectUI.openSingleWalletModal(target.appName);
+        return;
+      }
+
+      const link = tonConnectUI.connector.connect({
+        universalLink: target.universalLink,
+        bridgeUrl: target.bridgeUrl,
+      });
+      if (isMobile) {
+        window.location.href = link;
+      } else {
+        const opened = window.open(link, "_blank", "noopener");
+        if (!opened) {
+          window.location.href = link;
+        }
       }
     } catch (e) {
-      console.error("Не удалось открыть окно подключения кошелька:", e);
+      console.error("Не удалось подключить кошелёк ДАО Градосфера:", e);
     }
   };
 
