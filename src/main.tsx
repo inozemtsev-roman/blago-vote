@@ -23,6 +23,15 @@ const queryClient = new QueryClient({
 });
 const defaultTheme =
   useSettingsStore.getState().themeMode === "dark" ? THEME.DARK : THEME.LIGHT;
+
+// Кошелёк ДАО Градосфера — главный в меню подключения TON-кошелька
+try {
+  localStorage.setItem("ton-connect-ui_preferred-wallet", "gradospherawallet");
+} catch {
+  // локальное хранилище может быть недоступно (например, приватный режим) —
+  // в таком случае просто оставляем стандартный порядок кошельков
+}
+
 ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
   <QueryClientProvider client={queryClient}>
     <CssBaseline />
