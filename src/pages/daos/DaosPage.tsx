@@ -1,4 +1,4 @@
-import { List, LoadMore } from "components";
+import { GradospheraConnectButton, List, LoadMore } from "components";
 import {
   StyledEmptyText,
   StyledFlexColumn,
@@ -111,6 +111,9 @@ export function DaosPage() {
             Децентрализованная, автономная и прозрачная система управления
           </Typography>
         </StyledAboutSection>
+        <StyledFlexRow>
+          <GradospheraConnectButton />
+        </StyledFlexRow>
         <ActiveProposals />
         <StyledHeader>
           <StyledSearch

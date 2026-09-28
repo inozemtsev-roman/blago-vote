@@ -8,6 +8,7 @@ export * from "./ConnectButton";
 export * from "./NumberDisplay";
 export * from "./Coundown";
 export * from "./Github";
+export * from "./GradospheraConnectButton";
 export * from "./Tooltip";
 export * from "./Back";
 export * from "./LoadMore";
