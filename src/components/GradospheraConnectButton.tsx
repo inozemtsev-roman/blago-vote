@@ -29,11 +29,24 @@ export function GradospheraConnectButton({
         return;
       }
 
-      if ("jsBridgeKey" in target && target.injected) {
-        await tonConnectUI.connector.connect({
-          jsBridgeKey: target.jsBridgeKey,
-        });
-        return;
+      const hasJsProvider =
+        "jsBridgeKey" in target &&
+        (target.injected ||
+          target.embedded ||
+          !!(window as any)[target.jsBridgeKey]?.tonconnect);
+
+      if (hasJsProvider) {
+        try {
+          await tonConnectUI.connector.connect({
+            jsBridgeKey: target.jsBridgeKey,
+          });
+          return;
+        } catch (e) {
+          console.warn(
+            "Не удалось подключиться через встроенный кошелёк, пробуем universal-ссылку:",
+            e
+          );
+        }
       }
 
       if (!("universalLink" in target) || !("bridgeUrl" in target)) {
