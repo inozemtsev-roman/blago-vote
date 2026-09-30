@@ -4,6 +4,7 @@ import { isMobile } from "react-device-detect";
 import { MOBILE_WIDTH } from "consts";
 import { Img } from "./Img";
 import { StyledFlexRow } from "styles";
+import { tryConnectEmbeddedWallet } from "./connectEmbedded";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 const WALLET_TELEGRAM_IMAGE = "https://wallet.tg/images/logo-288.png";
@@ -19,6 +20,8 @@ export function GradospheraConnectButton({
   const onConnect = async () => {
     if (connected) return;
     try {
+      if (await tryConnectEmbeddedWallet(tonConnectUI)) return;
+
       const wallets = await tonConnectUI.getWallets();
       const target = wallets.find(
         (wallet) => wallet.appName === GRADOSPHERA_WALLET_APP_NAME
@@ -27,26 +30,6 @@ export function GradospheraConnectButton({
       if (!target) {
         await tonConnectUI.openModal();
         return;
-      }
-
-      const hasJsProvider =
-        "jsBridgeKey" in target &&
-        (target.injected ||
-          target.embedded ||
-          !!(window as any)[target.jsBridgeKey]?.tonconnect);
-
-      if (hasJsProvider) {
-        try {
-          await tonConnectUI.connector.connect({
-            jsBridgeKey: target.jsBridgeKey,
-          });
-          return;
-        } catch (e) {
-          console.warn(
-            "Не удалось подключиться через встроенный кошелёк, пробуем universal-ссылку:",
-            e
-          );
-        }
       }
 
       if (!("universalLink" in target) || !("bridgeUrl" in target)) {

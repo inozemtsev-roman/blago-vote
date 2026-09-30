@@ -20,6 +20,7 @@ import _ from "lodash";
 import LogoImg from "assets/logo.svg";
 import { MOBILE_WIDTH } from "consts";
 import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
+import { tryConnectEmbeddedWallet } from "components/connectEmbedded";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
 
@@ -217,14 +218,17 @@ function ConnectButton() {
     ? `${address.slice(0, 4)}...${address.slice(-4)}`
     : "Кошелек";
 
-  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  const handleClick = async (event: React.MouseEvent<HTMLButtonElement>) => {
     if (address) {
       setAnchorEl(event.currentTarget);
       return;
     }
-    tonConnectUI.openModal().catch((e) => {
-      console.error("Не удалось открыть окно подключения кошелька:", e);
-    });
+    const embeddedConnected = await tryConnectEmbeddedWallet(tonConnectUI);
+    if (!embeddedConnected) {
+      tonConnectUI.openModal().catch((e) => {
+        console.error("Не удалось открыть окно подключения кошелька:", e);
+      });
+    }
   };
 
   const handleCopy = () => {
