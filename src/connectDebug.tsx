@@ -27,6 +27,7 @@ export interface ConnectDebugState {
   fallback: string;
   statusHistory: string[];
   bridgeLog: BridgeLogEntry[];
+  unhandledRejections: string[];
 }
 
 export const connectDebug: ConnectDebugState = {
@@ -43,7 +44,25 @@ export const connectDebug: ConnectDebugState = {
   fallback: "",
   statusHistory: [],
   bridgeLog: [],
+  unhandledRejections: [],
 };
+
+// Фиксируем тихие сбои обёрнутых колбэков @tonconnect/ui (async onStatusChange):
+// если getSelectedWalletInfo бросает внутри, колбэк useTonWallet не вызывается,
+// а promise уходит в unhandledrejection.
+if (typeof window !== "undefined") {
+  window.addEventListener("unhandledrejection", (e) => {
+    const reason =
+      typeof e.reason === "object" && e.reason && "message" in e.reason
+        ? String((e.reason as Error).message)
+        : String(e.reason);
+    connectDebug.unhandledRejections.push(reason.slice(0, 300));
+    if (connectDebug.unhandledRejections.length > 10) {
+      connectDebug.unhandledRejections.splice(0, connectDebug.unhandledRejections.length - 10);
+    }
+    console.warn("[blago unhandledrejection]", e.reason);
+  });
+}
 
 let nextLogId = 0;
 
@@ -85,6 +104,7 @@ function snapshot() {
     fallback: connectDebug.fallback,
     statusHistory: [...connectDebug.statusHistory],
     bridgeLog: [...connectDebug.bridgeLog],
+    unhandledRejections: [...connectDebug.unhandledRejections],
   };
 }
 
@@ -139,6 +159,7 @@ const LiveOverlay = () => {
         connectMs: state.connectMs,
         fallback: state.fallback,
         statusHistory: state.statusHistory,
+        unhandledRejections: state.unhandledRejections,
       }, null, 2)}</pre>
       <StyledLog>=== bridge log ==={lines.length ? "" : " (пусто)"}
 {lines.join("\n")}</StyledLog>

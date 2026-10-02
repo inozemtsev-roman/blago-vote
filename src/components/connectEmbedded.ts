@@ -70,8 +70,20 @@ export async function tryConnectEmbeddedWallet(
       return false;
     }
 
-    addStatusHistory("connect start");
-    tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
+    addStatusHistory("connect start (official embedded path)");
+    try {
+      // Официальный путь: openModal() сам находит встроенный кошелёк
+      // (embedded=true от isWalletBrowser) и вызывает connectEmbeddedWallet,
+      // который регистрирует запись кошелька в widgetController ДО вызова
+      // connector.connect(). Без регистрации обёрнутый tonConnectUI.onStatusChange
+      // может тихо падать (Cannot find WalletInfo...) и useTonWallet не обновится.
+      await tonConnectUI.openModal();
+      addStatusHistory("openModal resolved");
+    } catch (err) {
+      // connectEmbeddedWallet ждёт подключения и может отклонить promise,
+      // если подключение не завершилось — полагаемся на connectionDone.
+      addStatusHistory(`openModal finished: ${String(err)}`);
+    }
 
     const ok = await Promise.race([
       connectionDone,
