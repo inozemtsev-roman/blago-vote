@@ -1,27 +1,38 @@
+import { useEffect, useState } from "react";
 import { Box, styled } from "@mui/material";
+
+export type BridgeLogEntry = {
+  id: number;
+  channel?: string;
+  messageId?: string;
+  type: string;
+  name?: string;
+  dir: "in" | "out";
+  summary: string;
+};
 
 export interface ConnectDebugState {
   inIframe: boolean;
   referrer: string | null;
   bridgeInstalled: boolean;
-  probe: null | boolean;
-  probeMs: number;
   gotTarget: boolean;
   hasJsProvider: boolean;
   targetInjected: boolean;
   targetEmbedded: boolean;
+  targetAppName?: string;
+  hasJsProviderByKey?: boolean;
   connectResult: null | boolean;
   connectError: string;
   connectMs: number;
   fallback: string;
+  statusHistory: string[];
+  bridgeLog: BridgeLogEntry[];
 }
 
 export const connectDebug: ConnectDebugState = {
   inIframe: typeof window !== "undefined" && window.parent !== window,
   referrer: typeof window !== "undefined" ? document.referrer || null : null,
   bridgeInstalled: false,
-  probe: null,
-  probeMs: 0,
   gotTarget: false,
   hasJsProvider: false,
   targetInjected: false,
@@ -30,26 +41,107 @@ export const connectDebug: ConnectDebugState = {
   connectError: "",
   connectMs: 0,
   fallback: "",
+  statusHistory: [],
+  bridgeLog: [],
 };
+
+let nextLogId = 0;
+
+export function addBridgeLog(entry: Omit<BridgeLogEntry, "id">) {
+  connectDebug.bridgeLog.push({ ...entry, id: nextLogId++ });
+  if (connectDebug.bridgeLog.length > 60) {
+    connectDebug.bridgeLog.splice(0, connectDebug.bridgeLog.length - 60);
+  }
+  console.debug("[blago bridge]", entry);
+}
 
 export function setConnectDebug(partial: Partial<ConnectDebugState>) {
   Object.assign(connectDebug, partial);
   console.debug("[blago connect]", partial);
 }
 
+export function addStatusHistory(entry: string) {
+  connectDebug.statusHistory.push(entry);
+  if (connectDebug.statusHistory.length > 30) {
+    connectDebug.statusHistory.splice(0, connectDebug.statusHistory.length - 30);
+  }
+  console.debug("[blago status]", entry);
+}
+
+function snapshot() {
+  return {
+    inIframe: connectDebug.inIframe,
+    referrer: connectDebug.referrer,
+    bridgeInstalled: connectDebug.bridgeInstalled,
+    gotTarget: connectDebug.gotTarget,
+    hasJsProvider: connectDebug.hasJsProvider,
+    targetInjected: connectDebug.targetInjected,
+    targetEmbedded: connectDebug.targetEmbedded,
+    targetAppName: connectDebug.targetAppName,
+    hasJsProviderByKey: connectDebug.hasJsProviderByKey,
+    connectResult: connectDebug.connectResult,
+    connectError: connectDebug.connectError,
+    connectMs: connectDebug.connectMs,
+    fallback: connectDebug.fallback,
+    statusHistory: [...connectDebug.statusHistory],
+    bridgeLog: [...connectDebug.bridgeLog],
+  };
+}
+
 // Монтируется при ?tcdbg=1: показывает состояние подключения прямо в приложении
 // (в Telegram WebView нет консоли, поэтому рисуем поверх страницы).
 export function ConnectDebugOverlay() {
-  const show = new URLSearchParams(window.location.search).has("tcdbg");
+  const show =
+    new URLSearchParams(window.location.search).has("tcdbg") ||
+    (() => {
+      try {
+        return window.localStorage.getItem("blagoTCDebug") === "1";
+      } catch {
+        return false;
+      }
+    })();
   if (!show) return null;
 
-  return <Overlay state={{ ...connectDebug }} />;
+  return <LiveOverlay />;
 }
 
-const Overlay = ({ state }: { state: ConnectDebugState }) => {
+const LiveOverlay = () => {
+  const [, force] = useState(0);
+
+  useEffect(() => {
+    const timer = window.setInterval(() => force((n) => n + 1), 500);
+    return () => window.clearInterval(timer);
+  }, []);
+
+  const state = snapshot();
+
+  const lines = state.bridgeLog.slice(-40).map((e) => {
+    const meta = [e.dir, e.type, e.name, e.messageId]
+      .filter(Boolean)
+      .join(" ");
+    return `${meta} :: ${e.summary}`;
+  });
+
   return (
     <StyledOverlay>
-      <pre>{JSON.stringify(state, null, 2)}</pre>
+      <pre>{JSON.stringify({
+        inIframe: state.inIframe,
+        referrer: state.referrer,
+        bridgeInstalled: state.bridgeInstalled,
+        gotTarget: state.gotTarget,
+        hasJsProvider: state.hasJsProvider,
+        targetInjected: state.targetInjected,
+        targetEmbedded: state.targetEmbedded,
+        targetAppName: state.targetAppName,
+        hasJsProviderByKey: state.hasJsProviderByKey,
+        connectResult: state.connectResult,
+        connectError: state.connectError,
+        connectMs: state.connectMs,
+        fallback: state.fallback,
+        statusHistory: state.statusHistory,
+      }, null, 2)}</pre>
+      <StyledLog>=== bridge log ==={lines.length ? "" : " (пусто)"}
+{lines.join("\n")}</StyledLog>
     </StyledOverlay>
   );
 };
@@ -59,7 +151,7 @@ const StyledOverlay = styled(Box)(({ theme }) => ({
   top: 76,
   right: 12,
   zIndex: 99999,
-  maxWidth: 320,
+  maxWidth: 360,
   padding: 12,
   fontSize: 12,
   fontFamily: "monospace",
@@ -71,3 +163,12 @@ const StyledOverlay = styled(Box)(({ theme }) => ({
   wordBreak: "break-all",
   pointerEvents: "none",
 }));
+
+const StyledLog = styled("pre")({
+  maxHeight: 220,
+  overflowY: "auto",
+  margin: "8px 0 0",
+  padding: 8,
+  fontSize: 11,
+  background: "rgba(0,0,0,0.06)",
+});

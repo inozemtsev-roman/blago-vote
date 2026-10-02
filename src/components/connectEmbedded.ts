@@ -1,23 +1,48 @@
 import type { TonConnectUI } from "@tonconnect/ui";
 import { showToast } from "toasts";
-import { setConnectDebug } from "connectDebug";
+import { addStatusHistory, setConnectDebug } from "connectDebug";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
-const EMBEDDED_CONNECT_TIMEOUT_MS = 5000;
+// 60с: дать пользователю время подтвердить подключение в окне кошелька.
+const EMBEDDED_CONNECT_TIMEOUT_MS = 60000;
 
 export async function tryConnectEmbeddedWallet(
   tonConnectUI: TonConnectUI,
 ): Promise<boolean> {
   const t0 = performance.now();
 
-  // Быстрая проверка: мы во фрейме и мост установлен — только тогда есть смысл
-  // пробовать встроенный коннект. Если нет, сразу уходим в обычный флоу.
   const inFrame = window.parent !== window;
   const hasBridge = !!(window as any).mytonwallet?.tonconnect;
   if (!(inFrame && hasBridge)) {
     setConnectDebug({ fallback: "нет встроенного кошелька (не во фрейме кошелька)" });
     return false;
   }
+
+  let settled = false;
+  let connectError: string | undefined;
+
+  const connectionDone = new Promise<boolean>((resolve) => {
+    const unsubscribe = tonConnectUI.onStatusChange(
+      (wallet) => {
+        if (settled) return;
+        const connected = !!wallet?.account?.address;
+        addStatusHistory(connected ? "connected" : "disconnected");
+        if (connected) {
+          settled = true;
+          unsubscribe();
+          resolve(true);
+        }
+      },
+      (err) => {
+        if (settled) return;
+        settled = true;
+        connectError = String(err);
+        addStatusHistory(`error: ${connectError}`);
+        unsubscribe();
+        resolve(false);
+      }
+    );
+  });
 
   try {
     const wallets = await tonConnectUI.getWallets();
@@ -29,6 +54,8 @@ export async function tryConnectEmbeddedWallet(
       gotTarget: !!target,
       targetInjected: !!(target as any)?.injected,
       targetEmbedded: !!(target as any)?.embedded,
+      targetAppName: target?.appName,
+      hasJsProviderByKey: !!(target && (window as any)[(target as any).jsBridgeKey]?.tonconnect),
     });
 
     if (!target || !("jsBridgeKey" in target)) {
@@ -36,31 +63,29 @@ export async function tryConnectEmbeddedWallet(
       return false;
     }
 
-    const hasJsProvider =
-      target.injected ||
-      target.embedded ||
-      !!(window as any)[target.jsBridgeKey]?.tonconnect;
+    const hasJsProvider = !!(window as any)[target.jsBridgeKey]?.tonconnect;
     setConnectDebug({ hasJsProvider });
     if (!hasJsProvider) {
       setConnectDebug({ fallback: "нет js-провайдера у gradospherawallet" });
       return false;
     }
 
-    await Promise.race([
-      tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey }),
-      new Promise<void>((_, reject) =>
-        setTimeout(
-          () => reject(new Error("Embedded connect timeout")),
-          EMBEDDED_CONNECT_TIMEOUT_MS
-        )
+    addStatusHistory("connect start");
+    tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
+
+    const ok = await Promise.race([
+      connectionDone,
+      new Promise<boolean>((resolve) =>
+        setTimeout(() => resolve(false), EMBEDDED_CONNECT_TIMEOUT_MS)
       ),
     ]);
 
     setConnectDebug({
-      connectResult: true,
+      connectResult: ok ? true : null,
+      connectError: ok ? "" : "таймаут/ошибка (нет статуса connected)",
       connectMs: Math.round(performance.now() - t0),
     });
-    return true;
+    return ok;
   } catch (e) {
     setConnectDebug({
       connectResult: false,
