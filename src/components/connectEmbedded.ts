@@ -1,6 +1,7 @@
 import type { TonConnectUI } from "@tonconnect/ui";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
+const EMBEDDED_CONNECT_TIMEOUT_MS = 5000;
 
 export async function tryConnectEmbeddedWallet(
   tonConnectUI: TonConnectUI,
@@ -18,7 +19,15 @@ export async function tryConnectEmbeddedWallet(
       !!(window as any)[target.jsBridgeKey]?.tonconnect;
     if (!hasJsProvider) return false;
 
-    await tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
+    await Promise.race([
+      tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey }),
+      new Promise<void>((_, reject) =>
+        setTimeout(
+          () => reject(new Error("Embedded connect timeout")),
+          EMBEDDED_CONNECT_TIMEOUT_MS,
+        ),
+      ),
+    ]);
     return true;
   } catch (e) {
     console.warn("Не удалось подключиться через встроенный кошелёк:", e);
