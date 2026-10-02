@@ -7,6 +7,7 @@ interface TelegramWebAppLike {
     initDataUnsafe?: object;
     colorScheme?: "light" | "dark";
     version?: string;
+    openTelegramLink?: (url: string) => void;
 }
 
 const getWebApp = (): TelegramWebAppLike | null => {
@@ -56,6 +57,22 @@ export const initTelegram = (): void => {
     } catch {
         // игнорируем: методы опциональны в старых версиях
     }
+};
+
+// Открытие ссылки внутри Telegram надёжным способом. В Telegram WebView прямой
+// переход (location.href/window.open) на t.me-ссылку может игнорироваться —
+// SDK Telegram умеет открывать её штатно. Возвращает true, если открыли через SDK.
+export const openTelegramLink = (url: string): boolean => {
+    try {
+        const tg = getWebApp();
+        if (typeof tg?.openTelegramLink === "function") {
+            tg.openTelegramLink(url);
+            return true;
+        }
+    } catch {
+        // игнорируем: SDK может отсутствовать (например, во frame встроенного даппа)
+    }
+    return false;
 };
 
 // Извлекает start_param (или другой ключ) из «сырой» строки initData:

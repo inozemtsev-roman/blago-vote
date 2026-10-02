@@ -5,10 +5,11 @@ import { Suspense, useEffect, useMemo } from "react";
 import { Helmet } from "react-helmet";
 import { RouterProvider } from "react-router-dom";
 import { getGlobalStyles } from "styles";
-import { useRouter } from "router/router";
 import "styles";
+import { useRouter } from "router/router";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { initTelegram } from "multisig/utils/telegram";
+import { ConnectDebugOverlay } from "connectDebug";
 
 const useInitApp = () => {
   useInitThemeMode();
@@ -53,6 +54,7 @@ function App() {
         <Suspense>
           <RouterProvider router={router} />
         </Suspense>
+        <ConnectDebugOverlay />
       </ThemeProvider>
     </>
   );

@@ -5,6 +5,7 @@ import { MOBILE_WIDTH } from "consts";
 import { Img } from "./Img";
 import { StyledFlexRow } from "styles";
 import { tryConnectEmbeddedWallet } from "./connectEmbedded";
+import { openTelegramLink } from "multisig/utils/telegram";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 const WALLET_TELEGRAM_IMAGE = "https://wallet.tg/images/logo-288.png";
@@ -41,6 +42,7 @@ export function GradospheraConnectButton({
         universalLink: target.universalLink,
         bridgeUrl: target.bridgeUrl,
       });
+      if (openTelegramLink(link)) return;
       if (isMobile) {
         window.location.href = link;
       } else {

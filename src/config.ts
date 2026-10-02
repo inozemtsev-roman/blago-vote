@@ -6,8 +6,11 @@ export const TONVIEWER = "https://tonviewer.com";
 export const TONVIEWER_ADDRESS_URL = `${TONVIEWER}/`;
 export const APP_NAME = "Голос";
 
+// Манифест TonConnect должен быстро отдаваться через прокси кошелька
+// (api.mytonwallet.org/proxy/download-json) — иначе окно подтверждения ждёт
+// до 30с. Vercel-домен у прокси грузится долго, поэтому берём GitHub Raw.
 export const manifestUrl =
-  "https://blago-vote.vercel.app/tonconnect-manifest.json";
+  "https://raw.githubusercontent.com/gradosphera/blago-vote/refs/heads/main/public/tonconnect-manifest.json";
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";

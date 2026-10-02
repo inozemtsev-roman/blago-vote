@@ -1,3 +1,5 @@
+import { setConnectDebug } from "connectDebug";
+
 const EMBEDDED_DAPP_BRIDGE_CHANNEL = "embedded-dapp-bridge";
 const BRIDGE_KEY = "mytonwallet";
 const BRIDGE_METHODS = ["connect", "restoreConnection", "disconnect", "send"] as const;
@@ -68,6 +70,9 @@ export function setupEmbeddedWalletBridgeIfNeeded() {
       Date.now().toString(36) + Math.random().toString(36).slice(2);
     const promise = new Promise<any>((resolve, reject) => {
       requestStates.set(messageId, { resolve, reject });
+      promise.finally(() => {
+        requestStates.delete(messageId);
+      });
     });
     window.parent.postMessage(
       {
@@ -110,4 +115,6 @@ export function setupEmbeddedWalletBridgeIfNeeded() {
       },
     },
   };
+
+  setConnectDebug({ bridgeInstalled: true, inIframe: true });
 }
