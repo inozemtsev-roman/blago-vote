@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 deploy.config.json
+
+# Bot runtime state (не коммитим)
+bot/state.json
