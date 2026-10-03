@@ -16,6 +16,7 @@ export interface ConnectDebugState {
   referrer: string | null;
   bridgeInstalled: boolean;
   gotTarget: boolean;
+  targetExists: boolean;
   hasJsProvider: boolean;
   targetInjected: boolean;
   targetEmbedded: boolean;
@@ -41,6 +42,7 @@ export const connectDebug: ConnectDebugState = {
   referrer: typeof window !== "undefined" ? document.referrer || null : null,
   bridgeInstalled: false,
   gotTarget: false,
+  targetExists: false,
   hasJsProvider: false,
   targetInjected: false,
   targetEmbedded: false,
@@ -120,6 +122,7 @@ function snapshot() {
     referrer: connectDebug.referrer,
     bridgeInstalled: connectDebug.bridgeInstalled,
     gotTarget: connectDebug.gotTarget,
+    targetExists: connectDebug.targetExists,
     hasJsProvider: connectDebug.hasJsProvider,
     targetInjected: connectDebug.targetInjected,
     targetEmbedded: connectDebug.targetEmbedded,
@@ -182,6 +185,7 @@ const LiveOverlay = () => {
         referrer: state.referrer,
         bridgeInstalled: state.bridgeInstalled,
         gotTarget: state.gotTarget,
+        targetExists: state.targetExists,
         hasJsProvider: state.hasJsProvider,
         targetInjected: state.targetInjected,
         targetEmbedded: state.targetEmbedded,

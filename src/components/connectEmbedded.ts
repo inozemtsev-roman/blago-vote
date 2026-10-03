@@ -72,6 +72,7 @@ export async function tryConnectEmbeddedWallet(
 
     setConnectDebug({
       gotTarget: !!target,
+      targetExists: !!target,
       targetInjected: !!(target as any)?.injected,
       targetEmbedded: !!(target as any)?.embedded,
       targetAppName: (target as any)?.appName,
@@ -111,6 +112,11 @@ addStatusHistory("connect start (raw connector.connect)");
     // TDZ/ошибки SDK здесь НЕ фатальны: исключение в обработке событий может
     // броситься при уже установленном соединении. Ловим, логируем и продолжаем
     // поллить состояние до появления адреса или таймаута.
+    //
+    // state-first: подписки и поллинг регистрируем ДО вызова connect(), чтобы
+    // не пропустить мгновенную установку адреса — событие может «потеряться»
+    // из-за TDZ, но состояние в connector.wallet уже появится.
+    const waiting = waitConnected(tonConnectUI, target, EMBEDDED_CONNECT_TIMEOUT_MS);
     try {
       tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
     } catch (e) {
@@ -119,7 +125,7 @@ addStatusHistory("connect start (raw connector.connect)");
       addStatusHistory(isTdzError(msg) ? "connector.connect sync TDZ (игнорируем)" : `connector.connect sync error: ${msg}`);
     }
 
-    const ok = await waitConnected(tonConnectUI, target, EMBEDDED_CONNECT_TIMEOUT_MS);
+    const ok = await waiting;
 
     if (!ok) {
       // Финальная проверка по актуальному состоянию ПРЯМО перед тостом/фолбэком:
@@ -192,10 +198,12 @@ function waitConnected(
     let settled = false;
     let wrappedError: string | undefined;
     let retryTimer: ReturnType<typeof setTimeout> | undefined;
+    let poll: number | undefined;
+    let timeout: number | undefined;
 
     const cleanup = () => {
-      window.clearInterval(poll);
-      window.clearTimeout(timeout);
+      if (poll) window.clearInterval(poll);
+      if (timeout) window.clearTimeout(timeout);
       unsubscribeRaw();
       unsubscribeWrapped();
     };
@@ -273,17 +281,20 @@ function waitConnected(
       }
     );
 
-    // Поллер-страховка: не блокируемся только на колбэках.
-    const poll = window.setInterval(() => {
+    // Поллер-страховка: не блокируемся только на колбэках. Первый тик —
+    // синхронная проверка сразу после старта (не ждём первый interval-тип).
+    const pollTick = () => {
       if (settled) return;
       if (isEmbeddedConnected(tonConnectUI)) {
         addStatusHistory("resolved by state (poll)");
         finish(true);
       }
-    }, CONNECTED_POLL_MS);
+    };
+    pollTick();
+    poll = window.setInterval(pollTick, CONNECTED_POLL_MS);
 
     // Таймаут: сначала проверяем факт подключения по состоянию.
-    const timeout = window.setTimeout(() => {
+    timeout = window.setTimeout(() => {
       if (settled) return;
       if (isEmbeddedConnected(tonConnectUI)) {
         addStatusHistory("timeout but already connected");
