@@ -3,23 +3,27 @@ import { showToast } from "toasts";
 import { addStatusHistory, addSdkError, setConnectDebug, dumpConnectDebug } from "connectDebug";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
-// 60с: дать пользователю время подтвердить подключение в окне кошелька.
-const EMBEDDED_CONNECT_TIMEOUT_MS = 60000;
+// 65с: дать пользователю время подтвердить подключение в окне кошелька
+// (максимум удержания state-poller'а).
+const EMBEDDED_CONNECT_TIMEOUT_MS = 65000;
 // Как часто проверять факт подключения по состоянию (не только по колбэкам).
 const CONNECTED_POLL_MS = 200;
 // Пауза после появления адреса в SDK, чтобы успел сработать wrapped-колбэк UI.
 const WRAPPED_SYNC_GRACE_MS = 500;
 // Финальный grace после таймаута: SDK мог доставить connect ровно в момент
-// таймаута (poll-цикл 250мс мог промахнуться) — даём один короткий шанс.
+// таймаута (poll-цикл 200мс мог промахнуться) — даём один короткий шанс.
 const FINAL_STATE_CHECK_DELAY_MS = 300;
 
 // Единый признак «подключены»: состояние SDK и UI без ожидания колбэков.
 // Wrapped onStatusChange в бандле @tonconnect/ui может молча падать (TDZ
 // в бundle кошелька / Cannot find WalletInfo), поэтому состояние важнее.
+// Проверяем максимально широко все доступные поля tonConnectUI/connector.
 function isEmbeddedConnected(tonConnectUI: TonConnectUI): boolean {
   return !!(
-    tonConnectUI.connector.wallet?.account?.address ||
+    tonConnectUI.connector?.wallet?.account?.address ||
     tonConnectUI.wallet?.account?.address ||
+    (tonConnectUI as any).walletInfo?.account?.address ||
+    (tonConnectUI as any).account?.address ||
     tonConnectUI.connected
   );
 }
@@ -283,8 +287,19 @@ function waitConnected(
 
     // Поллер-страховка: не блокируемся только на колбэках. Первый тик —
     // синхронная проверка сразу после старта (не ждём первый interval-тип).
+    let lastPollFlags = "";
     const pollTick = () => {
       if (settled) return;
+      const hasConnWallet = !!tonConnectUI.connector?.wallet?.account?.address;
+      const hasUiWallet = !!tonConnectUI.wallet?.account?.address;
+      const connected = !!tonConnectUI.connected;
+      const flags = `${hasConnWallet}${hasUiWallet}${connected}`;
+      if (flags !== lastPollFlags) {
+        lastPollFlags = flags;
+        addStatusHistory(
+          `poll check: hasConnWallet=${hasConnWallet} hasUiWallet=${hasUiWallet} connected=${connected}`
+        );
+      }
       if (isEmbeddedConnected(tonConnectUI)) {
         addStatusHistory("resolved by state (poll)");
         finish(true);
