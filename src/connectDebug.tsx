@@ -24,6 +24,11 @@ export interface ConnectDebugState {
   connectResult: null | boolean;
   connectError: string;
   connectMs: number;
+  connectorHasWallet: boolean;
+  uiHasWallet: boolean;
+  uiConnected: boolean;
+  bridgeHasTonconnect: boolean;
+  jsBridgeKeyTarget?: string;
   fallback: string;
   statusHistory: string[];
   bridgeLog: BridgeLogEntry[];
@@ -41,6 +46,10 @@ export const connectDebug: ConnectDebugState = {
   connectResult: null,
   connectError: "",
   connectMs: 0,
+  connectorHasWallet: false,
+  uiHasWallet: false,
+  uiConnected: false,
+  bridgeHasTonconnect: false,
   fallback: "",
   statusHistory: [],
   bridgeLog: [],
@@ -101,6 +110,11 @@ function snapshot() {
     connectResult: connectDebug.connectResult,
     connectError: connectDebug.connectError,
     connectMs: connectDebug.connectMs,
+    connectorHasWallet: connectDebug.connectorHasWallet,
+    uiHasWallet: connectDebug.uiHasWallet,
+    uiConnected: connectDebug.uiConnected,
+    bridgeHasTonconnect: connectDebug.bridgeHasTonconnect,
+    jsBridgeKeyTarget: connectDebug.jsBridgeKeyTarget,
     fallback: connectDebug.fallback,
     statusHistory: [...connectDebug.statusHistory],
     bridgeLog: [...connectDebug.bridgeLog],
@@ -157,6 +171,11 @@ const LiveOverlay = () => {
         connectResult: state.connectResult,
         connectError: state.connectError,
         connectMs: state.connectMs,
+        connectorHasWallet: state.connectorHasWallet,
+        uiHasWallet: state.uiHasWallet,
+        uiConnected: state.uiConnected,
+        bridgeHasTonconnect: state.bridgeHasTonconnect,
+        jsBridgeKeyTarget: state.jsBridgeKeyTarget,
         fallback: state.fallback,
         statusHistory: state.statusHistory,
         unhandledRejections: state.unhandledRejections,
