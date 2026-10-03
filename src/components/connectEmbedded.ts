@@ -1,6 +1,6 @@
 import type { TonConnectUI } from "@tonconnect/ui";
 import { showToast } from "toasts";
-import { addStatusHistory, addSdkError, setConnectDebug } from "connectDebug";
+import { addStatusHistory, addSdkError, setConnectDebug, dumpConnectDebug } from "connectDebug";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 // 60с: дать пользователю время подтвердить подключение в окне кошелька.
@@ -9,6 +9,9 @@ const EMBEDDED_CONNECT_TIMEOUT_MS = 60000;
 const CONNECTED_POLL_MS = 250;
 // Пауза после появления адреса в SDK, чтобы успел сработать wrapped-колбэк UI.
 const WRAPPED_SYNC_GRACE_MS = 500;
+// Финальный grace после таймаута: SDK мог доставить connect ровно в момент
+// таймаута (poll-цикл 250мс мог промахнуться) — даём один короткий шанс.
+const FINAL_STATE_CHECK_DELAY_MS = 300;
 
 // Единый признак «подключены»: состояние SDK и UI без ожидания колбэков.
 // Wrapped onStatusChange в бандле @tonconnect/ui может молча падать (TDZ
@@ -93,23 +96,44 @@ export async function tryConnectEmbeddedWallet(
 
     const ok = await waitConnected(tonConnectUI, target, EMBEDDED_CONNECT_TIMEOUT_MS);
 
-    setConnectDebug({
-      connectResult: ok,
-      connectError: ok ? "" : "не получен признак connected (таймаут)",
-      connectMs: Math.round(performance.now() - t0),
-      ...snapshotStatus(tonConnectUI, target),
-    });
-
     if (!ok) {
+      // Финальная проверка по актуальному состоянию ПРЯМО перед тостом/фолбэком:
+      // мост мог прислать connect OK, но SDK доставить wallet чуть позже таймаута —
+      // тогда никакого обычного подключения не открываем, возвращаем connected.
+      const nowConnected = isEmbeddedConnected(tonConnectUI);
+      if (nowConnected) {
+        addStatusHistory("resolved by final state check before fallback");
+        setConnectDebug({
+          connectResult: true,
+          connectError: "",
+          connectMs: Math.round(performance.now() - t0),
+          ...snapshotStatus(tonConnectUI, target),
+        });
+        return true;
+      }
       addStatusHistory(
         "не получили connected: кнопка останется неподключенной — проверь APP_NAME кошелька"
       );
+      setConnectDebug({
+        connectResult: false,
+        connectError: "не получен признак connected (таймаут)",
+        connectMs: Math.round(performance.now() - t0),
+        ...snapshotStatus(tonConnectUI, target),
+      });
+      dumpConnectDebug("timeout");
       if (inFrame) {
         showToast(
           "Встроенный кошелёк не ответил на запрос. Открываем обычное подключение.",
           { duration: 6000, position: "top-center" }
         );
       }
+    } else {
+      setConnectDebug({
+        connectResult: true,
+        connectError: "",
+        connectMs: Math.round(performance.now() - t0),
+        ...snapshotStatus(tonConnectUI, target),
+      });
     }
     return ok;
   } catch (e) {
@@ -121,6 +145,7 @@ export async function tryConnectEmbeddedWallet(
       fallback: connected ? "" : "embedded connect не сработал",
       ...snapshotStatus(tonConnectUI),
     });
+    dumpConnectDebug("catch");
     console.warn("Не удалось подключиться через встроенный кошелёк:", e);
 
     if (inFrame && !connected) {
@@ -228,13 +253,22 @@ function waitConnected(
         finish(true);
         return;
       }
-      if (retryTimer) clearTimeout(retryTimer);
-      settled = true;
-      cleanup();
-      addStatusHistory(
-        `timeout ${timeoutMs}мс${wrappedError ? `; wrapped error: ${wrappedError}` : ""}`
-      );
-      resolve(false);
+      // Финальный grace-перепровер перед тем, как считать попытку проваленной.
+      window.setTimeout(() => {
+        if (settled) return;
+        if (isEmbeddedConnected(tonConnectUI)) {
+          addStatusHistory("resolved by final grace check after timeout");
+          finish(true);
+          return;
+        }
+        if (retryTimer) clearTimeout(retryTimer);
+        settled = true;
+        cleanup();
+        addStatusHistory(
+          `timeout ${timeoutMs}мс${wrappedError ? `; wrapped error: ${wrappedError}` : ""}`
+        );
+        resolve(false);
+      }, FINAL_STATE_CHECK_DELAY_MS);
     }, timeoutMs);
   });
 }

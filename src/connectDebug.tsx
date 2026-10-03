@@ -106,6 +106,10 @@ export function addSdkError(entry: string) {
   console.warn("[blago sdk error]", entry);
 }
 
+export function dumpConnectDebug(label: string) {
+  console.error(`[blago debug-dump ${label}]`, JSON.stringify(snapshot(), null, 2));
+}
+
 function snapshot() {
   return {
     inIframe: connectDebug.inIframe,
