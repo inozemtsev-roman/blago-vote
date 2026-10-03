@@ -71,7 +71,11 @@ if (typeof window !== "undefined") {
     if (connectDebug.unhandledRejections.length > 10) {
       connectDebug.unhandledRejections.splice(0, connectDebug.unhandledRejections.length - 10);
     }
-    console.warn("[blago unhandledrejection]", e.reason);
+    if (/can't access lexical declaration|before initialization/.test(reason)) {
+      console.debug("[blago unhandledrejection TDZ]", e.reason);
+    } else {
+      console.warn("[blago unhandledrejection]", e.reason);
+    }
   });
 }
 

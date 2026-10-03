@@ -24,6 +24,18 @@ function isEmbeddedConnected(tonConnectUI: TonConnectUI): boolean {
   );
 }
 
+// TDZ-ошибки из бандла кошелька (ReferenceError: can't access lexical
+// declaration ...): исключение в обработке событий SDK, НЕ признак провала
+// подключения — состояние могло уже установиться в connector.wallet.
+function isTdzError(err: unknown): boolean {
+  const msg = String(err);
+  return (
+    msg.includes("can't access lexical declaration") ||
+    msg.includes("Cannot access") ||
+    msg.includes("before initialization")
+  );
+}
+
 function snapshotStatus(tonConnectUI: TonConnectUI, target?: { jsBridgeKey?: string }) {
   return {
     connectorHasWallet: !!tonConnectUI.connector.wallet?.account?.address,
@@ -87,12 +99,22 @@ export async function tryConnectEmbeddedWallet(
       return true;
     }
 
-    addStatusHistory("connect start (raw connector.connect)");
+addStatusHistory("connect start (raw connector.connect)");
     // Прямой SDK-путь: он доказуемо доходит до кошелька и получает connect OK
     // (мост фиксирует methodResponse). Официальный openModal()-путь вызывает
     // TDZ в бundle кошелька (ReferenceError: can't access lexical declaration
     // 'l' before initialization) — это не мешает детекции по состоянию ниже.
-    tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
+    //
+    // TDZ/ошибки SDK здесь НЕ фатальны: исключение в обработке событий может
+    // броситься при уже установленном соединении. Ловим, логируем и продолжаем
+    // поллить состояние до появления адреса или таймаута.
+    try {
+      tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
+    } catch (e) {
+      const msg = String(e);
+      addSdkError(msg);
+      addStatusHistory(isTdzError(msg) ? "connector.connect sync TDZ (игнорируем)" : `connector.connect sync error: ${msg}`);
+    }
 
     const ok = await waitConnected(tonConnectUI, target, EMBEDDED_CONNECT_TIMEOUT_MS);
 
@@ -210,11 +232,17 @@ function waitConnected(
         }
       },
       (err) => {
-        // SDK-ошибка подключения (connect_error). Если мост получил connect OK,
-        // а сюда прилетела ошибка — значит, SDK упал на updateSession() (storage)
-        // или на другом шаге до выставления connector.wallet.
-        addSdkError(String(err));
-        addStatusHistory(`SDK connect/status error: ${String(err)}`);
+        // SDK-ошибка подключения (connect_error). НЕ фатальна и НЕ резолвит false:
+        // TDZ мог броситься при уже установленном соединении. Продолжаем поллить
+        // состояние до появления адреса или таймаута.
+        if (settled) return;
+        const msg = String(err);
+        if (isTdzError(msg)) {
+          addStatusHistory("SDK TDZ (игнорируем, состояние проверяем поллингом)");
+          return;
+        }
+        addSdkError(msg);
+        addStatusHistory(`SDK connect/status error (не фатально): ${msg}`);
       }
     );
 
@@ -231,8 +259,14 @@ function waitConnected(
         addStatusHistory("disconnected");
       },
       (err) => {
-        wrappedError = String(err);
-        addStatusHistory(`wrapped error (не критично): ${wrappedError}`);
+        if (settled) return;
+        const msg = String(err);
+        wrappedError = msg;
+        if (isTdzError(msg)) {
+          addStatusHistory("wrapped TDZ (игнорируем)");
+          return;
+        }
+        addStatusHistory(`wrapped error (не критично): ${msg}`);
       }
     );
 
