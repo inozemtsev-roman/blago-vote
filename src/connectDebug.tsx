@@ -33,6 +33,7 @@ export interface ConnectDebugState {
   statusHistory: string[];
   bridgeLog: BridgeLogEntry[];
   unhandledRejections: string[];
+  sdkErrors: string[];
 }
 
 export const connectDebug: ConnectDebugState = {
@@ -54,6 +55,7 @@ export const connectDebug: ConnectDebugState = {
   statusHistory: [],
   bridgeLog: [],
   unhandledRejections: [],
+  sdkErrors: [],
 };
 
 // Фиксируем тихие сбои обёрнутых колбэков @tonconnect/ui (async onStatusChange):
@@ -96,6 +98,14 @@ export function addStatusHistory(entry: string) {
   console.debug("[blago status]", entry);
 }
 
+export function addSdkError(entry: string) {
+  connectDebug.sdkErrors.push(entry.slice(0, 300));
+  if (connectDebug.sdkErrors.length > 10) {
+    connectDebug.sdkErrors.splice(0, connectDebug.sdkErrors.length - 10);
+  }
+  console.warn("[blago sdk error]", entry);
+}
+
 function snapshot() {
   return {
     inIframe: connectDebug.inIframe,
@@ -119,6 +129,7 @@ function snapshot() {
     statusHistory: [...connectDebug.statusHistory],
     bridgeLog: [...connectDebug.bridgeLog],
     unhandledRejections: [...connectDebug.unhandledRejections],
+    sdkErrors: [...connectDebug.sdkErrors],
   };
 }
 
@@ -179,6 +190,7 @@ const LiveOverlay = () => {
         fallback: state.fallback,
         statusHistory: state.statusHistory,
         unhandledRejections: state.unhandledRejections,
+        sdkErrors: state.sdkErrors,
       }, null, 2)}</pre>
       <StyledLog>=== bridge log ==={lines.length ? "" : " (пусто)"}
 {lines.join("\n")}</StyledLog>

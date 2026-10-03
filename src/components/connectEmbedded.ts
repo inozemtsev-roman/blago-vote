@@ -1,6 +1,6 @@
 import type { TonConnectUI } from "@tonconnect/ui";
 import { showToast } from "toasts";
-import { addStatusHistory, setConnectDebug } from "connectDebug";
+import { addStatusHistory, addSdkError, setConnectDebug } from "connectDebug";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 // 60с: дать пользователю время подтвердить подключение в окне кошелька.
@@ -161,28 +161,37 @@ function waitConnected(
 
     // «Сырой» статус коннектора (SDK-уровень): срабатывает, когда SDK получил
     // от кошелька connect OK и выставил connector.wallet — без обёртки UI.
-    const unsubscribeRaw = tonConnectUI.connector.onStatusChange((wallet) => {
-      if (settled) return;
-      if (wallet?.account?.address) {
-        addStatusHistory("connector wallet appears");
-        if (isEmbeddedConnected(tonConnectUI)) {
-          finish(true);
-          return;
+    const unsubscribeRaw = tonConnectUI.connector.onStatusChange(
+      (wallet) => {
+        if (settled) return;
+        if (wallet?.account?.address) {
+          addStatusHistory("connector wallet appears");
+          if (isEmbeddedConnected(tonConnectUI)) {
+            finish(true);
+            return;
+          }
+          // Адрес есть в SDK, но осторожно: wrapped-колбэк может сработать чуть
+          // позже (getSelectedWalletInfo допрос). Даём короткую паузу — микрофикс
+          // рассинхрона, чтобы не резолвить раньше обновления кнопки.
+          if (!retryTimer) {
+            addStatusHistory(`retry wait: ждём wrapped-колбэк ${WRAPPED_SYNC_GRACE_MS}мс`);
+            retryTimer = setTimeout(() => {
+              if (isEmbeddedConnected(tonConnectUI)) {
+                addStatusHistory("resolved by state after retry wait");
+                finish(true);
+              }
+            }, WRAPPED_SYNC_GRACE_MS);
+          }
         }
-        // Адрес есть в SDK, но осторожно: wrapped-колбэк может сработать чуть
-        // позже (getSelectedWalletInfo допрос). Даём короткую паузу — микрофикс
-        // рассинхрона, чтобы не резолвить раньше обновления кнопки.
-        if (!retryTimer) {
-          addStatusHistory(`retry wait: ждём wrapped-колбэк ${WRAPPED_SYNC_GRACE_MS}мс`);
-          retryTimer = setTimeout(() => {
-            if (isEmbeddedConnected(tonConnectUI)) {
-              addStatusHistory("resolved by state after retry wait");
-              finish(true);
-            }
-          }, WRAPPED_SYNC_GRACE_MS);
-        }
+      },
+      (err) => {
+        // SDK-ошибка подключения (connect_error). Если мост получил connect OK,
+        // а сюда прилетела ошибка — значит, SDK упал на updateSession() (storage)
+        // или на другом шаге до выставления connector.wallet.
+        addSdkError(String(err));
+        addStatusHistory(`SDK connect/status error: ${String(err)}`);
       }
-    });
+    );
 
     // Обёрнутый статус UI: как раз тот путь, по которому обновляется useTonWallet
     // и кнопка. Ошибка обёртки НЕ отменяет успешный результат.
