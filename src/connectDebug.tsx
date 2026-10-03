@@ -30,6 +30,7 @@ export interface ConnectDebugState {
   uiConnected: boolean;
   bridgeHasTonconnect: boolean;
   jsBridgeKeyTarget?: string;
+  pollResolvedByState?: boolean;
   fallback: string;
   statusHistory: string[];
   bridgeLog: BridgeLogEntry[];

@@ -301,6 +301,7 @@ function startConnectionWait(
     settled = true;
     if (retryTimer) clearTimeout(retryTimer);
     cleanup();
+    setConnectDebug({ pollResolvedByState: byState });
     addStatusHistory(byState ? "resolved by state (not callback)" : "resolved by callback");
     resolveOk(true);
   };
@@ -424,6 +425,7 @@ function startConnectionWait(
       if (retryTimer) clearTimeout(retryTimer);
       settled = true;
       cleanup();
+      setConnectDebug({ pollResolvedByState: false });
       addStatusHistory(
         `timeout ${timeoutMs}мс${wrappedError ? `; wrapped error: ${wrappedError}` : ""}`
       );
@@ -436,6 +438,7 @@ function startConnectionWait(
     settled = true;
     if (retryTimer) clearTimeout(retryTimer);
     cleanup();
+    setConnectDebug({ pollResolvedByState: false });
     resolveOk(false);
   };
 
