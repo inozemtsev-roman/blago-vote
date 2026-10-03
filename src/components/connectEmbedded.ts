@@ -6,7 +6,7 @@ const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 // 60с: дать пользователю время подтвердить подключение в окне кошелька.
 const EMBEDDED_CONNECT_TIMEOUT_MS = 60000;
 // Как часто проверять факт подключения по состоянию (не только по колбэкам).
-const CONNECTED_POLL_MS = 250;
+const CONNECTED_POLL_MS = 200;
 // Пауза после появления адреса в SDK, чтобы успел сработать wrapped-колбэк UI.
 const WRAPPED_SYNC_GRACE_MS = 500;
 // Финальный grace после таймаута: SDK мог доставить connect ровно в момент
@@ -29,10 +29,13 @@ function isEmbeddedConnected(tonConnectUI: TonConnectUI): boolean {
 // подключения — состояние могло уже установиться в connector.wallet.
 function isTdzError(err: unknown): boolean {
   const msg = String(err);
+  const stack = err instanceof Error ? err.stack ?? "" : "";
   return (
     msg.includes("can't access lexical declaration") ||
     msg.includes("Cannot access") ||
-    msg.includes("before initialization")
+    msg.includes("before initialization") ||
+    stack.includes("can't access lexical declaration") ||
+    stack.includes("before initialization")
   );
 }
 
