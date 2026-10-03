@@ -3,29 +3,32 @@ import { showToast } from "toasts";
 import { addStatusHistory, addSdkError, setConnectDebug, dumpConnectDebug } from "connectDebug";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
-// 65с: дать пользователю время подтвердить подключение в окне кошелька
-// (максимум удержания state-poller'а).
-const EMBEDDED_CONNECT_TIMEOUT_MS = 65000;
+// Race с таймаутом (максимум удержания state-poller'а — 60с).
+const EMBEDDED_CONNECT_TIMEOUT_MS = 60000;
 // Как часто проверять факт подключения по состоянию (не только по колбэкам).
-const CONNECTED_POLL_MS = 200;
+const CONNECTED_POLL_MS = 150;
 // Пауза после появления адреса в SDK, чтобы успел сработать wrapped-колбэк UI.
 const WRAPPED_SYNC_GRACE_MS = 500;
 // Финальный grace после таймаута: SDK мог доставить connect ровно в момент
-// таймаута (poll-цикл 200мс мог промахнуться) — даём один короткий шанс.
+// таймаута (poll-цикл мог промахнуться) — даём один короткий шанс.
 const FINAL_STATE_CHECK_DELAY_MS = 300;
 
 // Единый признак «подключены»: состояние SDK и UI без ожидания колбэков.
 // Wrapped onStatusChange в бандле @tonconnect/ui может молча падать (TDZ
-// в бundle кошелька / Cannot find WalletInfo), поэтому состояние важнее.
-// Проверяем максимально широко все доступные поля tonConnectUI/connector.
+// в bundle кошелька / Cannot find WalletInfo), поэтому состояние важнее.
+// Проверяем максимально широко ВСЕ возможные пути хранения адреса.
 function isEmbeddedConnected(tonConnectUI: TonConnectUI): boolean {
-  return !!(
-    tonConnectUI.connector?.wallet?.account?.address ||
-    tonConnectUI.wallet?.account?.address ||
-    (tonConnectUI as any).walletInfo?.account?.address ||
-    (tonConnectUI as any).account?.address ||
-    tonConnectUI.connected
-  );
+  const ui = tonConnectUI as any;
+  const conn = ui.connector as any;
+  const addr =
+    conn?.wallet?.account?.address ||
+    conn?.walletInfo?.account?.address ||
+    ui.wallet?.account?.address ||
+    ui.wallet?.address ||
+    ui.walletInfo?.account?.address ||
+    ui.account?.address ||
+    (ui.connected && (ui.wallet?.account?.address || ui.account?.address));
+  return !!addr;
 }
 
 // TDZ-ошибки из бандла кошелька (ReferenceError: can't access lexical
@@ -45,7 +48,7 @@ function isTdzError(err: unknown): boolean {
 
 function snapshotStatus(tonConnectUI: TonConnectUI, target?: { jsBridgeKey?: string }) {
   return {
-    connectorHasWallet: !!tonConnectUI.connector.wallet?.account?.address,
+    connectorHasWallet: !!tonConnectUI.connector?.wallet?.account?.address,
     uiHasWallet: !!tonConnectUI.wallet?.account?.address,
     uiConnected: tonConnectUI.connected,
     bridgeHasTonconnect: !!(window as any).mytonwallet?.tonconnect,
@@ -60,7 +63,13 @@ export async function tryConnectEmbeddedWallet(
 
   const inFrame = window.parent !== window;
   const hasBridge = !!(window as any).mytonwallet?.tonconnect;
+
+  // state-first: поллер стартует СРАЗУ в начале функции — до getWallets()/поиска
+  // target. Он ловит адрес в ЛЮБОМ поле подключения независимо от колбэков и TDZ.
+  const pending = startConnectionWait(tonConnectUI, EMBEDDED_CONNECT_TIMEOUT_MS);
+
   if (!(inFrame && hasBridge)) {
+    pending.cancel();
     setConnectDebug(snapshotStatus(tonConnectUI));
     setConnectDebug({ fallback: "нет встроенного кошелька (не во фрейме кошелька)" });
     return false;
@@ -85,6 +94,7 @@ export async function tryConnectEmbeddedWallet(
     });
 
     if (!target || !target.jsBridgeKey) {
+      pending.cancel();
       setConnectDebug({ fallback: "gradospherawallet не найден в списке кошельков" });
       return false;
     }
@@ -92,35 +102,32 @@ export async function tryConnectEmbeddedWallet(
     const hasJsProvider = !!(window as any)[target.jsBridgeKey]?.tonconnect;
     setConnectDebug({ hasJsProvider, ...snapshotStatus(tonConnectUI, target) });
     if (!hasJsProvider) {
+      pending.cancel();
       setConnectDebug({ fallback: "нет js-провайдера у gradospherawallet" });
       return false;
     }
 
-    // Уже подключены по состоянию — выходим без таймаута и без тоста.
+    // Уже подключены по состоянию — поллер, вероятно, уже зарезолвил ok=true;
+    // просто быстро возвращаем результат.
     if (isEmbeddedConnected(tonConnectUI)) {
       addStatusHistory("already connected by state");
+      const connected = await pending.ok;
       setConnectDebug({
-        connectResult: true,
+        connectResult: connected,
         connectMs: Math.round(performance.now() - t0),
         ...snapshotStatus(tonConnectUI, target),
       });
-      return true;
+      return connected;
     }
 
-addStatusHistory("connect start (raw connector.connect)");
+    addStatusHistory("connect start (raw connector.connect)");
     // Прямой SDK-путь: он доказуемо доходит до кошелька и получает connect OK
     // (мост фиксирует methodResponse). Официальный openModal()-путь вызывает
-    // TDZ в бundle кошелька (ReferenceError: can't access lexical declaration
+    // TDZ в bundle кошелька (ReferenceError: can't access lexical declaration
     // 'l' before initialization) — это не мешает детекции по состоянию ниже.
     //
-    // TDZ/ошибки SDK здесь НЕ фатальны: исключение в обработке событий может
-    // броситься при уже установленном соединении. Ловим, логируем и продолжаем
-    // поллить состояние до появления адреса или таймаута.
-    //
-    // state-first: подписки и поллинг регистрируем ДО вызова connect(), чтобы
-    // не пропустить мгновенную установку адреса — событие может «потеряться»
-    // из-за TDZ, но состояние в connector.wallet уже появится.
-    const waiting = waitConnected(tonConnectUI, target, EMBEDDED_CONNECT_TIMEOUT_MS);
+    // TDZ/ошибки SDK здесь НЕ фатальны: ловим, логируем, поллер продолжает
+    // работать до появления адреса или таймаута. Исключение НЕ резолвит false.
     try {
       tonConnectUI.connector.connect({ jsBridgeKey: target.jsBridgeKey });
     } catch (e) {
@@ -129,7 +136,7 @@ addStatusHistory("connect start (raw connector.connect)");
       addStatusHistory(isTdzError(msg) ? "connector.connect sync TDZ (игнорируем)" : `connector.connect sync error: ${msg}`);
     }
 
-    const ok = await waiting;
+    const ok = await pending.ok;
 
     if (!ok) {
       // Финальная проверка по актуальному состоянию ПРЯМО перед тостом/фолбэком:
@@ -173,6 +180,7 @@ addStatusHistory("connect start (raw connector.connect)");
     return ok;
   } catch (e) {
     const connected = isEmbeddedConnected(tonConnectUI);
+    if (!connected) pending.cancel();
     setConnectDebug({
       connectResult: connected,
       connectError: String(e),
@@ -193,145 +201,152 @@ addStatusHistory("connect start (raw connector.connect)");
   }
 }
 
-function waitConnected(
+// Стартует state-poller + подписки сразу (синхронно). Резолвит true при ПЕРВОМ
+// появлении адреса в любом поле (isConnected) — независимо от ошибок колбэков.
+// cancel() — для ранних выходов (не embedded, нет target и т.п.): резолвит false.
+function startConnectionWait(
   tonConnectUI: TonConnectUI,
-  target: { jsBridgeKey?: string },
   timeoutMs: number,
-): Promise<boolean> {
-  return new Promise<boolean>((resolve) => {
-    let settled = false;
-    let wrappedError: string | undefined;
-    let retryTimer: ReturnType<typeof setTimeout> | undefined;
-    let poll: number | undefined;
-    let timeout: number | undefined;
+): { ok: Promise<boolean>; cancel: () => void } {
+  let settled = false;
+  let wrappedError: string | undefined;
+  let retryTimer: ReturnType<typeof setTimeout> | undefined;
+  let poll: number | undefined;
+  let timeout: number | undefined;
+  let resolveOk!: (value: boolean) => void;
+  const ok = new Promise<boolean>((resolve) => {
+    resolveOk = resolve;
+  });
 
-    const cleanup = () => {
-      if (poll) window.clearInterval(poll);
-      if (timeout) window.clearTimeout(timeout);
-      unsubscribeRaw();
-      unsubscribeWrapped();
-    };
+  const cleanup = () => {
+    if (poll) window.clearInterval(poll);
+    if (timeout) window.clearTimeout(timeout);
+    unsubscribeRaw();
+    unsubscribeWrapped();
+  };
 
-    const finish = (byState: boolean) => {
+  const finish = (byState: boolean) => {
+    if (settled) return;
+    settled = true;
+    if (retryTimer) clearTimeout(retryTimer);
+    cleanup();
+    addStatusHistory(byState ? "resolved by state (not callback)" : "resolved by callback");
+    resolveOk(true);
+  };
+
+  // «Сырой» статус коннектора (SDK-уровень): срабатывает, когда SDK получил
+  // от кошелька connect OK и выставил connector.wallet — без обёртки UI.
+  const unsubscribeRaw = tonConnectUI.connector.onStatusChange(
+    (wallet) => {
       if (settled) return;
-      settled = true;
-      if (retryTimer) clearTimeout(retryTimer);
-      cleanup();
-      addStatusHistory(byState ? "resolved by state (not callback)" : "resolved by callback");
-      resolve(true);
-    };
-
-    // «Сырой» статус коннектора (SDK-уровень): срабатывает, когда SDK получил
-    // от кошелька connect OK и выставил connector.wallet — без обёртки UI.
-    const unsubscribeRaw = tonConnectUI.connector.onStatusChange(
-      (wallet) => {
-        if (settled) return;
-        if (wallet?.account?.address) {
-          addStatusHistory("connector wallet appears");
-          if (isEmbeddedConnected(tonConnectUI)) {
-            finish(true);
-            return;
-          }
-          // Адрес есть в SDK, но осторожно: wrapped-колбэк может сработать чуть
-          // позже (getSelectedWalletInfo допрос). Даём короткую паузу — микрофикс
-          // рассинхрона, чтобы не резолвить раньше обновления кнопки.
-          if (!retryTimer) {
-            addStatusHistory(`retry wait: ждём wrapped-колбэк ${WRAPPED_SYNC_GRACE_MS}мс`);
-            retryTimer = setTimeout(() => {
-              if (isEmbeddedConnected(tonConnectUI)) {
-                addStatusHistory("resolved by state after retry wait");
-                finish(true);
-              }
-            }, WRAPPED_SYNC_GRACE_MS);
-          }
-        }
-      },
-      (err) => {
-        // SDK-ошибка подключения (connect_error). НЕ фатальна и НЕ резолвит false:
-        // TDZ мог броситься при уже установленном соединении. Продолжаем поллить
-        // состояние до появления адреса или таймаута.
-        if (settled) return;
-        const msg = String(err);
-        if (isTdzError(msg)) {
-          addStatusHistory("SDK TDZ (игнорируем, состояние проверяем поллингом)");
-          return;
-        }
-        addSdkError(msg);
-        addStatusHistory(`SDK connect/status error (не фатально): ${msg}`);
-      }
-    );
-
-    // Обёрнутый статус UI: как раз тот путь, по которому обновляется useTonWallet
-    // и кнопка. Ошибка обёртки НЕ отменяет успешный результат.
-    const unsubscribeWrapped = tonConnectUI.onStatusChange(
-      (wallet) => {
-        if (settled) return;
-        if (wallet?.account?.address) {
-          addStatusHistory("ui wallet appears");
-          finish(false);
-          return;
-        }
-        addStatusHistory("disconnected");
-      },
-      (err) => {
-        if (settled) return;
-        const msg = String(err);
-        wrappedError = msg;
-        if (isTdzError(msg)) {
-          addStatusHistory("wrapped TDZ (игнорируем)");
-          return;
-        }
-        addStatusHistory(`wrapped error (не критично): ${msg}`);
-      }
-    );
-
-    // Поллер-страховка: не блокируемся только на колбэках. Первый тик —
-    // синхронная проверка сразу после старта (не ждём первый interval-тип).
-    let lastPollFlags = "";
-    const pollTick = () => {
-      if (settled) return;
-      const hasConnWallet = !!tonConnectUI.connector?.wallet?.account?.address;
-      const hasUiWallet = !!tonConnectUI.wallet?.account?.address;
-      const connected = !!tonConnectUI.connected;
-      const flags = `${hasConnWallet}${hasUiWallet}${connected}`;
-      if (flags !== lastPollFlags) {
-        lastPollFlags = flags;
-        addStatusHistory(
-          `poll check: hasConnWallet=${hasConnWallet} hasUiWallet=${hasUiWallet} connected=${connected}`
-        );
-      }
-      if (isEmbeddedConnected(tonConnectUI)) {
-        addStatusHistory("resolved by state (poll)");
-        finish(true);
-      }
-    };
-    pollTick();
-    poll = window.setInterval(pollTick, CONNECTED_POLL_MS);
-
-    // Таймаут: сначала проверяем факт подключения по состоянию.
-    timeout = window.setTimeout(() => {
-      if (settled) return;
-      if (isEmbeddedConnected(tonConnectUI)) {
-        addStatusHistory("timeout but already connected");
+      if (wallet?.account?.address || isEmbeddedConnected(tonConnectUI)) {
+        addStatusHistory("connector wallet appears");
         finish(true);
         return;
       }
-      // Финальный grace-перепровер перед тем, как считать попытку проваленной.
-      window.setTimeout(() => {
-        if (settled) return;
-        if (isEmbeddedConnected(tonConnectUI)) {
-          addStatusHistory("resolved by final grace check after timeout");
-          finish(true);
-          return;
-        }
-        if (retryTimer) clearTimeout(retryTimer);
-        settled = true;
-        cleanup();
-        addStatusHistory(
-          `timeout ${timeoutMs}мс${wrappedError ? `; wrapped error: ${wrappedError}` : ""}`
-        );
-        resolve(false);
-      }, FINAL_STATE_CHECK_DELAY_MS);
-    }, timeoutMs);
-  });
+    },
+    (err) => {
+      // SDK-ошибка подключения (connect_error). НЕ фатальна и НЕ резолвит false:
+      // если адрес уже есть — резолвим true; TDZ/иные ошибки не блокируют поллер.
+      if (settled) return;
+      if (isEmbeddedConnected(tonConnectUI)) {
+        finish(true);
+        return;
+      }
+      const msg = String(err);
+      if (isTdzError(msg)) {
+        addStatusHistory("SDK TDZ (игнорируем), состояние проверяем поллингом");
+        return;
+      }
+      addSdkError(msg);
+      addStatusHistory(`SDK connect/status error (не фатально): ${msg}`);
+    }
+  );
+
+  // Обёрнутый статус UI: как раз тот путь, по которому обновляется useTonWallet
+  // и кнопка. Ошибка обёртки НЕ отменяет успешный результат.
+  const unsubscribeWrapped = tonConnectUI.onStatusChange(
+    (wallet) => {
+      if (settled) return;
+      if (wallet?.account?.address || isEmbeddedConnected(tonConnectUI)) {
+        addStatusHistory("ui wallet appears");
+        finish(true);
+        return;
+      }
+      addStatusHistory("disconnected");
+    },
+    (err) => {
+      if (settled) return;
+      if (isEmbeddedConnected(tonConnectUI)) {
+        finish(true);
+        return;
+      }
+      const msg = String(err);
+      wrappedError = msg;
+      if (isTdzError(msg)) {
+        addStatusHistory("wrapped TDZ (игнорируем)");
+        return;
+      }
+      addStatusHistory(`wrapped error (не критично): ${msg}`);
+    }
+  );
+
+  // Поллер-страховка: не блокируемся только на колбэках. Первый тик —
+  // синхронная проверка сразу после старта (не ждём первый interval-тип).
+  let lastPollFlags = "";
+  const pollTick = () => {
+    if (settled) return;
+    const hasConnWallet = !!tonConnectUI.connector?.wallet?.account?.address;
+    const hasUiWallet = !!tonConnectUI.wallet?.account?.address;
+    const connected = !!tonConnectUI.connected;
+    const flags = `${hasConnWallet}${hasUiWallet}${connected}`;
+    if (flags !== lastPollFlags) {
+      lastPollFlags = flags;
+      addStatusHistory(
+        `poll check: hasConnWallet=${hasConnWallet} hasUiWallet=${hasUiWallet} connected=${connected}`
+      );
+    }
+    if (isEmbeddedConnected(tonConnectUI)) {
+      addStatusHistory("resolved by state (poll)");
+      finish(true);
+    }
+  };
+  pollTick();
+  poll = window.setInterval(pollTick, CONNECTED_POLL_MS);
+
+  // Таймаут: сначала проверяем факт подключения по состоянию.
+  timeout = window.setTimeout(() => {
+    if (settled) return;
+    if (isEmbeddedConnected(tonConnectUI)) {
+      addStatusHistory("timeout but already connected");
+      finish(true);
+      return;
+    }
+    // Финальный grace-перепровер перед тем, как считать попытку проваленной.
+    window.setTimeout(() => {
+      if (settled) return;
+      if (isEmbeddedConnected(tonConnectUI)) {
+        addStatusHistory("resolved by final grace check after timeout");
+        finish(true);
+        return;
+      }
+      if (retryTimer) clearTimeout(retryTimer);
+      settled = true;
+      cleanup();
+      addStatusHistory(
+        `timeout ${timeoutMs}мс${wrappedError ? `; wrapped error: ${wrappedError}` : ""}`
+      );
+      resolveOk(false);
+    }, FINAL_STATE_CHECK_DELAY_MS);
+  }, timeoutMs);
+
+  const cancel = () => {
+    if (settled) return;
+    settled = true;
+    if (retryTimer) clearTimeout(retryTimer);
+    cleanup();
+    resolveOk(false);
+  };
+
+  return { ok, cancel };
 }
