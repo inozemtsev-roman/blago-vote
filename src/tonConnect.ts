@@ -10,4 +10,5 @@ export const tonConnect = new TonConnect({
   manifestUrl,
   walletsListSource: "/wallets-v2.json",
   storage: createSafeTonConnectStorage(),
+  analytics: { mode: "off" },
 });

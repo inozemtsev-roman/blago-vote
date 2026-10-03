@@ -105,7 +105,7 @@ export function addStatusHistory(entry: string) {
 }
 
 export function addSdkError(entry: string) {
-  connectDebug.sdkErrors.push(entry.slice(0, 300));
+  connectDebug.sdkErrors.push(entry.slice(0, 1200));
   if (connectDebug.sdkErrors.length > 10) {
     connectDebug.sdkErrors.splice(0, connectDebug.sdkErrors.length - 10);
   }

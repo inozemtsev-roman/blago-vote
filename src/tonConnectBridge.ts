@@ -9,6 +9,18 @@ interface RequestState {
   reject: (reason?: unknown) => void;
 }
 
+let lastConnectResponse: unknown = null;
+
+/**
+ * Последний connect-ответ моста (ConnectEvent `{event:'connect', payload}`).
+ * Используется как fallback: если SDK не смог обработать connect OK (TDZ в
+ * бандле), но кошелёк подтвердил адрес — мы можем материализовать wallet
+ * сами и поднять кнопку/голосование без обычного подключения.
+ */
+export function getLastEmbeddedConnectResponse(): unknown {
+  return lastConnectResponse;
+}
+
 type InMessageData =
   | {
       channel?: string;
@@ -85,6 +97,9 @@ export function setupEmbeddedWalletBridgeIfNeeded() {
       if (!requestState) return;
       requestStates.delete(message.messageId);
       requestNames.delete(message.messageId);
+      if (name === "tonConnect:connect") {
+        lastConnectResponse = message.error ? null : (message.response ?? null);
+      }
       if (message.error) {
         requestState.reject(new Error(message.error.message));
       } else {

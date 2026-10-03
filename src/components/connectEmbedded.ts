@@ -1,6 +1,12 @@
 import type { TonConnectUI } from "@tonconnect/ui";
 import { showToast } from "toasts";
-import { addStatusHistory, addSdkError, setConnectDebug, dumpConnectDebug } from "connectDebug";
+import {
+  addStatusHistory,
+  addSdkError,
+  setConnectDebug,
+  dumpConnectDebug,
+} from "connectDebug";
+import { getLastEmbeddedConnectResponse } from "tonConnectBridge";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 // Race с таймаутом (максимум удержания state-poller'а — 60с).
@@ -54,6 +60,64 @@ function snapshotStatus(tonConnectUI: TonConnectUI, target?: { jsBridgeKey?: str
     bridgeHasTonconnect: !!(window as any).mytonwallet?.tonconnect,
     jsBridgeKeyTarget: (target as any)?.jsBridgeKey,
   };
+}
+
+// Fallback против TDZ-бага в bundle кошелька: SDK получает connect OK, но
+// обработка событий падает ДО присвоения connector.wallet (доказано дампом:
+// connectorHasWallet=false при bridge `connect OK items=[ton_addr]`).
+// Если мост подтвердил адрес — материализуем wallet сами (та же форма, что
+// строит SDK в onWalletConnected: device/provider/account). Сеттер connector.wallet
+// нотифицирует подписчиков SDK, включая внутреннюю подписку UI, поэтому кнопка
+// и useTonWallet обновятся штатно, а sendTransaction работает через живой provider.
+function materializeWalletIfNeeded(tonConnectUI: TonConnectUI): boolean {
+  if (isEmbeddedConnected(tonConnectUI)) return true;
+
+  const response = getLastEmbeddedConnectResponse() as
+    | {
+        event?: string;
+        payload?: {
+          items?: {
+            name?: string;
+            address?: string;
+            network?: string;
+            publicKey?: string;
+            walletStateInit?: string;
+          }[];
+          device?: unknown;
+        };
+      }
+    | null
+    | undefined;
+  if (!response || response.event !== "connect" || !response.payload) {
+    return false;
+  }
+
+  const item = (response.payload.items ?? []).find(
+    (it) => it?.name === "ton_addr"
+  );
+  if (!item?.address) return false;
+
+  const wallet = {
+    device: response.payload.device ?? {},
+    provider: "injected",
+    account: {
+      address: item.address,
+      chain: item.network ?? "mainnet",
+      walletStateInit: item.walletStateInit ?? "",
+      publicKey: item.publicKey ?? "",
+    },
+  };
+
+  const conn = tonConnectUI.connector as unknown as {
+    wallet: unknown;
+  };
+  try {
+    conn.wallet = wallet;
+    addStatusHistory("materialized wallet from bridge connect response");
+  } catch (e) {
+    addSdkError(`materialize wallet failed: ${String(e)}`);
+  }
+  return isEmbeddedConnected(tonConnectUI);
 }
 
 export async function tryConnectEmbeddedWallet(
@@ -142,7 +206,14 @@ export async function tryConnectEmbeddedWallet(
       // Финальная проверка по актуальному состоянию ПРЯМО перед тостом/фолбэком:
       // мост мог прислать connect OK, но SDK доставить wallet чуть позже таймаута —
       // тогда никакого обычного подключения не открываем, возвращаем connected.
-      const nowConnected = isEmbeddedConnected(tonConnectUI);
+      let nowConnected = isEmbeddedConnected(tonConnectUI);
+      // Последний рубеж против TDZ-бага: мост подтвердил адрес → материализуем wallet.
+      if (!nowConnected) {
+        nowConnected = materializeWalletIfNeeded(tonConnectUI);
+        if (nowConnected) {
+          addStatusHistory("resolved by materialized wallet before fallback");
+        }
+      }
       if (nowConnected) {
         addStatusHistory("resolved by final state check before fallback");
         setConnectDebug({
@@ -253,12 +324,20 @@ function startConnectionWait(
         finish(true);
         return;
       }
+      // Основной сценарий TDZ-бага: SDK упал на обработке connect OK. Мост уже
+      // подтвердил адрес — материализуем wallet из bridge-ответа, если получилось.
+      if (materializeWalletIfNeeded(tonConnectUI)) {
+        addStatusHistory("materialized on raw SDK error");
+        finish(true);
+        return;
+      }
       const msg = String(err);
       if (isTdzError(msg)) {
         addStatusHistory("SDK TDZ (игнорируем), состояние проверяем поллингом");
         return;
       }
-      addSdkError(msg);
+      const stack = err instanceof Error ? err.stack ?? "" : "";
+      addSdkError(stack ? `${msg}\n${stack}` : msg);
       addStatusHistory(`SDK connect/status error (не фатально): ${msg}`);
     }
   );
@@ -278,6 +357,11 @@ function startConnectionWait(
     (err) => {
       if (settled) return;
       if (isEmbeddedConnected(tonConnectUI)) {
+        finish(true);
+        return;
+      }
+      if (materializeWalletIfNeeded(tonConnectUI)) {
+        addStatusHistory("materialized on wrapped error");
         finish(true);
         return;
       }
@@ -327,6 +411,13 @@ function startConnectionWait(
       if (settled) return;
       if (isEmbeddedConnected(tonConnectUI)) {
         addStatusHistory("resolved by final grace check after timeout");
+        finish(true);
+        return;
+      }
+      // TDZ-баг: SDK так и не выставил wallet. Если мост подтвердил connect OK —
+      // материализуем адрес сами в последний момент перед фолбэком.
+      if (materializeWalletIfNeeded(tonConnectUI)) {
+        addStatusHistory("resolved by materialized wallet (timeout grace)");
         finish(true);
         return;
       }

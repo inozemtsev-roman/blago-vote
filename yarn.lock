@@ -849,10 +849,10 @@
     tweetnacl "^1.0.3"
     tweetnacl-util "^0.15.1"
 
-"@tonconnect/sdk@4.0.0":
-  version "4.0.0"
-  resolved "https://registry.npmjs.org/@tonconnect/sdk/-/sdk-4.0.0.tgz"
-  integrity sha512-2/vgrBFhIfBV2f8s11bo+VV+VwjElTi2dM2ZDP41VTXyjOmNgWxDw3vSqrS/puniPbm+4tqK6EXLfwvpBxlq5w==
+"@tonconnect/sdk@4.0.2":
+  version "4.0.2"
+  resolved "https://registry.npmjs.org/@tonconnect/sdk/-/sdk-4.0.2.tgz"
+  integrity sha512-BIoixBenjWLIYhJrdYw9IF20ukE/zvInxoj82McSN1IUmn2Q6fkUnrQwpnIRXW0SqTIDEJPK29btP7euFCIjTA==
   dependencies:
     "@tonconnect/isomorphic-eventsource" "0.0.2"
     "@tonconnect/isomorphic-fetch" "0.0.3"
@@ -867,12 +867,12 @@
     "@tonconnect/isomorphic-fetch" "^0.0.2"
     "@tonconnect/protocol" "^2.2.5"
 
-"@tonconnect/ui-react@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@tonconnect/ui-react/-/ui-react-3.0.0.tgz"
-  integrity sha512-WnLleGTmGlcUM/P8Tcj/qZwWkBPwKKZHU+1guvUGHzADhnapuZxOH1IgR9eZeFtwHYTZjK6ogky8PqrS5U6OVw==
+"@tonconnect/ui-react@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.npmjs.org/@tonconnect/ui-react/-/ui-react-3.0.2.tgz"
+  integrity sha512-qPOnSSaKFoWPa2h1XR3eUp9wVGGQf9SE4+47wKg30WcCUp61QGAm9lNB5cEvGdS683jDeEDv1JWdHROG/AWkow==
   dependencies:
-    "@tonconnect/ui" "3.0.0"
+    "@tonconnect/ui" "3.0.2"
 
 "@tonconnect/ui-react@^1.0.0-beta.6":
   version "1.0.0-beta.9"
@@ -881,12 +881,12 @@
   dependencies:
     "@tonconnect/ui" "^1.0.0-beta.7"
 
-"@tonconnect/ui@3.0.0":
-  version "3.0.0"
-  resolved "https://registry.npmjs.org/@tonconnect/ui/-/ui-3.0.0.tgz"
-  integrity sha512-vt/HAyEr7bMJgff38lDw9xV7ptS8bzdjkdnwJaFjSZth2vT/qbp3J/RDxxNMaX4q0VFuHafGh8SZe1JHhHFOgQ==
+"@tonconnect/ui@3.0.2":
+  version "3.0.2"
+  resolved "https://registry.npmjs.org/@tonconnect/ui/-/ui-3.0.2.tgz"
+  integrity sha512-bAOVfN3p/x40Bx7VcvAmH0DvGKwN9qNnkYUqkhUVckHOdwgfdtEMAQaE3w4Dabguse4VoXDzdmf/1rSl56wEgQ==
   dependencies:
-    "@tonconnect/sdk" "4.0.0"
+    "@tonconnect/sdk" "4.0.2"
     classnames "^2.5.1"
     csstype "^3.1.3"
     deepmerge "^4.3.1"
