@@ -31,6 +31,7 @@ export interface ConnectDebugState {
   bridgeHasTonconnect: boolean;
   jsBridgeKeyTarget?: string;
   pollResolvedByState?: boolean;
+  tdzRetryQueued?: number;
   fallback: string;
   statusHistory: string[];
   bridgeLog: BridgeLogEntry[];
@@ -54,6 +55,7 @@ export const connectDebug: ConnectDebugState = {
   uiHasWallet: false,
   uiConnected: false,
   bridgeHasTonconnect: false,
+  tdzRetryQueued: 0,
   fallback: "",
   statusHistory: [],
   bridgeLog: [],

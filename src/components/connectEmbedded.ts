@@ -130,7 +130,9 @@ export async function tryConnectEmbeddedWallet(
 
   // state-first: поллер стартует СРАЗУ в начале функции — до getWallets()/поиска
   // target. Он ловит адрес в ЛЮБОМ поле подключения независимо от колбэков и TDZ.
-  const pending = startConnectionWait(tonConnectUI, EMBEDDED_CONNECT_TIMEOUT_MS);
+  // retryTarget заполнится jsBridgeKey после поиска target — для SDK TDZ-ретрая.
+  const retryTarget: { jsBridgeKey?: string } = {};
+  const pending = startConnectionWait(tonConnectUI, EMBEDDED_CONNECT_TIMEOUT_MS, retryTarget);
 
   if (!(inFrame && hasBridge)) {
     pending.cancel();
@@ -146,6 +148,10 @@ export async function tryConnectEmbeddedWallet(
     const target = wallets.find(
       (wallet) => wallet.appName === GRADOSPHERA_WALLET_APP_NAME
     ) as { jsBridgeKey?: string } | undefined;
+
+    if (target?.jsBridgeKey) {
+      retryTarget.jsBridgeKey = target.jsBridgeKey;
+    }
 
     setConnectDebug({
       gotTarget: !!target,
@@ -278,6 +284,7 @@ export async function tryConnectEmbeddedWallet(
 function startConnectionWait(
   tonConnectUI: TonConnectUI,
   timeoutMs: number,
+  retryTarget?: { jsBridgeKey?: string },
 ): { ok: Promise<boolean>; cancel: () => void } {
   let settled = false;
   let wrappedError: string | undefined;
@@ -288,6 +295,29 @@ function startConnectionWait(
   const ok = new Promise<boolean>((resolve) => {
     resolveOk = resolve;
   });
+
+  // Первый SDK-connect в bundle dapp всегда падает с TDZ ДО установки
+  // connector.wallet (ReferenceError: 'l' before initialization). Мгновенный
+  // повтор тоже падает; проходит только повторный вызов спустя ~1-2с (в репро
+  // второй человеческий клик срабатывал, автоповтор через 0.35с — нет).
+  // Поэтому планируем серию ретраев с задержкой; поллер завершит как только
+  // connector.wallet появится (любой попыткой), а состояние важнее колбэков.
+  let tdzRetries = 0;
+  const retrySdkConnect = (delayMs: number) => {
+    if (settled || tdzRetries >= 3 || !retryTarget?.jsBridgeKey) return;
+    tdzRetries++;
+    window.setTimeout(() => {
+      if (settled) return;
+      if (isEmbeddedConnected(tonConnectUI)) return;
+      addStatusHistory(`SDK TDZ retry #${tdzRetries} (delay ${delayMs}ms)`);
+      try {
+        tonConnectUI.connector.connect({ jsBridgeKey: retryTarget.jsBridgeKey! });
+        setConnectDebug({ tdzRetryQueued: tdzRetries });
+      } catch (e) {
+        addSdkError(`connect retry failed: ${String(e)}`);
+      }
+    }, delayMs);
+  };
 
   const cleanup = () => {
     if (poll) window.clearInterval(poll);
@@ -335,6 +365,8 @@ function startConnectionWait(
       const msg = String(err);
       if (isTdzError(msg)) {
         addStatusHistory("SDK TDZ (игнорируем), состояние проверяем поллингом");
+        retrySdkConnect(1200);
+        retrySdkConnect(2400);
         return;
       }
       const stack = err instanceof Error ? err.stack ?? "" : "";
@@ -370,6 +402,8 @@ function startConnectionWait(
       wrappedError = msg;
       if (isTdzError(msg)) {
         addStatusHistory("wrapped TDZ (игнорируем)");
+        retrySdkConnect(1200);
+        retrySdkConnect(2400);
         return;
       }
       addStatusHistory(`wrapped error (не критично): ${msg}`);
