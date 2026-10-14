@@ -8,7 +8,7 @@ import { tryConnectEmbeddedWallet } from "./connectEmbedded";
 import { openTelegramLink } from "multisig/utils/telegram";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
-const WALLET_TELEGRAM_IMAGE = "https://wallet.tg/images/logo-288.png";
+const WALLET_TELEGRAM_IMAGE = "/wallet-icons/telegram-wallet.png";
 
 export function GradospheraConnectButton({
   className = "",
