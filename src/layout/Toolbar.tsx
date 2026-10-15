@@ -132,7 +132,7 @@ const UserDaos = () => {
 const StyledLink = styled(Link)<{ selected: number }>(({ selected, theme }) => {
   const shadow =
     theme.palette.mode === "light"
-      ? "0px 0px 12px 3px rgba(0,136,204,1)"
+      ? "0px 0px 12px 3px rgba(48,105,255,1)"
       : "0px 0px 12px 3px rgba(255,255,255,0.25)";
   return {
     display: "flex",

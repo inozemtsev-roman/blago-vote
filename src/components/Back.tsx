@@ -38,7 +38,7 @@ const StyledContainer = styled(Box)({
   cursor: "pointer",
   padding: "8px 14px",
   height: "auto",
-  background: "#0098ea",
+  background: "#3069ff",
   borderRadius: 20,
   "*":{
      color:'white!important'

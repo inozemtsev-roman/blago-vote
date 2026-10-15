@@ -16,7 +16,7 @@ const StyledContainer = styled(Box)(({ theme }) => ({
   padding: 15,
   borderRadius: 10,
   border: `1px solid ${
-    theme.palette.mode === "dark" ? "rgba(255,255,255,0.3)" : "rgba(0,0,0,0.3)"
+    theme.palette.mode === "dark" ? "rgba(229,229,234,0.3)" : "rgba(19,19,20,0.24)"
   }`,
   p: {
     fontSize: 16,

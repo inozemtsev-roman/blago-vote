@@ -323,6 +323,6 @@ const StyleDesktopSocials = styled(StyledFlexColumn)({
     width: "calc(100% - 40px)",
     height: 2,
     content: "''",
-    background: "#EDEDED",
+    background: "rgba(114, 138, 150, 0.24)",
   },
 });

@@ -52,7 +52,7 @@ const StyledTitleContainer = styled(StyledContainer)({
 
 const StyledHeader = styled(StyledFlexRow)(({ theme }) => ({
   borderBottom:
-    theme.palette.mode === "light" ? "1px solid #e0e0e0" : "1px solid #424242",
+    theme.palette.mode === "light" ? "1px solid rgba(19, 19, 20, 0.16)" : "1px solid rgba(229, 229, 234, 0.2)",
   padding: "15px 20px",
   flexWrap: "wrap",
 }));

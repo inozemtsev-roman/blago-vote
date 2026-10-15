@@ -258,8 +258,8 @@ const StyledTag = styled(Typography)(({ theme }) => ({
   borderRadius: 12,
   background:
     theme.palette.mode === "light"
-      ? "rgba(0, 152, 234, 0.1)"
-      : "rgba(0, 152, 234, 0.2)",
+      ? "rgba(48, 105, 255, 0.1)"
+      : "rgba(48, 105, 255, 0.2)",
   color: theme.palette.primary.main,
 }));
 
@@ -293,6 +293,6 @@ const PreviewBox = styled("div")(({ theme }) => ({
       : "rgba(255,255,255,0.05)",
   border:
     theme.palette.mode === "light"
-      ? "1px solid #e0e0e0"
+      ? "1px solid rgba(19, 19, 20, 0.16)"
       : "1px solid rgba(255,255,255,0.1)",
 }));

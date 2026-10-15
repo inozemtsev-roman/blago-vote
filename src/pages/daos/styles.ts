@@ -193,7 +193,7 @@ export const StyledNewDao = styled(StyledDao)(({ theme }) => ({
     border:
       theme.palette.mode === "light"
         ? "1px dashed rgba(0,0,0 , 0.15)"
-        : "1px dashed rgba(255,255,255, 0.2)",
+        : "1px dashed rgba(229,229,234, 0.2)",
     "&:hover": {
       border: `1px dashed ${theme.palette.primary.main}`,
     },

@@ -76,8 +76,8 @@ const StyledButton = styled(StyledFlexRow)(({ theme }) => ({
   background: theme.palette.background.paper,
   border:
     theme.palette.mode === "light"
-      ? "1px solid #e0e0e0"
-      : "1px solid rgba(255,255,255, 0.2)",
+      ? "1px solid rgba(19, 19, 20, 0.16)"
+      : "1px solid rgba(229, 229, 234, 0.2)",
   borderRadius: 12,
   padding: "10px 18px",
   transition: "0.2s all",

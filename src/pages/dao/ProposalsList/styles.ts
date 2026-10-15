@@ -30,7 +30,7 @@ export const StyledProposalResult = styled(StyledFlexRow)(({ theme }) => ({
   position: "relative",
   justifyContent: "flex-start",
   padding: 10,
-  background: theme.palette.mode === "light" ? "#F8F9FB" : "#2B303B",
+  background: theme.palette.mode === "light" ? "#f3f3f5" : "#131314",
   boxShadow:
     theme.palette.mode === "light"
       ? "rgb(114 138 150 / 8%) 0px 2px 16px"
@@ -55,7 +55,7 @@ export const StyledProposal = styled(StyledContainer)(({ theme }) => ({
   },
 
   "&:hover": {
-    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid rgba(255,255,255, 0.7)',
+    border: theme.palette.mode === 'light'  ?  `1px solid ${theme.palette.primary.main}` : '1px solid rgba(229, 229, 234, 0.7)',
   },
 }));
 

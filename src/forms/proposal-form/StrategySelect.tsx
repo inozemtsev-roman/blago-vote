@@ -174,7 +174,7 @@ export function StrategySelect(props: Props<ProposalForm>) {
                 style: {
                   width: "fit-content",
                   borderRadius: 10,
-                  border: "1px solid #e0e0e0",
+                  border: "1px solid rgba(19, 19, 20, 0.16)",
                   boxShadow: "rgb(114 138 150 / 8%) 0px 2px 16px",
                 },
               },
@@ -240,7 +240,7 @@ const StyledMenuItem = styled(MenuItem)<{ bg: number }>(({ bg }) => ({
   marginLeft: 10,
   marginRight: 10,
   background: bg
-    ? "rgba(0, 136, 204, 0.08)!important"
+    ? "rgba(48, 105, 255, 0.08)!important"
     : "transparent!important",
   ".MuiTouchRipple-root": {
     display: "none",
@@ -249,6 +249,6 @@ const StyledMenuItem = styled(MenuItem)<{ bg: number }>(({ bg }) => ({
     marginBottom: 0,
   },
   "&:hover": {
-    background: !bg && "rgba(0, 136, 204, 0.04)!important",
+    background: !bg && "rgba(48, 105, 255, 0.04)!important",
   },
 }));

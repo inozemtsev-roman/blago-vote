@@ -124,14 +124,14 @@ export const getGlobalStyles = (theme: Theme) => {
     ".MuiTooltip-arrow": {
       color:
         theme.palette.mode === "light"
-          ? `#EEEEEE!important`
-          : "#2B303B!important",
+          ? `#f3f3f5!important`
+          : "#343438!important",
     },
     ".MuiTooltip-tooltip": {
       background:
         theme.palette.mode === "light"
-          ? `#EEEEEE!important`
-          : "#2B303B!important",
+          ? `#f3f3f5!important`
+          : "#343438!important",
       boxShadow:
         theme.palette.mode === "light"
           ? "rgb(114 138 150 / 8%) 0px 2px 16px"
@@ -173,8 +173,8 @@ export const StyledSkeletonLoader = styled(Skeleton)(({ theme }) => ({
   transform: "unset",
   background:
     theme.palette.mode === "light"
-      ? "rgba(0,0,0, 0.07)"
-      : "rgba(255,255,255, 0.07)",
+      ? "rgba(19, 19, 20, 0.06)"
+      : "rgba(229, 229, 234, 0.06)",
 }));
 
 export const StyledOneLine = styled(Typography)({
@@ -201,10 +201,7 @@ export const StyledTitle = styled(Typography)(({ theme }) => ({
 
 export const StyledContainer = styled(Box)(({ theme }) => ({
   background: theme.palette.background.paper,
-  border:
-    theme.palette.mode === "light"
-      ? "1px solid #e0e0e0"
-      : "1px solid rgba(255,255,255, 0.2)",
+  border: `1px solid ${getBorderColor(theme.palette.mode)}`,
   boxShadow:
     theme.palette.mode === "light"
       ? "rgb(114 138 150 / 8%) 0px 2px 16px"
@@ -221,7 +218,7 @@ export const StyledHoverContainer = styled(StyledContainer)(({ theme }) => {
   const color =
     theme.palette.mode === "light"
       ? theme.palette.primary.main
-      : "rgba(255,255,255, 0.7)";
+      : "rgba(229, 229, 234, 0.7)";
   return {
     transition: "border-color 0.2s",
     svg: {
@@ -262,7 +259,7 @@ export const StyledSelectContainer = styled(Box)(({ theme }) => ({
       border:
         theme.palette.mode === "light"
           ? `1px solid ${theme.palette.primary.main}`
-          : `1px solid white`,
+          : `1px solid rgba(229, 229, 234, 0.7)`,
     },
   },
   ".MuiSelect-icon": {

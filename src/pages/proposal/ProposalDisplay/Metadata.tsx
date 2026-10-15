@@ -293,7 +293,7 @@ function ExtraInfo() {
 
 const StyledExtraInfo = styled(StyledFlexRow)({
   width: "100%",
-  background: "rgba(0, 136, 204, 0.1)",
+  background: "rgba(48, 105, 255, 0.1)",
   display: "flex",
   alignItems: "flex-start",
   justifyContent: "flex-start",

@@ -3,44 +3,51 @@ import { useAppSettings } from "hooks/hooks";
 import { useEffect } from "react";
 import { useSettingsStore } from "store";
 
+// Palette is based on the getgems design tokens. Only the light and dark schemes are kept.
+const lightAccent = "#3069ff";
+const darkAccent = "#3069ff";
+const lightBorder = "rgba(19, 19, 20, 0.16)";
+const darkBorder = "rgba(229, 229, 234, 0.2)";
+
 export const lightTheme = createTheme({
   palette: {
     mode: "light",
     background: {
-      default: "#F8F9FB",
-      paper: "white",
+      default: "#f3f3f5",
+      paper: "#ffffff",
     },
+    divider: lightBorder,
     error: {
-      main: "#d32f2f",
+      main: "#e64646",
     },
     primary: {
-      main: "#0098ea",
+      main: lightAccent,
     },
     text: {
-      primary: "rgb(30, 35, 55)",
-      secondary: "rgb(22, 28, 40)",
+      primary: "#000000",
+      secondary: "#8a8a93",
     },
   },
 
   typography: {
     allVariants: {
-      color: "rgb(30, 35, 55)",
+      color: "#000000",
       fontFamily: "inter",
     },
     h1: {
       fontSize: 44,
       fontWeight: 800,
-      color: "rgb(22, 28, 40)",
+      color: "#000000",
     },
     h2: {
       fontSize: 20,
       fontWeight: 800,
-      color: "rgb(22, 28, 40)",
+      color: "#000000",
     },
     h4: {
       fontSize: 20,
       fontWeight: 800,
-      color: "rgb(22, 28, 40)",
+      color: "#000000",
     },
     fontFamily: "inter",
   },
@@ -50,50 +57,48 @@ export const darkTheme = createTheme({
   palette: {
     mode: "dark",
     background: {
-      default: "#1E2337",
-      paper: "#1E2337",
+      default: "#09090a",
+      paper: "#131314",
     },
+    divider: darkBorder,
     error: {
-      main: "#d32f2f",
+      main: "#ff5c5c",
     },
     primary: {
-      main: "#0098ea",
+      main: darkAccent,
     },
     text: {
-      primary: "rgba(255,255,255,0.8)",
-      secondary: "rgba(255,255,255,0.8)",
+      primary: "#e5e5ea",
+      secondary: "#7d7d85",
     },
   },
 
   typography: {
     allVariants: {
-      color: "rgba(255,255,255,0.8)",
+      color: "#e5e5ea",
       fontFamily: "inter",
     },
     h1: {
       fontSize: 44,
       fontWeight: 800,
-      color: "rgba(255,255,255,0.8)",
+      color: "#e5e5ea",
     },
     h2: {
       fontSize: 20,
       fontWeight: 800,
-      color: "rgba(255,255,255,0.8)",
+      color: "#e5e5ea",
     },
     h4: {
       fontSize: 20,
       fontWeight: 800,
-      color: "rgba(255,255,255,0.8)",
+      color: "#e5e5ea",
     },
     fontFamily: "inter",
   },
 });
 
-const darkThemeBorder = "rgba(255,255,255, 0.2)";
-const lightModeBorder = "#e0e0e0";
-
 export const getBorderColor = (mode: "light" | "dark") => {
-  return mode === "light" ? lightModeBorder : darkThemeBorder;
+  return mode === "light" ? lightBorder : darkBorder;
 };
 
 export const useInitThemeMode = () => {

@@ -400,7 +400,7 @@ const StyledTableRow = styled(StyledFlexRow)<{ isActive?: boolean }>(
       opacity: 1,
       background:
         theme.palette.mode === "light"
-          ? "rgba(0, 136, 204, 0.04)"
+          ? "rgba(48, 105, 255, 0.04)"
           : "rgba(255, 255, 255, 0.04)",
     },
   })
@@ -512,7 +512,7 @@ const StyledMoreButton = styled(Button)(({ theme }) => ({
   "&:hover": {
     background:
       theme.palette.mode === "light"
-        ? "rgba(0, 136, 204, 0.06)"
+        ? "rgba(48, 105, 255, 0.06)"
         : "rgba(255, 255, 255, 0.06)",
   },
 }));

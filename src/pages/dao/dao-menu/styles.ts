@@ -40,7 +40,7 @@ export const StyledNavigationLink = styled(RouterLink)<{ selected: boolean }>(
       ? `5px solid ${color}`
       : "5px solid transparent",
     "&:hover": {
-      background: "rgba(0, 136, 204, 0.05)",
+      background: "rgba(48, 105, 255, 0.05)",
     },
   })
   }
@@ -62,7 +62,7 @@ export const StyledOuterLink = styled('a')(
       fontWeight: 700,
       borderLeft: "5px solid transparent",
       "&:hover": {
-        background: "rgba(0, 136, 204, 0.05)",
+        background: "rgba(48, 105, 255, 0.05)",
       },
     };
   }

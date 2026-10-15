@@ -52,8 +52,8 @@ export const initTelegram = (): void => {
     tg.expand?.();
     try {
         // Согласуем «окружение» Telegram (шапка/фон) с тёмной темой приложения.
-        tg.setHeaderColor?.("#1e2337");
-        tg.setBackgroundColor?.("#1e2337");
+        tg.setHeaderColor?.("#09090a");
+        tg.setBackgroundColor?.("#09090a");
     } catch {
         // игнорируем: методы опциональны в старых версиях
     }

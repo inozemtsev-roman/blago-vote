@@ -86,12 +86,12 @@ const ThemeToggle = () => {
 };
 
 const StyledThemeToggle = styled(IconButton)(({ theme }) => ({
-  color: theme.palette.mode === "dark" ? "#ffd54f" : "#1e2337",
+  color: theme.palette.mode === "dark" ? "#ffd54f" : "#000000",
   border: `1px solid ${getBorderColor(theme.palette.mode)}`,
   background:
     theme.palette.mode === "dark"
-      ? "rgba(255,255,255,0.08)"
-      : "rgba(0,0,0,0.04)",
+      ? "rgba(229,229,234,0.08)"
+      : "rgba(19,19,20,0.04)",
   width: 40,
   height: 40,
   svg: { width: 20, height: 20 },

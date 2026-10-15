@@ -167,7 +167,7 @@ const StyledEditButton = styled(StyledFlexRow)({
   width: 35,
   height: 35,
   borderRadius: "50%",
-  background: "#0098ea",
+  background: "#3069ff",
   cursor: "pointer",
 });
 

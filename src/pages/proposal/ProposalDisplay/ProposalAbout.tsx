@@ -439,12 +439,12 @@ const StyledShowMore = styled(Box)<{ open: number }>(({ open, theme }) => {
   const shadow =
     theme.palette.mode === "light"
       ? "0px -22px 50px 16px #FFFFFF"
-      : "0px -22px 50px 16px #222830";
+      : "0px -22px 50px 16px #131314";
   return {
     width: "100%",
     position: "relative",
     boxShadow: open === 1 ? "unset" : shadow,
-    background: theme.palette.mode === "light" ? "white" : "#222830",
+    background: theme.palette.mode === "light" ? "#ffffff" : "#131314",
     paddingTop: 20,
   };
 });
