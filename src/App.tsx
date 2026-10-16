@@ -10,6 +10,7 @@ import { useRouter } from "router/router";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { initTelegram } from "multisig/utils/telegram";
 import { TmaProvider } from "tmaProvider";
+import { syncTmaTheme } from "tma";
 import { ConnectDebugOverlay } from "connectDebug";
 
 const useInitApp = () => {
@@ -43,6 +44,7 @@ function App() {
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme.palette.mode);
+    syncTmaTheme();
   }, [theme.palette.mode]);
 
   return (

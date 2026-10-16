@@ -1,5 +1,9 @@
-import { retrieveLaunchParams, retrieveRawLaunchParams } from "@tma.js/bridge";
-import { openLink as tmaOpenLink, openTelegramLink as tmaOpenTelegramLink } from "@tma.js/sdk";
+import {
+    retrieveLaunchParams,
+    retrieveRawLaunchParams,
+    openLink as tmaOpenLink,
+    openTelegramLink as tmaOpenTelegramLink,
+} from "@tma.js/sdk";
 
 interface TelegramWebAppLike {
     ready?: () => void;

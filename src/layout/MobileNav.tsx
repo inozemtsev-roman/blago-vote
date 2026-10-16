@@ -54,7 +54,9 @@ const StyledContainer = styled(Box)(({ theme }) => ({
     left: 0,
     right: 0,
     bottom: 0,
-    height: TOOLBAR_WIDTH,
+    height: `calc(${TOOLBAR_WIDTH}px + env(safe-area-inset-bottom, 0px))`,
+    paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    boxSizing: "border-box",
     background: theme.palette.background.paper,
     borderTop: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
     boxShadow:

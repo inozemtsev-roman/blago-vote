@@ -12,6 +12,7 @@ import { ReactNode, useEffect } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MobileNav } from "./MobileNav";
+import { TelegramBackButton } from "./TelegramBackButton";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { useAppQueryParams, useAppSettings } from "hooks/hooks";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
@@ -91,6 +92,7 @@ function Layout({ children }: { children?: ReactNode }) {
         </StyledContainer>
       </Fade>
       <TelegramStartParamRedirect />
+      <TelegramBackButton />
       <MobileNav />
       <ScrollTop />
       {/* <LatestBlock /> */}
@@ -120,12 +122,14 @@ const StyledContent = styled(StyledGrid)({
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     paddingTop: 80,
     paddingLeft: 0,
-    paddingBottom: TOOLBAR_WIDTH + 24,
+    paddingBottom: `calc(${TOOLBAR_WIDTH + 24}px + env(safe-area-inset-bottom, 0px))`,
   },
 });
 
 const StyledContainer = styled(StyledFlexColumn)({
-  minHeight: "100vh",
+  // В Telegram Mini App 100vh включает скрытую область; используем высоту
+  // стабильного viewport из tma.js, с fallback на 100vh вне Telegram.
+  minHeight: "var(--tg-viewport-stable-height, 100vh)",
   gap: 0,
   display: "flex",
 });

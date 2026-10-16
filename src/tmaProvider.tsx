@@ -1,30 +1,31 @@
 import { createContext, useContext, useEffect, useState } from "react";
 import { initTma } from "./tma";
 
-const TmaContext = createContext<ReturnType<typeof initTma> | null>(null);
+type TmaApi = ReturnType<typeof initTma>;
+
+const TmaContext = createContext<TmaApi>(null);
 
 export function TmaProvider({ children }: { children: React.ReactNode }) {
-  const [api, setApi] = useState<ReturnType<typeof initTma> | null>(null);
+  const [api, setApi] = useState<TmaApi>(null);
 
   useEffect(() => {
     const a = initTma();
     setApi(a);
     return () => {
-      try {
-        a.miniApp?.unmount?.();
-      } catch {}
-      try {
-        a.viewport?.unmount?.();
-      } catch {}
-      try {
-        a.themeParams?.unmount?.();
-      } catch {}
-      try {
-        a.backButton?.unmount?.();
-      } catch {}
-      try {
-        a.closingBehavior?.unmount?.();
-      } catch {}
+      if (!a) return;
+      const tryUnmount = (component: unknown) => {
+        try {
+          (component as { unmount?: () => void })?.unmount?.();
+        } catch {
+          // ignore
+        }
+      };
+      tryUnmount(a.miniApp);
+      tryUnmount(a.themeParams);
+      tryUnmount(a.backButton);
+      tryUnmount(a.closingBehavior);
+      tryUnmount(a.mainButton);
+      tryUnmount(a.secondaryButton);
     };
   }, []);
 

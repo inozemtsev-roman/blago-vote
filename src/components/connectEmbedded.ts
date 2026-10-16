@@ -7,6 +7,7 @@ import {
   dumpConnectDebug,
 } from "connectDebug";
 import { getLastEmbeddedConnectResponse } from "tonConnectBridge";
+import { isTelegram } from "multisig/utils/telegram";
 
 const GRADOSPHERA_WALLET_APP_NAME = "gradospherawallet";
 // Race с таймаутом (максимум удержания state-poller'а — 60с).
@@ -125,7 +126,9 @@ export async function tryConnectEmbeddedWallet(
 ): Promise<boolean> {
   const t0 = performance.now();
 
-  const inFrame = window.parent !== window;
+  // В Telegram Mini App приложение тоже внутри iframe, но родитель — не
+  // кошелёк: не пытаемся подключаться встроенно, сразу открываем TonConnect.
+  const inFrame = window.parent !== window && !isTelegram();
   const hasBridge = !!(window as any).mytonwallet?.tonconnect;
 
   // state-first: поллер стартует СРАЗУ в начале функции — до getWallets()/поиска

@@ -20,7 +20,7 @@ import { LastOrder, isLastOrderExpired } from "multisig/multisig/MultisigChecker
 const ORDERS_PAGE_SIZE = 5;
 
 const orderStatusIcon = (executed: boolean, expired: boolean): string => {
-  const color = executed ? "#2ecc71" : "#4da3ff";
+  const color = executed ? "#4bb34b" : "#3069ff";
   const shape = expired
     ? '<path d="M5.2 5.2l5.6 5.6M10.8 5.2l-5.6 5.6" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round"/>'
     : '<path d="M4.6 8.4l2.3 2.3 4.6-4.9" fill="none" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>';

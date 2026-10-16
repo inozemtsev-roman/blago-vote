@@ -1,4 +1,5 @@
 import { addBridgeLog, setConnectDebug } from "connectDebug";
+import { isTelegram } from "multisig/utils/telegram";
 
 const EMBEDDED_DAPP_BRIDGE_CHANNEL = "embedded-dapp-bridge";
 const BRIDGE_KEY = "mytonwallet";
@@ -72,6 +73,11 @@ export function setupEmbeddedWalletBridgeIfNeeded() {
   if (typeof window === "undefined") return;
   if (window.parent === window) return;
   if ((window as any)[BRIDGE_KEY]) return;
+  // Telegram Mini Apps тоже открываются внутри iframe, но их родитель — не
+  // кошелёк: он не слушает канал `embedded-dapp-bridge` и никогда не ответит,
+  // поэтому мост там бесполезен (подключение зависало на 60с). В Telegram
+  // нужен обычный TonConnect (кнопка → форма выбора кошелька).
+  if (isTelegram()) return;
 
   const requestStates = new Map<string, RequestState>();
   const requestNames = new Map<string, string>();

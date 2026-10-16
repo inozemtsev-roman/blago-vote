@@ -1,12 +1,12 @@
 .multisigPage {
-  --text-color: rgb(30, 35, 55);
-  --text-secondary: rgb(22, 28, 40);
-  --link-color: #0098ea;
-  --primary: #0098ea;
-  --border-color: #e0e0e0;
+  --text-color: #000000;
+  --text-secondary: #8a8a93;
+  --link-color: #3069ff;
+  --primary: #3069ff;
+  --border-color: rgba(19, 19, 20, 0.16);
   --bg-secondary: #ffffff;
-  --bg-color: #f8f9fb;
-  --error: #d32f2f;
+  --bg-color: #f3f3f5;
+  --error: #e64646;
 
   color: var(--text-color);
   max-width: 1000px;
@@ -28,14 +28,14 @@
 
 
 [data-theme="dark"] .multisigPage {
-  --text-color: rgba(255, 255, 255, 0.9);
-  --text-secondary: rgba(255, 255, 255, 0.6);
-  --link-color: #0098ea;
-  --primary: #0098ea;
-  --border-color: rgba(255, 255, 255, 0.2);
-  --bg-secondary: #1e2337;
-  --bg-color: #161a2b;
-  --error: #d32f2f;
+  --text-color: #e5e5ea;
+  --text-secondary: #7d7d85;
+  --link-color: #3069ff;
+  --primary: #3069ff;
+  --border-color: rgba(229, 229, 234, 0.2);
+  --bg-secondary: #131314;
+  --bg-color: #1e1e1f;
+  --error: #ff5c5c;
 }
 
 .multisigHeader {
@@ -128,7 +128,7 @@
 }
 
 .daoMultisigAvatarWrap .badge.badgeSigner {
-  background-color: #2fbf71;
+  background-color: #4bb34b;
 }
 
 .daoMultisigAvatarWrap .badge.badgeProposer {
@@ -229,11 +229,11 @@
   justify-content: center;
   padding: 20px;
   background: transparent;
-  border: 1px dashed rgba(0, 0, 0, 0.15);
+  border: 1px dashed rgba(19, 19, 20, 0.16);
 }
 
 [data-theme="dark"] .daoMultisigCreate {
-  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border: 1px dashed rgba(229, 229, 234, 0.2);
 }
 
 .daoMultisigCreate:hover {
@@ -365,12 +365,12 @@
 }
 
 .thresholdBarThreshold {
-  background-color: rgba(0, 152, 234, 0.28);
+  background-color: rgba(48, 105, 255, 0.28);
   border-right: 1px solid var(--border-color);
 }
 
 .thresholdBarSigners {
-  background-color: rgba(46, 204, 113, 0.28);
+  background-color: rgba(75, 179, 75, 0.28);
 }
 
 .thresholdBarCount {
@@ -755,7 +755,7 @@
   margin: 8px 0;
   padding: 8px 12px;
   border-left: 3px solid var(--primary);
-  background: rgba(0, 152, 234, 0.05);
+  background: rgba(48, 105, 255, 0.05);
   border-radius: 0 4px 4px 0;
 }
 
@@ -948,8 +948,8 @@
   font-size: 14px !important;
   line-height: 21px !important;
   color: var(--text-secondary);
-  background: rgba(211, 47, 47, 0.08);
-  border: 1px solid rgba(211, 47, 47, 0.25);
+  background: rgba(230, 70, 70, 0.08);
+  border: 1px solid rgba(230, 70, 70, 0.25);
   border-radius: 8px;
   padding: 12px 14px;
 }
