@@ -1,7 +1,7 @@
 {
   "rewrites": [
     {
-      "source": "/((?!assets/|wallet-icons/|favicon.ico|logo.png|vote.png|tonconnect-manifest.json|wallets-v2.json).*)",
+      "source": "/((?!api/|assets/|wallet-icons/|favicon.ico|logo.png|vote.png|tonconnect-manifest.json|wallets-v2.json).*)",
       "destination": "/index.html"
     }
   ],
