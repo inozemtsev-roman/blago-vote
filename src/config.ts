@@ -6,12 +6,21 @@ export const TONVIEWER = "https://tonviewer.com";
 export const TONVIEWER_ADDRESS_URL = `${TONVIEWER}/`;
 export const APP_NAME = "Голос";
 
-// Манифест TonConnect должен отдаваться с content-type application/json и
-// быстро. raw.githubusercontent.com отдаёт файл как text/plain, из-за чего
-// встроенный кошелёк Telegram пишет «не удалось загрузить манифест».
-// jsDelivr зеркалит публичный репозиторий как JSON-CDN с CORS и кешем.
+// Манифест TonConnect лежит в корне сайта (public/tonconnect-manifest.json) и
+// раздаётся тем же доменом, что и приложение: в vercel.json этот путь исключён
+// из SPA-rewrite и отдаётся как application/json с CORS. Свой домен вместо
+// raw.githubusercontent.com/jsDelivr устраняет ошибку «не удалось загрузить
+// манифест» во встроенном кошельке Telegram.
+const FALLBACK_ORIGIN = "https://blago-vote.vercel.app";
+
+const isLocal =
+  typeof window !== "undefined" &&
+  /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+
 export const manifestUrl =
-  "https://cdn.jsdelivr.net/gh/gradosphera/blago-vote@main/public/tonconnect-manifest.json";
+  typeof window !== "undefined" && !isLocal
+    ? `${window.location.origin}/tonconnect-manifest.json`
+    : `${FALLBACK_ORIGIN}/tonconnect-manifest.json`;
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
