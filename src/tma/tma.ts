@@ -1,4 +1,4 @@
-import { init, miniApp, viewport, themeParams, backButton, closingBehavior } from "@tma.js/sdk";
+import { init, miniApp, viewport, themeParams, backButton, closingBehavior, mainButton, secondaryButton } from "@tma.js/sdk";
 import { retrieveLaunchParams } from "@tma.js/bridge";
 
 export function initTma() {
@@ -11,7 +11,7 @@ export function initTma() {
   try { themeParams.mount(); } catch {}
   try { miniApp.mount(); } catch {}
   try { viewport.mount(); } catch {}
-  try { backButton.mount(); closingBehavior.mount(); } catch {}
+  try { backButton.mount(); closingBehavior.mount(); mainButton.mount(); secondaryButton.mount(); } catch {}
 
   try { miniApp.ready(); } catch {}
   try {
@@ -24,7 +24,7 @@ export function initTma() {
   try { viewport.bindCssVars(); } catch {}
   try { miniApp.bindCssVars(); } catch {}
 
-  return { miniApp, viewport, themeParams, backButton, closingBehavior };
+  return { miniApp, viewport, themeParams, backButton, closingBehavior, mainButton, secondaryButton };
 }
 
 export function getTmaLaunchParams() {
