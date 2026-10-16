@@ -4,25 +4,41 @@
 // и на любом другом хосте, где развёрнут фронтенд.
 const FALLBACK_ORIGIN = "https://blago-vote.vercel.app";
 
-function resolveOrigin(raw) {
-  if (typeof raw !== "string" || raw.length === 0 || raw.length > 256) {
-    return FALLBACK_ORIGIN;
+function resolveOrigin(raw, req) {
+  // Try query param first
+  if (typeof raw === "string" && raw.length > 0 && raw.length <= 256) {
+    try {
+      const url = new URL(raw);
+      const isHttps = url.protocol === "https:";
+      const isLocal =
+        url.protocol === "http:" &&
+        (url.hostname === "localhost" || url.hostname === "127.0.0.1");
+      if (isHttps || isLocal) return url.origin;
+    } catch {}
   }
+  // Derive from request headers (works for same-deployment multi-domain)
   try {
-    const url = new URL(raw);
-    const isHttps = url.protocol === "https:";
-    const isLocal =
-      url.protocol === "http:" &&
-      (url.hostname === "localhost" || url.hostname === "127.0.0.1");
-    if (!isHttps && !isLocal) return FALLBACK_ORIGIN;
-    return url.origin;
-  } catch {
-    return FALLBACK_ORIGIN;
-  }
+    const proto =
+      (req.headers["x-forwarded-proto"] || "").split(",")[0].trim() ||
+      (req.socket && req.socket.encrypted ? "https" : "http");
+    const host =
+      (req.headers["x-forwarded-host"] || "").split(",")[0].trim() ||
+      req.headers.host;
+    if (host) {
+      const origin = `${proto}://${host}`;
+      const u = new URL(origin);
+      const isHttps = u.protocol === "https:";
+      const isLocal =
+        u.protocol === "http:" &&
+        (u.hostname === "localhost" || u.hostname === "127.0.0.1");
+      if (isHttps || isLocal) return u.origin;
+    }
+  } catch {}
+  return FALLBACK_ORIGIN;
 }
 
 export default function handler(req, res) {
-  const origin = resolveOrigin(req.query && req.query.origin);
+  const origin = resolveOrigin(req.query && req.query.origin, req);
 
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS");

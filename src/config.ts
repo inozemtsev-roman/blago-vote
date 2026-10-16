@@ -18,9 +18,11 @@ const isLocal =
   /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 
 export const manifestUrl =
-  typeof window !== "undefined" && !isLocal
-    ? `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(window.location.origin)}`
-    : `${FALLBACK_ORIGIN}/tonconnect-manifest.json`;
+  typeof window !== "undefined"
+    ? isLocal
+      ? `${FALLBACK_ORIGIN}/tonconnect-manifest.json`
+      : `/api/tonconnect-manifest?origin=${encodeURIComponent(window.location.origin)}`
+    : `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
