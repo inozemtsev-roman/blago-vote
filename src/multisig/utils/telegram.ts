@@ -1,3 +1,6 @@
+import { retrieveLaunchParams, retrieveRawLaunchParams } from "@tma.js/bridge";
+import { openLink as tmaOpenLink, openTelegramLink as tmaOpenTelegramLink } from "@tma.js/sdk";
+
 interface TelegramWebAppLike {
     ready?: () => void;
     expand?: () => void;
@@ -33,6 +36,14 @@ export const isTelegram = (): boolean => {
     try {
         if (typeof window === "undefined") return false;
         if ((window.location.hash || "").includes("tgWebAppData=")) return true;
+        try {
+            const lp = retrieveLaunchParams();
+            if (lp && lp.tgWebAppData) return true;
+        } catch {}
+        try {
+            const raw = retrieveRawLaunchParams();
+            if (raw && raw.includes("tgWebAppData")) return true;
+        } catch {}
         const wa = getWebApp();
         return !!(wa && wa.initData);
     } catch {
@@ -64,6 +75,10 @@ export const initTelegram = (): void => {
 // SDK Telegram умеет открывать её штатно. Возвращает true, если открыли через SDK.
 export const openTelegramLink = (url: string): boolean => {
     try {
+        try {
+            tmaOpenTelegramLink(url as any);
+            return true;
+        } catch {}
         const tg = getWebApp();
         if (typeof tg?.openTelegramLink === "function") {
             tg.openTelegramLink(url);
@@ -73,6 +88,20 @@ export const openTelegramLink = (url: string): boolean => {
         // игнорируем: SDK может отсутствовать (например, во frame встроенного даппа)
     }
     return false;
+};
+
+export const openLink = (url: string): boolean => {
+    try {
+        tmaOpenLink(url as any);
+        return true;
+    } catch {
+        try {
+            window.open(url, "_blank", "noopener,noreferrer");
+            return true;
+        } catch {
+            return false;
+        }
+    }
 };
 
 // Извлекает start_param (или другой ключ) из «сырой» строки initData:

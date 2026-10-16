@@ -9,6 +9,7 @@ import "styles";
 import { useRouter } from "router/router";
 import { darkTheme, lightTheme, useInitThemeMode } from "theme";
 import { initTelegram } from "multisig/utils/telegram";
+import { TmaProvider } from "tmaProvider";
 import { ConnectDebugOverlay } from "connectDebug";
 
 const useInitApp = () => {
@@ -51,10 +52,12 @@ function App() {
       </Helmet>
       <ThemeProvider theme={theme}>
         <GlobalStyles styles={getGlobalStyles(theme)} />
-        <Suspense>
-          <RouterProvider router={router} />
-        </Suspense>
-        <ConnectDebugOverlay />
+        <TmaProvider>
+          <Suspense>
+            <RouterProvider router={router} />
+          </Suspense>
+          <ConnectDebugOverlay />
+        </TmaProvider>
       </ThemeProvider>
     </>
   );
