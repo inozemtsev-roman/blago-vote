@@ -171,7 +171,7 @@ const StyledLogo = styled("button")(({ theme }) => ({
   p: {
     fontWeight: 800,
     position: "relative",
-    color: theme.palette.text.secondary,
+    color: theme.palette.mode === "dark" ? "#ffffff" : "#000000",
     fontSize: 25,
     top: -3,
   },
