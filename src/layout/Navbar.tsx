@@ -23,6 +23,7 @@ import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-rea
 import { tryConnectEmbeddedWallet } from "components/connectEmbedded";
 import { getBorderColor } from "theme";
 import { FiMoon, FiSun } from "react-icons/fi";
+import { BlagoBalanceBadge } from "./BlagoBalanceBadge";
 
 export function Navbar() {
   const mobile = useMediaQuery("(max-width:600px)");
@@ -36,6 +37,7 @@ export function Navbar() {
         </StyledLogo>
         <StyledFlexRow style={{ width: "fit-content", gap: 8 }}>
           <MultisigTab />
+          <BlagoBalanceBadge />
           <ConnectButton />
           <ThemeToggle />
         </StyledFlexRow>
@@ -310,7 +312,7 @@ const StyledConnectButton = styled(MuiButton)<{ connected: number }>(
       height: 36,
       padding: "0 12px",
       fontSize: 13,
-      maxWidth: "calc(100vw - 174px)",
+      maxWidth: "calc(100vw - 246px)",
       whiteSpace: "nowrap",
       overflow: "hidden",
       textOverflow: "ellipsis",

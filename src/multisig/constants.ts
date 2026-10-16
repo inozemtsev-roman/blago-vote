@@ -17,6 +17,11 @@ export const IS_TESTNET: boolean =
 export const GRAM_LOGO_URL =
   "https://raw.githubusercontent.com/gradosphera/brand-assets/refs/heads/main/gram/Gram%20Circular%20Badge.svg";
 
+// Жетон управления «Благо» (decimals = 0, 1 жетон = 1 голос).
+export const BLAGO_JETTON_ADDRESS =
+  "EQBlaryI1HCY6hIlW9giBoqKGtuMHfxlULZOhD6UyzpqLcll";
+export const BLAGO_JETTON_DECIMALS = 0;
+
 // Суммы GRAM на газ для заявок (из gradoshpera-multisig/src/index.ts).
 export const AMOUNT_TO_SEND = 200000000n; // 0.2 TON
 export const DEFAULT_AMOUNT = 100000000n; // 0.1 TON
