@@ -25,9 +25,9 @@ export const StyledDaoAvatar = styled(Img)({
 });
 
 // Карточка ДАО на главной: только аватар, имя и адрес с галочкой верификации.
-// Карточка квадратная (aspectRatio 1), список всегда в 2 колонки.
+// Карточка квадратная (aspectRatio 1); число колонок адаптивное (4/3/2/1).
 export const StyledDao = styled(Box)(({ theme }) => ({
-  width: "calc(100% / 2 - 10px)",
+  width: "calc(100% / 4 - 15px)",
   aspectRatio: "1 / 1",
   cursor: "pointer",
   ".container": {
@@ -54,6 +54,9 @@ export const StyledDao = styled(Box)(({ theme }) => ({
       fontSize: 12,
     },
   },
+  "@media (max-width: 1050px)": {
+    width: "calc(100% / 3 - 15px)",
+  },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: "calc(100% / 2 - 5px)",
     ".title": {
@@ -70,6 +73,9 @@ export const StyledDao = styled(Box)(({ theme }) => ({
         fontSize: 11,
       },
     },
+  },
+  "@media (max-width: 420px)": {
+    width: "100%",
   },
 }));
 
