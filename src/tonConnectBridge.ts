@@ -130,10 +130,10 @@ export function setupEmbeddedWalletBridgeIfNeeded() {
     const promise = new Promise<any>((resolve, reject) => {
       requestStates.set(messageId, { resolve, reject });
       requestNames.set(messageId, name);
-      promise.finally(() => {
-        requestStates.delete(messageId);
-        requestNames.delete(messageId);
-      });
+    });
+    promise.finally(() => {
+      requestStates.delete(messageId);
+      requestNames.delete(messageId);
     });
     addBridgeLog({
       dir: "out",
