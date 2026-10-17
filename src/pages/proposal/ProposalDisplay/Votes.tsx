@@ -8,6 +8,7 @@ import {
   LoadMore,
   NumberDisplay,
   TitleContainer,
+  TgIcon,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import {
@@ -134,6 +135,7 @@ export function Votes() {
   return (
     <StyledContainer
       title={translations.recentVotes}
+      icon={<TgIcon name="votes" size={18} />}
       headerComponent={<ContainerHeader />}
     >
       <List

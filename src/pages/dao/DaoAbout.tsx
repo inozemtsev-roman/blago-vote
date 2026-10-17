@@ -1,5 +1,5 @@
 import { Chip, styled, Typography } from "@mui/material";
-import { AddressDisplay, TitleContainer } from "components";
+import { AddressDisplay, TitleContainer, TgIcon } from "components";
 import { useAppParams } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoQuery } from "query/getters";
@@ -25,6 +25,7 @@ export function DaoAbout() {
       <DaoDescription />
       <StyledTitleContainer
         title={translations.administrators}
+        icon={<TgIcon name="users" size={18} />}
         headerComponent={<Chip label={2} />}
       >
         <StyledFlexColumn gap={0}>

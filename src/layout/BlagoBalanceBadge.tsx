@@ -60,6 +60,8 @@ export function BlagoBalanceBadge() {
   );
 }
 
+const BADGE_GREEN = "#4bb34b";
+
 const StyledBadge = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
@@ -70,12 +72,12 @@ const StyledBadge = styled("div")(({ theme }) => ({
   fontWeight: 700,
   whiteSpace: "nowrap",
   flexShrink: 0,
-  color: theme.palette.primary.main,
+  color: BADGE_GREEN,
   background:
     theme.palette.mode === "dark"
-      ? "rgba(48,105,255,0.16)"
-      : "rgba(48,105,255,0.10)",
-  border: `1px solid ${theme.palette.primary.main}`,
+      ? "rgba(75,179,75,0.16)"
+      : "rgba(75,179,75,0.10)",
+  border: `1px solid ${BADGE_GREEN}`,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     height: 36,
     padding: "0 8px",

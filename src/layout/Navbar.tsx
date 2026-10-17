@@ -7,7 +7,7 @@ import {
   useMediaQuery,
 } from "@mui/material";
 import { Box } from "@mui/system";
-import { AppTooltip, Button, Github, Menu } from "components";
+import { AppTooltip, Button, Github, Menu, TgIcon } from "components";
 import { StyledFlexRow, StyledGrid } from "styles";
 import { useState } from "react";
 import { useAppNavigation, appNavigation } from "router/navigation";
@@ -22,7 +22,6 @@ import { MOBILE_WIDTH } from "consts";
 import { useTonAddress, useTonConnectUI, useTonWallet } from "@tonconnect/ui-react";
 import { tryConnectEmbeddedWallet } from "components/connectEmbedded";
 import { getBorderColor } from "theme";
-import { FiMoon, FiSun } from "react-icons/fi";
 import { BlagoBalanceBadge } from "./BlagoBalanceBadge";
 
 export function Navbar() {
@@ -51,6 +50,7 @@ const MultisigTab = () => {
   const active = location.pathname.startsWith("/multisig") ? 1 : 0;
   return (
     <StyledMultisigTab to={appNavigation.multisigPage.root()} $active={active}>
+      <TgIcon name="wallet" size={16} />
       Мультикошелек
     </StyledMultisigTab>
   );
@@ -61,6 +61,9 @@ const StyledMultisigTab = styled(Link, {
 })<{ $active: number }>(({ theme, $active }) => ({
   textDecoration: "none",
   height: "unset",
+  display: "flex",
+  alignItems: "center",
+  gap: 6,
   padding: "10px 16px",
   fontSize: 14,
   fontWeight: $active ? 700 : 500,
@@ -81,7 +84,7 @@ const ThemeToggle = () => {
   return (
     <AppTooltip text={isDarkMode ? "Дневной режим" : "Ночной режим"}>
       <StyledThemeToggle onClick={toggleTheme}>
-        {isDarkMode ? <FiSun /> : <FiMoon />}
+        <TgIcon name={isDarkMode ? "sun" : "moon"} size={20} />
       </StyledThemeToggle>
     </AppTooltip>
   );
@@ -188,19 +191,28 @@ const StyledLogo = styled("button")(({ theme }) => ({
   },
 }));
 
-const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
-  background: theme.palette.background.paper,
-  height: 70,
-  position: "fixed",
-  left: "50%",
-  transform: "translate(-50%)",
-  top: 0,
-  zIndex: 20,
-  borderBottom: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    height: 60,
-  },
-}));
+// Стеклянная шапка: полупрозрачный фон + размытие, как у нижнего меню
+// (MobileNav). Фон всегда одинаковый, поэтому при скролле не возникает
+// перехода «непрозрачная -> полупрозрачная»; снизу оставлен тонкий контур,
+// отделяющий шапку от контента.
+const StyledContainer = styled(StyledFlexRow)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    background: dark ? "rgba(19, 19, 20, 0.72)" : "rgba(255, 255, 255, 0.72)",
+    backdropFilter: "blur(20px)",
+    WebkitBackdropFilter: "blur(20px)",
+    height: 70,
+    position: "fixed",
+    left: "50%",
+    transform: "translate(-50%)",
+    top: 0,
+    zIndex: 20,
+    borderBottom: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      height: 60,
+    },
+  };
+});
 
 const StyledNav = styled(StyledGrid)({
   display: "flex",

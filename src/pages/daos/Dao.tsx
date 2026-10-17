@@ -2,12 +2,9 @@ import { Typography, useTheme } from "@mui/material";
 import { useTonAddress } from "@tonconnect/ui-react";
 import {
   AppTooltip,
-  Container,
-  Link,
   OverflowWithTooltip,
   VerifiedDao,
 } from "components";
-import _ from "lodash";
 import { mock } from "mock/mock";
 import { AiFillEyeInvisible } from "react-icons/ai";
 import { useIntersectionObserver } from "react-intersection-observer-hook";
@@ -27,16 +24,6 @@ import {
   StyledDaoContent,
   StyledHiddenIcon,
 } from "./styles";
-
-const parseWesbite = (website: string) => {
-  let value = website.replace("https://", "").replace("www.", "");
-
-  if (_.last(value.split("")) === "/") {
-    value = value.replace("/", "");
-  }
-
-  return value;
-};
 
 export const DaoListItem = ({ dao }: { dao: Dao }) => {
   const [ref, { entry }] = useIntersectionObserver();
@@ -78,29 +65,9 @@ export const DaoListItem = ({ dao }: { dao: Dao }) => {
             <Address dao={dao} />
           </StyledFlexColumn>
         ) : null}
-        <Website dao={dao} />
       </StyledDaoContent>
     </StyledDao>
   );
-};
-
-const Website = ({ dao }: { dao: Dao }) => {
-  const website = dao.daoMetadata.metadataArgs.website;
-
-  if (getIsVerifiedDao(dao.daoAddress) && website) {
-    return (
-      <button
-        className="website"
-        onClick={(e) => {
-          e.stopPropagation();
-          window.open(website, "_blank");
-        }}
-      >
-        <OverflowWithTooltip text={parseWesbite(website)} />
-      </button>
-    );
-  }
-  return null;
 };
 
 const Address = ({ dao }: { dao: Dao }) => {

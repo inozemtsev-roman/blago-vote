@@ -7,6 +7,8 @@ import {
   OverflowWithTooltip,
   Progress,
   TitleContainer,
+  TgIcon,
+  type TgIconName,
 } from "components";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import { BsFillCheckCircleFill } from "react-icons/bs";
@@ -23,6 +25,17 @@ import {  useAppParams, useProposalResults } from "hooks/hooks";
 import { useProposalQuery } from "query/getters";
 import { Vote } from "types";
 const LIMIT = 5;
+
+// Иконка и цвет для трёх стандартных вариантов голосования. Для произвольных
+// вариантов (всё, что не «За»/«Против»/«Воздержаться») иконка не показывается.
+const CHOICE_ICONS: Record<string, { icon: TgIconName; color?: string }> = {
+  за: { icon: "choiceFor", color: "#4bb34b" },
+  против: { icon: "choiceAgainst", color: "#e64646" },
+  воздержаться: { icon: "choiceAbstain", color: "#8a8a93" },
+};
+
+const getChoiceIcon = (name: string) =>
+  CHOICE_ICONS[String(name).trim().toLowerCase()];
 
 const CHOICE_COLORS = [
   "#42a5f5",
@@ -474,7 +487,10 @@ export const Results = () => {
   }
 
   return (
-    <StyledResults title={translations.results}>
+    <StyledResults
+      title={translations.results}
+      icon={<TgIcon name="results" size={18} />}
+    >
       <VotesLineChart
         votes={data?.votes}
         choices={data?.metadata?.votingSystem?.choices}
@@ -552,10 +568,18 @@ const ResultRow = ({
 }) => {
 
   const translations = useProposalPageTranslations();
+  const choiceIcon = getChoiceIcon(name);
   return (
     <StyledResultRow>
       <StyledFlexRow justifyContent="space-between" width="100%">
         <StyledFlexRow style={{ width: "fit-content" }}>
+          {choiceIcon && (
+            <TgIcon
+              name={choiceIcon.icon}
+              size={16}
+              color={choiceIcon.color}
+            />
+          )}
           <div>
             <StyledTitle text={name} />
           </div>

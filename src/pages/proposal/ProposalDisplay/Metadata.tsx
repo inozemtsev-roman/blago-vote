@@ -5,7 +5,9 @@ import {
   OverflowWithTooltip,
   TitleContainer,
   Img,
+  TgIcon,
 } from "components";
+import type { TgIconName } from "components";
 import { ReactNode, useEffect, useMemo, useRef } from "react";
 import { StyledFlexColumn, StyledFlexRow } from "styles";
 import moment from "moment";
@@ -64,32 +66,32 @@ export const Metadata = () => {
   }
 
   return (
-    <StyledInformation title={translations.information}>
+    <StyledInformation title={translations.information} icon={<TgIcon name="info" size={18} />}>
       {proposalMetadata && (
         <>
           <StyledPadding>
-            <InformationRow label={translations.startDate}>
+            <InformationRow icon="calendar" label={translations.startDate}>
               <Typography>
                 {fromUnixToString(Number(proposalMetadata.proposalStartTime))}
               </Typography>
             </InformationRow>
-            <InformationRow label={translations.endDate}>
+            <InformationRow icon="calendarEnd" label={translations.endDate}>
               <Typography>
                 {fromUnixToString(Number(proposalMetadata.proposalEndTime))}
               </Typography>
             </InformationRow>
 
-            <InformationRow label={translations.snapshot}>
+            <InformationRow icon="clock" label={translations.snapshot}>
               <Typography>
                 {fromUnixToString(
                   Number(proposalMetadata.proposalSnapshotTime)
                 )}
               </Typography>
             </InformationRow>
-            <InformationRow label={translations.contract}>
+            <InformationRow icon="link" label={translations.contract}>
               <AddressDisplay address={proposalAddress} />
             </InformationRow>
-            <InformationRow label={translations.votingStrategy}>
+            <InformationRow icon="strategy" label={translations.votingStrategy}>
               <HandleStrategyNameDisplay name={strategyName} type={type} />
             </InformationRow>
             <Jetton />
@@ -139,18 +141,32 @@ const StyledLink = styled("a")(({ theme }) => ({
 
 const InformationRow = ({
   label,
+  icon,
   children,
 }: {
   label: string;
+  icon?: TgIconName;
   children: ReactNode;
 }) => {
   return (
     <StyledRow justifyContent="space-between" gap={10}>
-      <Typography className="row-label">{label}</Typography>
+      <StyledRowLabel justifyContent="flex-start" gap={8}>
+        {icon && <StyledRowIcon name={icon} size={18} />}
+        <Typography className="row-label">{label}</Typography>
+      </StyledRowLabel>
       <div className="row-children">{children}</div>
     </StyledRow>
   );
 };
+
+const StyledRowLabel = styled(StyledFlexRow)({
+  width: "auto",
+  flexShrink: 0,
+});
+
+const StyledRowIcon = styled(TgIcon)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+}));
 
 const StyledRow = styled(StyledFlexRow)({
   width: "100%",
@@ -184,6 +200,7 @@ const NFT = () => {
       metadata={data?.metadata?.nftMetadata?.metadata}
       address={strategyArgs.nft}
       label="NFT коллекция"
+      icon="nft"
     />
   );
 };
@@ -206,17 +223,19 @@ const Jetton = () => {
     };
   }, [proposalMeta, tonapiMeta]);
 
-  return <Asset metadata={metadata} address={address} label="Жетон" />;
+  return <Asset metadata={metadata} address={address} label="Жетон" icon="coins" />;
 };
 
 const Asset = ({
   address,
   metadata,
   label,
+  icon,
 }: {
   address?: string;
   metadata?: any;
   label: string;
+  icon?: TgIconName;
 }) => {
   const lastKnownNameRef = useRef<string | undefined>(undefined);
   useEffect(() => {
@@ -229,7 +248,7 @@ const Asset = ({
   const displayName = metadata?.name || lastKnownNameRef.current || address;
 
   return (
-    <InformationRow label={label}>
+    <InformationRow icon={icon} label={label}>
       <StyledAsset
         href={getTonViewerContractUrl(address)}
         target="_blank"

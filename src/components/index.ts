@@ -35,5 +35,6 @@ export * from "./ErrorContainer";
 export * from "./ShareButton";
 export * from "./OverflowWithTooltip";
 export * from "./VerifiedDao";
+export * from "./TgIcon";
 export * from "./HiddenProposal";
 export * from "./LatestBlock";

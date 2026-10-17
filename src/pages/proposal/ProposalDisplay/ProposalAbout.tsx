@@ -25,6 +25,7 @@ import {
   HiddenProposal,
   Loader,
   AppTooltip,
+  TgIcon,
 } from "components";
 import { makeElipsisAddress, parseLanguage, extractProposalTemplate } from "utils";
 import { ProposalStatus as ProposalStatusEnum } from "types";
@@ -355,6 +356,7 @@ const ProposalOwnerAddress = () => {
   }
   return (
     <StyledAddressRow justifyContent="flex-start" gap={5}>
+      <StyledAddressIcon name="location" size={18} />
       <StyledAddressLabel>От:</StyledAddressLabel>
       <AddressDisplay
         address={daoRoles?.proposalOwner || ""}
@@ -383,6 +385,10 @@ const StyledAddressLabel = styled(Typography)({
   opacity: 1,
   whiteSpace: "nowrap",
 });
+
+const StyledAddressIcon = styled(TgIcon)(({ theme }) => ({
+  color: theme.palette.text.secondary,
+}));
 
 const StyledDaoLink = styled(Link)({
   display: "flex",

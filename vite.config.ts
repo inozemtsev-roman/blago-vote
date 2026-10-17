@@ -16,10 +16,28 @@ export default defineConfig({
     }),
   ],
   server: {
+    // Предпрогрев точек входа: Vite заранее трансформирует и кеширует их модули,
+    // чтобы при открытии страницы не было водопада из сотен запросов (иначе
+    // Chrome может отдать net::ERR_INSUFFICIENT_RESOURCES на один из чанков, а
+    // ленивый маршрут останется в Suspense-fallback — «бесконечная загрузка»).
+    warmup: {
+      clientFiles: [
+        "./src/main.tsx",
+        "./src/pages/multisig/MultisigPage.tsx",
+        "./src/pages/multisig/MultisigList.tsx",
+      ],
+    },
     watch: {
       usePolling: true,
       interval: 200,
     },
+  },
+  optimizeDeps: {
+    // nodePolyfills инжектит шимы (Buffer/global/process) как bare-импорты в
+    // зависимости. Шим global не попадал в pre-bundle и отдавался из
+    // node_modules по одному файлу, из-за чего Vite мог переоптимизировать
+    // зависимости на ходу (504 Outdated Optimize Dep → перезагрузка страницы).
+    include: ["vite-plugin-node-polyfills/shims/global"],
   },
   build: {
     chunkSizeWarningLimit: 1000,

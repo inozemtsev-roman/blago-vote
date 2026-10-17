@@ -5,6 +5,7 @@ import { StyledContainer, StyledFlexColumn, StyledFlexRow } from "styles";
 interface Props {
   headerComponent?: React.ReactNode;
   title: string;
+  icon?: React.ReactNode;
   children: React.ReactNode;
   className?: string;
 }
@@ -12,6 +13,7 @@ interface Props {
 export function TitleContainer({
   headerComponent,
   title,
+  icon,
   children,
   className = '',
 }: Props) {
@@ -25,7 +27,10 @@ export function TitleContainer({
             justifyContent="space-between"
             className="title-container-header"
           >
-            <StyledTitle className="title">{title}</StyledTitle>
+            <StyledTitle className="title">
+              {icon && <StyledTitleIcon className="title-icon">{icon}</StyledTitleIcon>}
+              {title}
+            </StyledTitle>
             {headerComponent}
           </StyledHeader>
         )}
@@ -39,7 +44,16 @@ const StyledTitle = styled(Typography)(({ theme }) => ({
   fontSize: 17,
   color: theme.palette.text.primary,
   fontWeight: 700,
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 8,
 }));
+
+const StyledTitleIcon = styled("span")({
+  display: "inline-flex",
+  alignItems: "center",
+  color: "inherit",
+});
 
 const StyledTitleContainer = styled(StyledContainer)({
   width: "100%",

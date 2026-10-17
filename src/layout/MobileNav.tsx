@@ -1,106 +1,126 @@
 import { Box, styled } from "@mui/material";
 import { Link, useLocation } from "react-router-dom";
-import { FiHome, FiGrid, FiCreditCard } from "react-icons/fi";
 import { MOBILE_WIDTH, TOOLBAR_WIDTH } from "consts";
 import { appNavigation } from "router/navigation";
-import { getBorderColor } from "theme";
+import { TgIcon } from "components";
+import type { TgIconName } from "components";
 
 // Нижняя навигация для мобильной версии / Telegram Mini App:
-// 3 кнопки с чёрно-белыми линейными иконками 28×28.
-//   🏠 «на главную»  -> "/"
-//   🗳 «ДАО»         -> "/manage" (страница ДАО пользователя)
+// 3 кнопки с иконками из набора Telegram.
+//   🏠 «на главную»   -> "/"
+//   🗳 «ДАО»          -> "/manage" (страница ДАО пользователя)
 //   👛 «мультикошелек»-> "/multisig"
+//
+// По умолчанию показана только иконка (по центру кнопки). У активной кнопки
+// появляется подпись, иконка чуть приподнимается и окрашивается в цвет подписи;
+// при переходе на другую кнопку подпись пропадает, а иконка возвращается назад.
+const ITEMS: { label: string; icon: TgIconName; to: string }[] = [
+  { label: "Главная", icon: "home", to: appNavigation.daosPage.root() },
+  { label: "ДАО", icon: "dao", to: appNavigation.managePage.root() },
+  {
+    label: "Мультикошелек",
+    icon: "wallet",
+    to: appNavigation.multisigPage.root(),
+  },
+];
+
+const ICON_SIZE = 30;
+
 export function MobileNav() {
   const location = useLocation();
 
-  const items = [
-    {
-      label: "Главная",
-      icon: <FiHome />,
-      to: appNavigation.daosPage.root(),
-      active: location.pathname === "/",
-    },
-    {
-      label: "ДАО",
-      icon: <FiGrid />,
-      to: appNavigation.managePage.root(),
-      active: location.pathname === "/manage",
-    },
-    {
-      label: "Мультикошелек",
-      icon: <FiCreditCard />,
-      to: appNavigation.multisigPage.root(),
-      active: location.pathname.startsWith("/multisig"),
-    },
-  ];
+  const isActive = (item: (typeof ITEMS)[number]) => {
+    if (item.icon === "wallet") return location.pathname.startsWith("/multisig");
+    if (item.icon === "dao") return location.pathname === "/manage";
+    return location.pathname === "/";
+  };
 
   return (
     <StyledContainer>
-      {items.map((item) => (
-        <StyledLink key={item.to} to={item.to} $active={item.active ? 1 : 0}>
-          <StyledIcon $active={item.active ? 1 : 0}>{item.icon}</StyledIcon>
-          <StyledLabel $active={item.active ? 1 : 0}>{item.label}</StyledLabel>
-        </StyledLink>
-      ))}
+      {ITEMS.map((item) => {
+        const active = isActive(item) ? 1 : 0;
+        return (
+          <StyledLink key={item.to} to={item.to} $active={active} aria-label={item.label}>
+            <StyledIcon $active={active}>
+              <TgIcon name={item.icon} size={ICON_SIZE} />
+            </StyledIcon>
+            <StyledLabel $active={active}>{item.label}</StyledLabel>
+          </StyledLink>
+        );
+      })}
     </StyledContainer>
   );
 }
 
-const StyledContainer = styled(Box)(({ theme }) => ({
-  display: "none",
-  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    display: "flex",
-    position: "fixed",
-    left: 0,
-    right: 0,
-    bottom: 0,
-    height: `calc(${TOOLBAR_WIDTH}px + env(safe-area-inset-bottom, 0px))`,
-    paddingBottom: "env(safe-area-inset-bottom, 0px)",
-    boxSizing: "border-box",
-    background: theme.palette.background.paper,
-    borderTop: `0.5px solid ${getBorderColor(theme.palette.mode)}`,
-    boxShadow:
-      theme.palette.mode === "dark"
-        ? "0 -4px 16px rgba(0,0,0,0.35)"
-        : "0 -4px 16px rgba(0,0,0,0.08)",
-    zIndex: 30,
-  },
-}));
+// Плавающее полупрозрачное меню: скруглённые бока, небольшой отступ снизу
+// (поверх safe-area), размытие фона под ним.
+const StyledContainer = styled(Box)(({ theme }) => {
+  const dark = theme.palette.mode === "dark";
+  return {
+    display: "none",
+    [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+      display: "flex",
+      position: "fixed",
+      left: 12,
+      right: 12,
+      bottom: `calc(8px + env(safe-area-inset-bottom, 0px))`,
+      height: TOOLBAR_WIDTH,
+      boxSizing: "border-box",
+      borderRadius: TOOLBAR_WIDTH / 2,
+      background: dark ? "rgba(19, 19, 20, 0.72)" : "rgba(255, 255, 255, 0.72)",
+      backdropFilter: "blur(20px)",
+      WebkitBackdropFilter: "blur(20px)",
+      boxShadow: dark
+        ? "0 6px 24px rgba(0, 0, 0, 0.45)"
+        : "0 6px 24px rgba(0, 0, 0, 0.12)",
+      overflow: "hidden",
+      zIndex: 30,
+    },
+  };
+});
 
 const StyledLink = styled(Link, {
   shouldForwardProp: (prop) => prop !== "$active",
 })<{ $active: number }>(({ theme, $active }) => ({
   flex: 1,
+  position: "relative",
+  height: "100%",
   display: "flex",
-  flexDirection: "column",
   alignItems: "center",
   justifyContent: "center",
-  gap: 2,
   textDecoration: "none",
   color: $active ? theme.palette.primary.main : theme.palette.text.secondary,
+  transition: "color 0.2s ease",
 }));
 
 const StyledIcon = styled(Box, {
   shouldForwardProp: (prop) => prop !== "$active",
 })<{ $active: number }>(({ $active }) => ({
-  width: 28,
-  height: 28,
+  width: ICON_SIZE,
+  height: ICON_SIZE,
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
-  color: $active ? "currentColor" : "currentColor",
-  svg: { width: 28, height: 28 },
+  color: "inherit",
+  transform: $active ? "translateY(-7px)" : "translateY(0)",
+  transition: "transform 0.2s ease",
 }));
 
 const StyledLabel = styled(Box, {
   shouldForwardProp: (prop) => prop !== "$active",
-})<{ $active: number }>(({ theme, $active }) => ({
-  fontSize: 11,
-  fontWeight: $active ? 700 : 500,
-  color: $active ? theme.palette.primary.main : theme.palette.text.secondary,
-  maxWidth: 90,
-  overflow: "hidden",
-  textOverflow: "ellipsis",
-  whiteSpace: "nowrap",
+})<{ $active: number }>(({ $active }) => ({
+  position: "absolute",
+  left: 0,
+  right: 0,
+  bottom: 7,
   textAlign: "center",
+  fontSize: 11,
+  fontWeight: 600,
+  lineHeight: 1,
+  color: "inherit",
+  whiteSpace: "nowrap",
+  opacity: $active ? 1 : 0,
+  transform: $active ? "translateY(0)" : "translateY(4px)",
+  transition: "opacity 0.2s ease, transform 0.2s ease",
+  pointerEvents: "none",
 }));

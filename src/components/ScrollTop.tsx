@@ -1,4 +1,4 @@
-import { Box, Fade, styled } from "@mui/material";
+import { alpha, Box, Fade, styled } from "@mui/material";
 import { useEffect, useState } from "react";
 import { isMobile } from "react-device-detect";
 import { BsArrowUpShort } from "react-icons/bs";
@@ -38,13 +38,17 @@ const StyledContainer = styled(Box)({
   gap: 8,
   zIndex: 100,
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
-    bottom: TOOLBAR_WIDTH + 16,
+    // Центр кнопки лежит на верхней границе нижнего меню:
+    // отступ меню снизу (8px) + его высота (TOOLBAR_WIDTH) минус половина кнопки.
+    bottom: `calc(8px + env(safe-area-inset-bottom, 0px) + ${
+      TOOLBAR_WIDTH - 22.5
+    }px)`,
   },
 });
 
 const StyledScrollBtn = styled("button")(({ theme }) => ({
   zIndex: 100,
-  background: theme.palette.primary.main,
+  background: alpha(theme.palette.primary.main, 0.7),
   borderRadius: "50%",
   border: "unset",
   width: 45,
@@ -55,6 +59,7 @@ const StyledScrollBtn = styled("button")(({ theme }) => ({
   justifyContent: "center",
   transition: "0.1s all",
   "&:hover": {
+    background: alpha(theme.palette.primary.main, 0.9),
     transform: "scale(1.1)",
   },
 }));

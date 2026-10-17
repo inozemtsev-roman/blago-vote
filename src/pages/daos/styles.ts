@@ -24,13 +24,15 @@ export const StyledDaoAvatar = styled(Img)({
   marginBottom: 20,
 });
 
+// Карточка ДАО на главной: только аватар, имя и адрес с галочкой верификации.
+// Карточка квадратная (aspectRatio 1), список всегда в 2 колонки.
 export const StyledDao = styled(Box)(({ theme }) => ({
-  width: "calc(100% / 4 - 15px)",
-  height: 270,
+  width: "calc(100% / 2 - 10px)",
+  aspectRatio: "1 / 1",
   cursor: "pointer",
   ".container": {
     height: "100%",
-    paddingTop: 30,
+    justifyContent: "center",
   },
   ".title": {
     fontSize: 18,
@@ -38,27 +40,6 @@ export const StyledDao = styled(Box)(({ theme }) => ({
     width: "100%",
     textAlign: "center",
     color: theme.typography.h2.color,
-  },
-  ".website": {
-    marginLeft: "auto",
-    marginRight: "auto",
-    width: "fit-content",
-    background: "transparent",
-    border: "none",
-    cursor: "pointer",
-    borderBottom: "1px solid transparent",
-    transition: "0.2s all",
-    padding: 0,
-    marginTop: "auto",
-    p: {
-      fontSize: 14,
-      fontWeight: 600,
-      lineHeight: "normal",
-      color: theme.palette.primary.main,
-    },
-    "&:hover": {
-      borderBottom: `1px solid ${theme.palette.primary.main}`,
-    },
   },
   ".address-value": {
     textAlign: "center",
@@ -73,12 +54,8 @@ export const StyledDao = styled(Box)(({ theme }) => ({
       fontSize: 12,
     },
   },
-  "@media (max-width: 1050px)": {
-    width: "calc(100% / 3 - 15px)",
-  },
   [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
     width: "calc(100% / 2 - 5px)",
-    height: 260,
     ".title": {
       fontSize: 16,
     },
@@ -93,9 +70,6 @@ export const StyledDao = styled(Box)(({ theme }) => ({
         fontSize: 11,
       },
     },
-  },
-  "@media (max-width: 420px)": {
-    width: "100%",
   },
 }));
 

@@ -1,5 +1,6 @@
 import { Fade, styled } from "@mui/material";
-import { Outlet, useNavigate } from "react-router-dom";
+import { keyframes } from "@mui/system";
+import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
@@ -8,7 +9,7 @@ import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useRef } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MobileNav } from "./MobileNav";
@@ -71,6 +72,65 @@ function TelegramStartParamRedirect() {
   return null;
 }
 
+// Индексы страниц нижнего меню (Главная -> ДАО -> Мультикошелек). Нужны, чтобы
+// понять направление слайда при переходе между вкладками.
+const mainTabIndex = (pathname: string): number | null => {
+  if (pathname === "/") return 0;
+  if (pathname === "/manage") return 1;
+  if (pathname.startsWith("/multisig")) return 2;
+  return null;
+};
+
+const slideFromRight = keyframes`
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+`;
+
+const slideFromLeft = keyframes`
+  from { transform: translateX(-100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+`;
+
+const SlideWrapper = styled("div", {
+  shouldForwardProp: (prop) => prop !== "$dir",
+})<{ $dir: "left" | "right" | "none" }>(({ $dir }) => ({
+  width: "100%",
+  // fill-mode "backwards": предзапуск сдвинутого состояния без «вспышки»,
+  // но после анимации transform снимается (иначе он создаёт containing block
+  // для position: fixed внутри страниц).
+  animation:
+    $dir === "none"
+      ? "none"
+      : `${$dir === "right" ? slideFromRight : slideFromLeft} 0.28s ease backwards`,
+}));
+
+// Слайд-переход между вкладками нижнего меню. Оборачивает <Outlet/> и
+// перемонтируется по смене пути, запуская анимацию в нужную сторону.
+function AnimatedOutlet() {
+  const location = useLocation();
+  const index = mainTabIndex(location.pathname);
+  const prevIndexRef = useRef<number | null>(index);
+
+  let dir: "left" | "right" | "none" = "none";
+  if (
+    prevIndexRef.current !== null &&
+    index !== null &&
+    prevIndexRef.current !== index
+  ) {
+    dir = index > prevIndexRef.current ? "right" : "left";
+  }
+
+  useEffect(() => {
+    prevIndexRef.current = index;
+  }, [index]);
+
+  return (
+    <SlideWrapper key={location.pathname} $dir={dir}>
+      <Outlet />
+    </SlideWrapper>
+  );
+}
+
 function Layout({ children }: { children?: ReactNode }) {
   useIsBeta();
 
@@ -85,7 +145,7 @@ function Layout({ children }: { children?: ReactNode }) {
           >
             <StyledContent>
               {children}
-              <Outlet />
+              <AnimatedOutlet />
               <Footer />
             </StyledContent>
           </ErrorBoundary>

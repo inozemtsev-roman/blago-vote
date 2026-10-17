@@ -1,8 +1,7 @@
 import React from "react";
 import { AppTooltip } from "./Tooltip";
-import { VscVerifiedFilled } from "react-icons/vsc";
-import { VERIFIED_DAOS } from "config";
-import { Box, styled, Typography } from "@mui/material";
+import VerifiedImg from "assets/verified.svg";
+import { styled } from "@mui/material";
 import { StyledFlexRow } from "styles";
 import { getIsVerifiedDao } from "utils";
 
@@ -19,16 +18,18 @@ export function VerifiedDao({ daoAddress = "" }: { daoAddress?: string }) {
       }
     >
       <StyledContainer>
-        <VscVerifiedFilled />
+        <img src={VerifiedImg} alt="" />
       </StyledContainer>
     </AppTooltip>
   );
 }
 
-const StyledContainer = styled(StyledFlexRow)(({ theme }) => ({
-  svg: {
-    color: theme.palette.primary.main, 
+const StyledContainer = styled(StyledFlexRow)({
+  width: "fit-content",
+  flexShrink: 0,
+  img: {
+    display: "block",
     width: 22,
     height: 22,
   },
-}));
+});
