@@ -1,5 +1,6 @@
 import { Chip, styled, Typography } from "@mui/material";
 import { AddressDisplay, TitleContainer, TgIcon } from "components";
+import { MOBILE_WIDTH } from "consts";
 import { useAppParams } from "hooks/hooks";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { useDaoQuery } from "query/getters";
@@ -65,6 +66,11 @@ const StyledDaoName = styled(Typography)(({ theme }) => ({
   fontWeight: 800,
   lineHeight: "34px",
   color: theme.palette.text.primary,
+  [`@media (max-width: ${MOBILE_WIDTH}px)`]: {
+    paddingLeft: 30,
+    paddingRight: 30,
+    marginBottom: 16,
+  },
 }));
 
 const StyledTitleContainer = styled(TitleContainer)({
