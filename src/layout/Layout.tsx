@@ -33,6 +33,16 @@ const useIsBeta = () => {
   }, [dev, setBeta]);
 };
 
+// Служебный start_param возврата TonConnect после подтверждения в Telegram
+// Wallet: приложение перезапускается с `startapp=tonconnect` (плюс id/v/trace_id
+// в query). Это НЕ адрес предложения: редирект на /proposal/tonconnect стирал
+// URL-hash с #tgWebAppData (launch-параметры TonConnect) и «сбрасывал»
+// авторизацию кошелька — connect-event от кошелька терялся, а пользователь
+// попадал на битую страницу.
+function isTonConnectServiceStartParam(param: string): boolean {
+  return param === "tonconnect" || param.startsWith("tonconnect-");
+}
+
 // Перенаправление из Telegram Mini App на страницу предложения, если переход
 // открыт кнопкой бота («Открыть в приложении») — в start_param передан адрес.
 // Компонент находиТСЯ ВНУТРИ Router, поэтому useNavigate() гарантированно
@@ -53,6 +63,9 @@ function TelegramStartParamRedirect() {
       if (isTelegram()) {
         const param = getStartParam();
         if (param) {
+          // Возврат из TonConnect (кошелёк Telegram) — не редиректим и не
+          // трогаем URL, чтобы TonConnect UI успел забрать launch-параметры.
+          if (isTonConnectServiceStartParam(param)) return;
           navigate(`/proposal/${param}`, { replace: true });
           return;
         }
