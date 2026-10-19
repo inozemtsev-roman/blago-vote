@@ -4,7 +4,6 @@ import { Outlet, useLocation, useNavigate } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
-import ScrollTop from "components/ScrollTop";
 import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
@@ -167,7 +166,6 @@ function Layout({ children }: { children?: ReactNode }) {
       <TelegramStartParamRedirect />
       <TelegramBackButton />
       <MobileNav />
-      <ScrollTop />
       {/* <LatestBlock /> */}
       <Toaster
         toastOptions={{

@@ -74,9 +74,7 @@ export const StyledDao = styled(Box)(({ theme }) => ({
       },
     },
   },
-  "@media (max-width: 420px)": {
-    width: "100%",
-  },
+  // На узких экранах оставляем минимум 2 колонки (без правила 1 колонки).
 }));
 
 export const StyledHeader = styled(StyledFlexRow)({

@@ -12,7 +12,7 @@ import { getBorderColor } from "theme";
 import { parseLanguage } from "utils";
 
 // Левая боковая панель с ДАО пользователя — только для десктопа.
-// Постоянно открыта, кнопки скрытия/раскрытия нет (см. ScrollTop).
+// Постоянно открыта, кнопки скрытия/раскрытия нет.
 export function Toolbar() {
   const { createSpace } = useAppNavigation();
 

@@ -69,7 +69,7 @@ export function ManageDaosPage() {
   const emptyList = !isLoading && !_.size(visibleData);
 
   return (
-    <Page hideBack={false}>
+    <Page hideBack={true}>
       <StyledFlexColumn alignItems="flex-start" gap={24}>
         <StyledAboutSection>
           <Typography className="title">Мои ДАО</Typography>

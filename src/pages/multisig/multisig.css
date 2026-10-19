@@ -274,14 +274,7 @@
   }
 }
 
-@media (max-width: 420px) {
-  .daoMultisigItem {
-    width: 100%;
-  }
-  .daoMultisigCreate {
-    width: 100%;
-  }
-}
+/* На узких экранах оставляем минимум 2 колонки (без правила 1 колонки). */
 
 
 .daoBalance {
