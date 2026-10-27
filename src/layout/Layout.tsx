@@ -1,6 +1,6 @@
 import { Fade, styled } from "@mui/material";
 import { keyframes } from "@mui/system";
-import { Outlet, useLocation, useNavigate } from "react-router-dom";
+import { useLocation, useNavigate, useOutlet } from "react-router-dom";
 import { StyledFlexColumn, StyledGrid } from "styles";
 import { QueryParamProvider } from "use-query-params";
 import { ReactRouter6Adapter } from "use-query-params/adapters/react-router-6";
@@ -8,7 +8,7 @@ import { Toaster } from "react-hot-toast";
 import { ErrorBoundary } from "react-error-boundary";
 import { ErrorFallback } from "./ErrorBoundary";
 import { Toolbar } from "./Toolbar";
-import { ReactNode, useEffect, useRef } from "react";
+import { ReactNode, useEffect, useRef, useState } from "react";
 import { Footer } from "./Footer";
 import { Navbar } from "./Navbar";
 import { MobileNav } from "./MobileNav";
@@ -84,8 +84,12 @@ function TelegramStartParamRedirect() {
   return null;
 }
 
-// Индексы страниц нижнего меню (Главная -> ДАО -> Мультикошелек). Нужны, чтобы
-// понять направление слайда при переходе между вкладками.
+// Длительность слайда и его кривая. Переиспользуются в анимации и в
+// setTimeout, который завершает переход.
+const SLIDE_DURATION_MS = 320;
+const SLIDE_EASING = "cubic-bezier(0.3, 0.8, 0.2, 1)";
+
+// Индексы вкладок нижнего меню (Главная -> ДАО -> Мультикошелек).
 const mainTabIndex = (pathname: string): number | null => {
   if (pathname === "/") return 0;
   if (pathname === "/manage") return 1;
@@ -93,53 +97,125 @@ const mainTabIndex = (pathname: string): number | null => {
   return null;
 };
 
-const slideFromRight = keyframes`
-  from { transform: translateX(100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+// Одна «сцена» сдвига. Уходящая и приходящая страницы лежат рядом внутри
+// одного трека, поэтому при сдвиге выглядят как единый «поезд»: одна уезжает
+// вбок, вторая выезжает ей навстречу.
+const stageEnterRight = keyframes`
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
 `;
 
-const slideFromLeft = keyframes`
-  from { transform: translateX(-100%); opacity: 0; }
-  to { transform: translateX(0); opacity: 1; }
+const stageEnterLeft = keyframes`
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
 `;
 
-const SlideWrapper = styled("div", {
-  shouldForwardProp: (prop) => prop !== "$dir",
-})<{ $dir: "left" | "right" | "none" }>(({ $dir }) => ({
+const stageExitRight = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(-100%); }
+`;
+
+const stageExitLeft = keyframes`
+  from { transform: translateX(0); }
+  to { transform: translateX(100%); }
+`;
+
+// Одна страница на сцене. Обе страницы (уходящая и приходящая) лежат рядом
+// внутри абсолютно позиционированного трека.
+const StyledStagePage = styled("div")({
+  position: "absolute",
+  top: 0,
+  left: 0,
   width: "100%",
-  // fill-mode "backwards": предзапуск сдвинутого состояния без «вспышки»,
-  // но после анимации transform снимается (иначе он создаёт containing block
-  // для position: fixed внутри страниц).
-  animation:
-    $dir === "none"
-      ? "none"
-      : `${$dir === "right" ? slideFromRight : slideFromLeft} 0.28s ease backwards`,
-}));
+  minHeight: "100%",
+});
 
-// Слайд-переход между вкладками нижнего меню. Оборачивает <Outlet/> и
-// перемонтируется по смене пути, запуская анимацию в нужную сторону.
+// Поверхность перехода: overflow-hidden, клипы по краям при сдвиге.
+const StyledCarousel = styled("div")({
+  position: "relative",
+  width: "100%",
+  overflow: "hidden",
+});
+
+const StyledTrack = styled("div")({
+  position: "relative",
+  width: "100%",
+});
+
+// Слайд-переход между вкладками нижнего меню. Во время перехода уходящая
+// страница остаётся смонтированной: её элемент (<Outlet />) сохраняется в
+// состояние до смены location и рендерится второй сценой, поэтому обе
+// страницы скользят одновременно. Внутри вкладки (без смены индекса)
+// уходящей сцены нет.
 function AnimatedOutlet() {
   const location = useLocation();
+  const outlet = useOutlet();
   const index = mainTabIndex(location.pathname);
   const prevIndexRef = useRef<number | null>(index);
+  // Элемент уходящей страницы; пока не null — рендерится вторая сцена.
+  const [exitOutlet, setExitOutlet] = useState<ReactNode>(null);
+  const [direction, setDirection] = useState<"left" | "right">("left");
 
-  let dir: "left" | "right" | "none" = "none";
-  if (
-    prevIndexRef.current !== null &&
-    index !== null &&
-    prevIndexRef.current !== index
-  ) {
-    dir = index > prevIndexRef.current ? "right" : "left";
-  }
+  // Самый свежий outlet для предыдущей страницы.
+  const outletRef = useRef(outlet);
+  useEffect(() => {
+    outletRef.current = outlet;
+  }, [outlet]);
 
   useEffect(() => {
+    const prevIndex = prevIndexRef.current;
+
+    if (prevIndex !== null && index !== null && prevIndex !== index) {
+      // Переход между вкладками — берём снимок прежней страницы.
+      setExitOutlet(outletRef.current);
+      setDirection(index > prevIndex ? "right" : "left");
+
+      const timeout = setTimeout(() => {
+        setExitOutlet(null);
+      }, SLIDE_DURATION_MS);
+
+      prevIndexRef.current = index;
+      return () => clearTimeout(timeout);
+    }
+
     prevIndexRef.current = index;
-  }, [index]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [index, location.pathname]);
+
+  if (exitOutlet) {
+    return (
+      <StyledCarousel>
+        <StyledTrack>
+          <StyledStagePage
+            style={{
+              animation: `${
+                direction === "right" ? stageExitRight : stageExitLeft
+              } ${SLIDE_DURATION_MS}ms ${SLIDE_EASING} both`,
+              pointerEvents: "none",
+            }}
+          >
+            {exitOutlet}
+          </StyledStagePage>
+          <StyledStagePage
+            style={{
+              animation: `${
+                direction === "right" ? stageEnterRight : stageEnterLeft
+              } ${SLIDE_DURATION_MS}ms ${SLIDE_EASING} both`,
+            }}
+          >
+            {outlet}
+          </StyledStagePage>
+        </StyledTrack>
+      </StyledCarousel>
+    );
+  }
 
   return (
-    <SlideWrapper key={location.pathname} $dir={dir}>
-      <Outlet />
-    </SlideWrapper>
+    <StyledCarousel>
+      <StyledTrack>
+        <StyledStagePage>{outlet}</StyledStagePage>
+      </StyledTrack>
+    </StyledCarousel>
   );
 }
 
