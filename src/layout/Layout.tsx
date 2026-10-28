@@ -134,12 +134,14 @@ const StyledStagePage = styled("div")({
 const StyledCarousel = styled("div")({
   position: "relative",
   width: "100%",
+  height: "100%",
   overflow: "hidden",
 });
 
 const StyledTrack = styled("div")({
   position: "relative",
   width: "100%",
+  height: "100%",
 });
 
 // Слайд-переход между вкладками нижнего меню. Во время перехода уходящая
@@ -162,7 +164,7 @@ function AnimatedOutlet() {
     outletRef.current = outlet;
   }, [outlet]);
 
-  useEffect(() => {
+useEffect(() => {
     const prevIndex = prevIndexRef.current;
 
     if (prevIndex !== null && index !== null && prevIndex !== index) {
@@ -174,7 +176,6 @@ function AnimatedOutlet() {
         setExitOutlet(null);
       }, SLIDE_DURATION_MS);
 
-      prevIndexRef.current = index;
       return () => clearTimeout(timeout);
     }
 
