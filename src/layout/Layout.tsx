@@ -120,28 +120,25 @@ const stageExitLeft = keyframes`
   to { transform: translateX(100%); }
 `;
 
-// Одна страница на сцене. Обе страницы (уходящая и приходящая) лежат рядом
-// внутри абсолютно позиционированного трека.
+// Одна страница на сцене. Обе страницы (уходящая и приходящая) лежат в одной
+// grid-ячейке трека: обычный поток даёт страницам естественную высоту, а
+// высота сцены равна большей из них, без схлопывания в 0.
 const StyledStagePage = styled("div")({
-  position: "absolute",
-  top: 0,
-  left: 0,
+  gridArea: "1 / 1",
   width: "100%",
-  minHeight: "100%",
+  minWidth: 0,
 });
 
 // Поверхность перехода: overflow-hidden, клипы по краям при сдвиге.
 const StyledCarousel = styled("div")({
   position: "relative",
   width: "100%",
-  height: "100%",
   overflow: "hidden",
 });
 
 const StyledTrack = styled("div")({
   position: "relative",
-  width: "100%",
-  height: "100%",
+  display: "grid",
 });
 
 // Слайд-переход между вкладками нижнего меню. Во время перехода уходящая
@@ -164,11 +161,14 @@ function AnimatedOutlet() {
     outletRef.current = outlet;
   }, [outlet]);
 
-useEffect(() => {
+  useEffect(() => {
     const prevIndex = prevIndexRef.current;
+    prevIndexRef.current = index;
 
     if (prevIndex !== null && index !== null && prevIndex !== index) {
       // Переход между вкладками — берём снимок прежней страницы.
+      // outletRef хранит элемент, созданный ДО навигации, поэтому React
+      // перемонтирует его при рендере снимка — для уходящей страницы это норма.
       setExitOutlet(outletRef.current);
       setDirection(index > prevIndex ? "right" : "left");
 
@@ -178,9 +178,6 @@ useEffect(() => {
 
       return () => clearTimeout(timeout);
     }
-
-    prevIndexRef.current = index;
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [index, location.pathname]);
 
   if (exitOutlet) {
