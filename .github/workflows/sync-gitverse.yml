@@ -1,0 +1,45 @@
+name: Синхронизация GitVerse-зеркала
+
+on:
+  push:
+    branches: ["**"]
+    tags: ["**"]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: sync-gitverse
+  cancel-in-progress: false
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    # В форках не выполняется — зеркало обновляет только оригинальный репозиторий
+    if: github.repository == 'gradosphera/blago-vote'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Полная история всех веток и тегов
+
+      - name: Запушить ветки и теги в GitVerse
+        env:
+          GITVERSE_TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        run: |
+          set -euo pipefail
+          if [ -z "${GITVERSE_TOKEN}" ]; then
+            echo "::error::Секрет GITVERSE_TOKEN не задан: Settings → Secrets and variables → Actions → New repository secret"
+            exit 1
+          fi
+          # origin/HEAD не должен замапиться в ветку "HEAD" на зеркале
+          git symbolic-ref -d refs/remotes/origin/HEAD 2>/dev/null || true
+          # GitVerse принимает токен и как логин, и как пароль
+          git config --local credential.https://gitverse.ru.helper \
+            '!f() { printf "username=%s\npassword=%s\n" "$GITVERSE_TOKEN" "$GITVERSE_TOKEN"; }; f'
+          git remote add mirror https://gitverse.ru/gradosphera/blago-vote.git
+          # force — перезапись переписанной истории; prune — удаление на зеркале
+          # веток и тегов, исчезнувших на GitHub
+          git push --force --prune mirror \
+            '+refs/remotes/origin/*:refs/heads/*' \
+            '+refs/tags/*:refs/tags/*'
