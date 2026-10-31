@@ -30,6 +30,7 @@ function RouteError() {
       <Button variant="contained">
         <RouterLink
           to={routes.spaces}
+          relative="path"
           style={{ color: "white", textDecoration: "none" }}
         >
           На главную
@@ -162,7 +163,7 @@ export const useRouter = () => {
                       <EditProposal />
                     </Suspense>
                   ) : (
-                    <Navigate to={routes.proposal} />
+                    <Navigate to={routes.proposal} relative="path" />
                   ),
                 },
               ],
@@ -250,7 +251,7 @@ export const useRouter = () => {
                       <EditProposal />
                     </Suspense>
                   ) : (
-                    <Navigate to={routes.proposal} />
+                    <Navigate to={routes.proposal} relative="path" />
                   ),
                 },
               ],

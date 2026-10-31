@@ -1,5 +1,5 @@
 import { Box, styled, Typography } from "@mui/material";
-import { routes } from "consts";
+import { routes, toAbs } from "consts";
 import { useCommonTranslations } from "i18n/hooks/useCommonTranslations";
 import { HiOutlineArrowLeft } from "react-icons/hi";
 import { useLocation, useNavigate } from "react-router-dom";
@@ -13,15 +13,15 @@ const t = useCommonTranslations()
     if (func) {
       func();
     } else if (to) {
-      navigate(to);
+      navigate(toAbs(to));
     } else if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
     } else {
-      navigate(routes.spaces, { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
+      navigate(toAbs(routes.spaces), { replace: true }); // the current entry in the history stack will be replaced with the new one with { replace: true }
     }
   };
 
-  if (pathname === routes.spaces) return null;
+  if (pathname === toAbs(routes.spaces)) return null;
   return (
     <StyledContainer onClick={onClick}>
       <StyledFlexRow gap={5}>

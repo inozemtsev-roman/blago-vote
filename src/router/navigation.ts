@@ -1,37 +1,37 @@
-import { routes } from "consts";
+import { routes, toAbs } from "consts";
 import { useNavigate } from "react-router-dom";
 
 export const appNavigation = {
-  spaces: routes.spaces,
+  spaces: toAbs(routes.spaces),
   daosPage: {
-    root: () => routes.spaces,
+    root: () => toAbs(routes.spaces),
   },
   managePage: {
-    root: () => routes.manage,
+    root: () => toAbs(routes.manage),
   },
   daoPage: {
-    root: (daoId: string) => routes.space.replace(":daoId", daoId),
-    about: (daoId: string) => `${routes.spaceAbout.replace(":daoId", daoId)}`,
-    create: (daoId: string) => routes.createProposal.replace(":daoId", daoId),
-    settings: (daoId: string) => routes.spaceSettings.replace(":daoId", daoId),
+    root: (daoId: string) => `${toAbs(routes.space).replace(":daoId", daoId)}`,
+    about: (daoId: string) => `${toAbs(routes.spaceAbout).replace(":daoId", daoId)}`,
+    create: (daoId: string) => toAbs(routes.createProposal).replace(":daoId", daoId),
+    settings: (daoId: string) => toAbs(routes.spaceSettings).replace(":daoId", daoId),
   },
   proposalPage: {
     root: (proposalId: string) =>
-      routes.proposal.replace(":proposalId", proposalId),
+      toAbs(routes.proposal).replace(":proposalId", proposalId),
     edit: (proposalId: string) =>
-      routes.editProposal.replace(":proposalId", proposalId),
+      toAbs(routes.editProposal).replace(":proposalId", proposalId),
   },
   multisigPage: {
-    root: () => routes.multisig,
-    address: (address: string) => routes.multisigAddress.replace(":address", address),
+    root: () => toAbs(routes.multisig),
+    address: (address: string) => toAbs(routes.multisigAddress).replace(":address", address),
     newOrder: (address: string) =>
-      routes.multisigNewOrder.replace(":address", address),
+      toAbs(routes.multisigNewOrder).replace(":address", address),
     order: (address: string, orderId: string | bigint) =>
-      routes.multisigOrder
+      toAbs(routes.multisigOrder)
         .replace(":address", address)
         .replace(":orderId", orderId.toString()),
-    create: () => routes.multisigCreate,
-    import: () => routes.multisigImport,
+    create: () => toAbs(routes.multisigCreate),
+    import: () => toAbs(routes.multisigImport),
   },
 };
 
@@ -53,10 +53,10 @@ export const useAppNavigation = () => {
         navigate(appNavigation.proposalPage.root(proposalId)),
     },
     daosPage: {
-      root: () => navigate(routes.spaces),
+      root: () => navigate(appNavigation.daosPage.root()),
     },
     createSpace: {
-      root: () => navigate(routes.createSpace),
+      root: () => navigate(toAbs(routes.createSpace)),
     },
     multisigPage: {
       root: () => navigate(appNavigation.multisigPage.root()),

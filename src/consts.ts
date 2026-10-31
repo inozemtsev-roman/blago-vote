@@ -1,30 +1,41 @@
 import _ from "lodash";
 
+const BASE = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
+
+/** Конвертирует относительный route в абсолютный путь для сравнений с pathname */
+export function toAbs(route: string): string {
+  if (route === "." || route === "") return BASE || "/";
+  if (route.startsWith(":") || route.startsWith("*")) return `${BASE}/${route}`;
+  return `${BASE}/${route}`;
+}
+
 export const routes = {
-  spaces: "/",
-  manage: "/manage",
-  createSpace: "/setup",
+  // Относительные пути (без ведущего /) — React Router v6 требует этого
+  // для вложенных роутов при деплое на подпуть (/blago-vote/).
+  spaces: ".",
+  manage: "manage",
+  createSpace: "setup",
   // short proposal routes (preferred)
-  proposal: "/proposal/:proposalId",
-  editProposal: "/proposal/:proposalId/edit",
+  proposal: "proposal/:proposalId",
+  editProposal: "proposal/:proposalId/edit",
   // legacy routes (kept for backward compatibility)
-  proposalLegacy: "/:daoId/proposal/:proposalId",
-  editProposalLegacy: "/:daoId/proposal/:proposalId/edit",
-  space: "/:daoId",
-  spaceAbout: "/:daoId/about",
-  spaceSettings: "/:daoId/settings",
-  createProposal: "/:daoId/create",
+  proposalLegacy: ":daoId/proposal/:proposalId",
+  editProposalLegacy: ":daoId/proposal/:proposalId/edit",
+  space: ":daoId",
+  spaceAbout: ":daoId/about",
+  spaceSettings: ":daoId/settings",
+  createProposal: ":daoId/create",
   // multisig (Мультикошелек)
-  multisig: "/multisig",
-  multisigImport: "/multisig/import",
-  multisigCreate: "/multisig/new",
-  multisigAddress: "/multisig/:address",
-  multisigNewOrder: "/multisig/:address/new-order",
-  multisigOrder: "/multisig/:address/order/:orderId",
+  multisig: "multisig",
+  multisigImport: "multisig/import",
+  multisigCreate: "multisig/new",
+  multisigAddress: "multisig/:address",
+  multisigNewOrder: "multisig/:address/new-order",
+  multisigOrder: "multisig/:address/order/:orderId",
 };
 
 export const flatRoutes = _.map(routes, (value) => {
-  return { path: value };
+  return { path: toAbs(value) };
 });
 
 export const TOOLBAR_WIDTH = 60;

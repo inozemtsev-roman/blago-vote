@@ -32,6 +32,7 @@ import { useCurrentRoute, useDevFeatures } from "hooks/hooks";
 import { Address, fromNano } from "ton-core";
 import { mock } from "mock/mock";
 import { useTonAddress, useTonConnectUI } from "@tonconnect/ui-react";
+import { routes, toAbs } from "consts";
 import {
   getIsServerUpToDate,
   syncDaoFromChain,
@@ -42,7 +43,6 @@ import {
 } from "./hooks";
 import { api } from "api";
 import { useMemo, useCallback, useState } from "react";
-import { routes } from "consts";
 import { lib } from "lib";
 import { getProposalDescription } from "data/foundation/proposals-descriptions";
 
@@ -155,7 +155,7 @@ export const useDaosQuery = () => {
     return {
       staleTime: 10_000,
       refetchInterval:
-        route === routes.spaces ? REFETCH_INTERVALS.daos : undefined,
+        route === toAbs(routes.spaces) ? REFETCH_INTERVALS.daos : undefined,
     };
   }, [route]);
 
@@ -268,7 +268,7 @@ export const useDaoQuery = (daoAddress: string) => {
 
   const config = useMemo(() => {
     const isProposalRoute =
-      route === routes.proposal || route === routes.proposalLegacy;
+      route === toAbs(routes.proposal) || route === toAbs(routes.proposalLegacy);
     return {
       staleTime: isProposalRoute ? Infinity : 5_000,
       refetchInterval:
@@ -280,11 +280,11 @@ export const useDaoQuery = (daoAddress: string) => {
   // страница ДАО, «О ДАО», настройки и страница голосования
   const shouldSynchronizeWithChain = useMemo(
     () =>
-      route === routes.space ||
-      route === routes.spaceAbout ||
-      route === routes.spaceSettings ||
-      route === routes.proposal ||
-      route === routes.proposalLegacy,
+      route === toAbs(routes.space) ||
+      route === toAbs(routes.spaceAbout) ||
+      route === toAbs(routes.spaceSettings) ||
+      route === toAbs(routes.proposal) ||
+      route === toAbs(routes.proposalLegacy),
     [route]
   );
 
@@ -653,7 +653,7 @@ export const useProposalQuery = (
 
   const config = useMemo(() => {
     const isProposalRoute =
-      route === routes.proposal || route === routes.proposalLegacy;
+      route === toAbs(routes.proposal) || route === toAbs(routes.proposalLegacy);
     return {
       refetchInterval: isProposalRoute ? 15_000 : 30_000,
     };

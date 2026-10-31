@@ -1,6 +1,6 @@
 import { styled, Tabs, Typography } from "@mui/material";
 import { VerifiedDao } from "components";
-import { routes } from "consts";
+import { routes, toAbs } from "consts";
 import {
   useAppParams,
   useCurrentRoute,
@@ -239,28 +239,28 @@ const useNavigationLinks = () => {
     {
       title: translations.proposals,
       path: appNavigation.daoPage.root(daoAddress),
-      selected: route === routes.space,
+      selected: route === toAbs(routes.space),
       route: routes.space,
       hide: false,
     },
     {
       title: translations.about,
       path: appNavigation.daoPage.about(daoAddress),
-      selected: route === routes.spaceAbout,
+      selected: route === toAbs(routes.spaceAbout),
       route: routes.spaceAbout,
       hide: false,
     },
     {
       title: translations.newProposal,
       path: appNavigation.daoPage.create(daoAddress),
-      selected: route === routes.createProposal,
+      selected: route === toAbs(routes.createProposal),
       hide: !isOwner && !isProposalPublisher && !isSigner,
       route: routes.createProposal,
     },
     {
       title: translations.settings,
       path: appNavigation.daoPage.settings(daoAddress),
-      selected: route === routes.spaceSettings,
+      selected: route === toAbs(routes.spaceSettings),
       route: routes.spaceSettings,
       hide: !isOwner,
     },
