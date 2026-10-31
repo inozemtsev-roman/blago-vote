@@ -5,6 +5,9 @@ import { nodePolyfills } from "vite-plugin-node-polyfills";
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  // Подпуть для деплоя на GitVerse (например /blago-vote/).
+  // На Vercel/Vite Preview переменная не задана — работает как раньше.
+  base: process.env.VITE_BASE || "/",
   plugins: [
     react(),
     tsconfigPaths(),

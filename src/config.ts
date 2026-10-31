@@ -13,6 +13,12 @@ export const APP_NAME = "Голос";
 const FALLBACK_ORIGIN = "https://blago-vote.vercel.app";
 const MANIFEST_ENDPOINT = `${FALLBACK_ORIGIN}/api/tonconnect-manifest`;
 
+// На доменах *.gitverse.site нет эндпоинта /api/tonconnect-manifest,
+// поэтому ходим через Vercel-функцию (она принимает origin query-параметром).
+const isGitVerseSite =
+  typeof window !== "undefined" &&
+  /\.gitverse\.site$/.test(window.location.hostname);
+
 const isLocal =
   typeof window !== "undefined" &&
   /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
@@ -26,7 +32,9 @@ export const manifestUrl =
   typeof window !== "undefined"
     ? isLocal
       ? `${FALLBACK_ORIGIN}/tonconnect-manifest.json`
-      : `${window.location.origin}/api/tonconnect-manifest?origin=${encodeURIComponent(window.location.origin)}`
+      : isGitVerseSite
+        ? `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(window.location.origin)}`
+        : `${window.location.origin}/api/tonconnect-manifest?origin=${encodeURIComponent(window.location.origin)}`
     : `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =

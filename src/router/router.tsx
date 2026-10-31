@@ -50,13 +50,17 @@ const ImportMultisig = lazy(() => import("pages/multisig/ImportMultisig"));
 
 export const useRouter = () => {
   const devFeatures = useDevFeatures();
+  // Подпуть для деплоя на GitVerse (например /blago-vote/).
+  // import.meta.env.BASE_URL устанавливается Vite из vite.config.base.
+  const base = (import.meta.env.BASE_URL || "/").replace(/\/$/, "");
 
   return useMemo(
     () =>
-      createBrowserRouter([
-        {
-          path: "/",
-          element: <Layout />,
+      createBrowserRouter(
+        [
+          {
+            path: base || "/",
+            element: <Layout />,
           children: [
             {
               path: routes.spaces,
@@ -258,7 +262,8 @@ export const useRouter = () => {
             </Suspense>
           ),
         },
-      ]),
+        ],
+      ),
     [devFeatures]
   );
 };
