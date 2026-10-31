@@ -19,6 +19,10 @@ const isLocal =
 
 // Генерируем манифест на клиенте с правильным origin — работает на любом
 // хосте (GitVerse, Vercel, локалка) без зависимости от API-функций.
+// btoa() не работает с Unicode, поэтому используем encodeURIComponent.
+const utf8ToBase64 = (str: string) =>
+  btoa(unescape(encodeURIComponent(str)));
+
 const getManifestUrl = () => {
   if (typeof window === "undefined") {
     return `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
@@ -26,16 +30,13 @@ const getManifestUrl = () => {
   if (isLocal) {
     return "/tonconnect-manifest.json";
   }
-  // На GitVerse Vercel-функция недоступна, используем статический манифест.
-  // Для кошелька Telegram url/iconUrl должны совпадать с origin — поэтому
-  // генерируем JSON на клиенте.
   const origin = window.location.origin;
   const manifest = JSON.stringify({
     url: origin,
     name: APP_NAME,
     iconUrl: `${origin}/logo.png`,
   });
-  return `data:application/json;base64,${btoa(manifest)}`;
+  return `data:application/json;base64,${utf8ToBase64(manifest)}`;
 };
 
 // URL обязан быть АБСОЛЮТНЫМ: SDK передаёт manifestUrl в ConnectRequest как
