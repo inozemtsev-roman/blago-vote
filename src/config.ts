@@ -13,29 +13,37 @@ export const APP_NAME = "Голос";
 const FALLBACK_ORIGIN = "https://blago-vote.vercel.app";
 const MANIFEST_ENDPOINT = `${FALLBACK_ORIGIN}/api/tonconnect-manifest`;
 
-// На доменах *.gitverse.site нет эндпоинта /api/tonconnect-manifest,
-// поэтому ходим через Vercel-функцию (она принимает origin query-параметром).
-const isGitVerseSite =
-  typeof window !== "undefined" &&
-  /\.gitverse\.site$/.test(window.location.hostname);
-
 const isLocal =
   typeof window !== "undefined" &&
   /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
+
+// Генерируем манифест на клиенте с правильным origin — работает на любом
+// хосте (GitVerse, Vercel, локалка) без зависимости от API-функций.
+const getManifestUrl = () => {
+  if (typeof window === "undefined") {
+    return `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
+  }
+  if (isLocal) {
+    return "/tonconnect-manifest.json";
+  }
+  // На GitVerse Vercel-функция недоступна, используем статический манифест.
+  // Для кошелька Telegram url/iconUrl должны совпадать с origin — поэтому
+  // генерируем JSON на клиенте.
+  const origin = window.location.origin;
+  const manifest = JSON.stringify({
+    url: origin,
+    name: APP_NAME,
+    iconUrl: `${origin}/logo.png`,
+  });
+  return `data:application/json;base64,${btoa(manifest)}`;
+};
 
 // URL обязан быть АБСОЛЮТНЫМ: SDK передаёт manifestUrl в ConnectRequest как
 // есть, без резолва, а кошелёк Telegram (и другие) получив относительную
 // ссылку, отвечает TONCONNECT_URL_MANIFEST_INVALID. origin дублируется в
 // query — если кошелёк вырежет его, API определит домен по заголовку Host
 // (см. resolveOrigin в api/tonconnect-manifest.js).
-export const manifestUrl =
-  typeof window !== "undefined"
-    ? isLocal
-      ? `${FALLBACK_ORIGIN}/tonconnect-manifest.json`
-      : isGitVerseSite
-        ? `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(window.location.origin)}`
-        : `${window.location.origin}/api/tonconnect-manifest?origin=${encodeURIComponent(window.location.origin)}`
-    : `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
+export const manifestUrl = getManifestUrl();
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";

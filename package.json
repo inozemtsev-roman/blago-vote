@@ -3,6 +3,7 @@
   "private": false,
   "version": "1.0.0",
   "type": "module",
+  "packageManager": "yarn@1.22.22",
   "scripts": {
     "dev": "VITE_STAGING=1 vite --port 3001",
     "prod": "vite --port 3002",
