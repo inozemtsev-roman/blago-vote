@@ -34,6 +34,55 @@ export default defineConfig({
       usePolling: true,
       interval: 200,
     },
+    // Прокси API-запросов к бэкенду для локальной разработки.
+    // Без этого `yarn prod` не может получить данные (localhost:3002 не имеет бэкенда).
+    proxy: {
+      "/api": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/daos": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/dao": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/proposal": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/version": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/maxLt": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/nftHolders": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/operatingValidatorsInfo": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+      "/updateTime": {
+        target: "https://api.ton.vote",
+        changeOrigin: true,
+        secure: false,
+      },
+    },
   },
   optimizeDeps: {
     // nodePolyfills инжектит шимы (Buffer/global/process) как bare-импорты в
