@@ -17,26 +17,17 @@ const isLocal =
   typeof window !== "undefined" &&
   /^(localhost|127\.0\.0\.1|\[::1\])$/.test(window.location.hostname);
 
-// Генерируем манифест на клиенте с правильным origin — работает на любом
-// хосте (GitVerse, Vercel, локалка) без зависимости от API-функций.
-// btoa() не работает с Unicode, поэтому используем encodeURIComponent.
-const utf8ToBase64 = (str: string) =>
-  btoa(unescape(encodeURIComponent(str)));
+// На доменах *.gitverse.site нет эндпоинта /api/tonconnect-manifest,
+// поэтому генерируем манифест на клиенте.
+const isGitVerseSite =
+  typeof window !== "undefined" &&
+  /\.gitverse\.site$/.test(window.location.hostname);
 
-const getManifestUrl = () => {
-  if (typeof window === "undefined") {
-    return `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
-  }
-  if (isLocal) {
-    return "/tonconnect-manifest.json";
-  }
-  const origin = window.location.origin;
-  const manifest = JSON.stringify({
-    url: origin,
-    name: APP_NAME,
-    iconUrl: `${origin}/logo.png`,
-  });
-  return `data:application/json;base64,${utf8ToBase64(manifest)}`;
+// Надёжное кодирование UTF-8 строки в base64 для btoa().
+const toBase64 = (str: string) => {
+  const bytes = new TextEncoder().encode(str);
+  const binary = Array.from(bytes, (b) => String.fromCharCode(b)).join("");
+  return btoa(binary);
 };
 
 // URL обязан быть АБСОЛЮТНЫМ: SDK передаёт manifestUrl в ConnectRequest как
@@ -44,7 +35,22 @@ const getManifestUrl = () => {
 // ссылку, отвечает TONCONNECT_URL_MANIFEST_INVALID. origin дублируется в
 // query — если кошелёк вырежет его, API определит домен по заголовку Host
 // (см. resolveOrigin в api/tonconnect-manifest.js).
-export const manifestUrl = getManifestUrl();
+export const manifestUrl =
+  typeof window !== "undefined"
+    ? isLocal
+      ? `${FALLBACK_ORIGIN}/tonconnect-manifest.json`
+      : isGitVerseSite
+        ? (() => {
+            const origin = window.location.origin;
+            const manifest = JSON.stringify({
+              url: origin,
+              name: APP_NAME,
+              iconUrl: `${origin}/logo.png`,
+            });
+            return `data:application/json;base64,${toBase64(manifest)}`;
+          })()
+        : `${window.location.origin}/api/tonconnect-manifest?origin=${encodeURIComponent(window.location.origin)}`
+    : `${MANIFEST_ENDPOINT}?origin=${encodeURIComponent(FALLBACK_ORIGIN)}`;
 
 export const DEFAULT_CLIENT_V2_ENDPOINT =
   "https://toncenter.com/api/v2/jsonRPC";
